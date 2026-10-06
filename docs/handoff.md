@@ -88,6 +88,7 @@ Một user có thể có nhiều role.
 - PENDING_APPROVAL
 - ADJUSTED
 - REVISED
+- REVISED_PROCESSING
 - APPROVED
 - CANCELLED
 - COMPLETED
@@ -111,12 +112,25 @@ Không có REJECTED.
 - Leader hiển thị: **Revising / Điều chỉnh**.
 - Assistant hiển thị: **Revised / Điều chỉnh**.
 - Requester hiển thị: **Revised / Điều chỉnh**.
-- Requester gửi lại → PENDING_APPROVAL.
+- Assistant có thể tự xử lý và trình lại → PENDING_APPROVAL.
+- Hoặc Assistant gửi requester chỉnh; khi requester đang chỉnh status vẫn là REVISED.
+- Requester gửi lại → REVISED_PROCESSING.
+
+**REVISED_PROCESSING**
+- Chỉ dùng cho request đã qua vòng leader.
+- Requester đã chỉnh sửa và gửi lại sau yêu cầu chỉnh của leader.
+- Assistant đang xử lý trước khi trình lại.
+- Requester hiển thị: **Processing / Đang xử lý**.
+- Assistant hiển thị: **Processing / Đang xử lý**.
+- Leader vẫn hiển thị: **Revising / Điều chỉnh**.
+- Assistant trình lại → PENDING_APPROVAL.
+- Nếu cần requester chỉnh tiếp → REVISED.
 
 **Rule bắt buộc**
 - Không ADJUSTED → REVISED.
 - Không REVISED → ADJUSTED.
-- Một request đã bước vào vòng leader thì các vòng chỉnh sửa sau vẫn dùng REVISED.
+- Request đã bước vào vòng leader không quay lại ADJUSTED.
+- Requester gửi lại từ vòng chỉnh hậu-leader không dùng PROCESSING; dùng REVISED_PROCESSING.
 - Không tạo request mới cho vòng chỉnh sửa.
 
 ### Status display
@@ -127,6 +141,7 @@ Không có REJECTED.
 | PENDING_APPROVAL | Processing / Đang xử lý | Pending Approval / Chờ duyệt | New / Mới |
 | ADJUSTED | Revised / Điều chỉnh | Adjusted / Chờ bổ sung | — |
 | REVISED | Revised / Điều chỉnh | Revised / Điều chỉnh | Revising / Điều chỉnh |
+| REVISED_PROCESSING | Processing / Đang xử lý | Processing / Đang xử lý | Revising / Điều chỉnh |
 | APPROVED | Approved / Đã duyệt | Approved / Đã duyệt | Approved / Đã duyệt |
 | CANCELLED | Cancelled / Đã hủy | Cancelled / Đã hủy | — |
 | COMPLETED | Completed / Hoàn thành | Completed / Hoàn thành | Completed / Hoàn thành |
@@ -136,6 +151,7 @@ Không có REJECTED.
 Leader chỉ thấy:
 - PENDING_APPROVAL
 - REVISED
+- REVISED_PROCESSING
 - APPROVED
 - COMPLETED
 
@@ -155,8 +171,8 @@ Requester:
 - Detail mobile: Card.
 - Time filters: Tất cả / Hôm nay / Ngày mai / Tuần này / Tháng này.
 - Status multi-select.
-- Đang xử lý = PROCESSING + PENDING_APPROVAL + ADJUSTED.
-- Điều chỉnh = REVISED.
+- Đang xử lý = PROCESSING + PENDING_APPROVAL + REVISED_PROCESSING.
+- Điều chỉnh = ADJUSTED + REVISED.
 - Chỉ xem request của chính mình.
 
 Assistant:
@@ -173,7 +189,7 @@ Leader:
 - Detail PC: drawer.
 - Detail mobile: Card.
 - PENDING_APPROVAL là queue xử lý chính.
-- REVISED là queue theo dõi.
+- REVISED và REVISED_PROCESSING là queue theo dõi.
 - APPROVED/COMPLETED để tra cứu.
 - PENDING_APPROVAL: Duyệt / Yêu cầu chỉnh sửa.
 - Không có Từ chối.
@@ -274,6 +290,8 @@ Các câu hỏi còn mở:
 - PROCESSING.
 - ADJUSTED.
 - PENDING_APPROVAL.
+- REVISED.
+- REVISED_PROCESSING.
 - Assistant actions.
 - Concurrency control.
 
@@ -282,6 +300,7 @@ Các câu hỏi còn mở:
 - Approve.
 - Request revision.
 - REVISED.
+- REVISED_PROCESSING.
 - Resubmission.
 - Visibility enforcement.
 
@@ -304,12 +323,14 @@ Reviewer nên tập trung kiểm tra:
 - ADJUSTED có đúng là pre-leader revision không?
 - REVISED có đúng là post-leader revision không?
 - Một request đã vào leader có bao giờ quay về ADJUSTED không?
-- REVISED → PENDING_APPROVAL có đúng thời điểm requester submit lại không?
+- Sau khi leader yêu cầu chỉnh, Assistant có đúng hai nhánh: tự xử lý → PENDING_APPROVAL hoặc trả requester chỉnh không?
+- Requester submit lại từ REVISED có đúng chuyển sang REVISED_PROCESSING không?
+- REVISED_PROCESSING → PENDING_APPROVAL có đúng là do Assistant trình lại không?
 - APPROVED → COMPLETED có logic rõ không?
 
 ### Visibility
 - Leader có chắc chắn không thấy ADJUSTED không?
-- Leader có vẫn thấy REVISED không?
+- Leader có vẫn thấy REVISED và REVISED_PROCESSING không?
 - Backend có enforce visibility thay vì chỉ hide UI không?
 - Requester có bị chặn truy cập request của người khác không?
 
@@ -322,7 +343,7 @@ Reviewer nên tập trung kiểm tra:
 - PC Table và mobile Card có hợp lý không?
 - Detail drawer/Card có đủ thông tin không?
 - Các action button có đúng người cần hành động tiếp theo không?
-- Status filter của requester có đúng grouping không?
+- Status filter của requester có đúng grouping: Đang xử lý = PROCESSING + PENDING_APPROVAL + REVISED_PROCESSING; Điều chỉnh = ADJUSTED + REVISED không?
 
 ### Data
 - Một request_id xuyên suốt có đáp ứng audit không?
