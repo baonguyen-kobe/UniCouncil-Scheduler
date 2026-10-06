@@ -14,6 +14,13 @@
 10. Soft delete thay vì xóa vật lý dữ liệu nghiệp vụ.
 11. Dùng `version` để chống ghi đè khi nhiều người cùng sửa request.
 12. Secrets nằm trong Vercel Environment Variables; không để trong Google Sheets.
+13. V1 không có trạng thái `REJECTED`; lãnh đạo chỉ duyệt hoặc yêu cầu chỉnh sửa.
+14. Requester gửi request lần đầu hoặc gửi lại sau khi chỉnh sửa đều vào `PROCESSING`.
+15. Khi lãnh đạo yêu cầu chỉnh sửa, request chuyển `PENDING_APPROVAL → ADJUSTED`.
+16. Khi trợ lý gửi request cho requester bổ sung/chỉnh sửa, request chuyển `ADJUSTED → REVISED`.
+17. Khi requester chỉnh sửa và gửi lại, request chuyển `REVISED → PROCESSING`.
+18. `APPROVED → COMPLETED` được tự động hóa sau khi cuộc họp đã qua ngày/thời điểm hiệu lực.
+19. Chỉ `ADMIN` và `ASSISTANT` được phép chuyển thủ công một request `COMPLETED` sang trạng thái khác.
 
 ## Stack dự kiến
 
