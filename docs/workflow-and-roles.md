@@ -1,85 +1,202 @@
+
 # Workflow & Roles
 
 ## Roles
 
-- `REQUESTER`: cán bộ/đơn vị đăng ký họp.
-- `ASSISTANT`: tổ trợ lý tiếp nhận, hoàn thiện và điều phối request.
-- `LEADER`: lãnh đạo xem xét/phê duyệt.
-- `ADMIN`: quản trị hệ thống.
+- **REQUESTER**: cán bộ/đơn vị đăng ký họp.
+- **ASSISTANT**: tổ trợ lý tiếp nhận, hoàn thiện và điều phối request.
+- **LEADER**: lãnh đạo xem xét/phê duyệt.
+- **ADMIN**: quản trị hệ thống.
+- Một người có thể có nhiều role.
 
-Một người có thể có nhiều role.
+## Workflow V1 — chốt
 
-## Workflow V1
-
-```
+~~~text
 PROCESSING
    |
+   | Assistant yêu cầu requester bổ sung
+   v
+ADJUSTED
+   |
+   | Requester chỉnh sửa + gửi lại
+   v
+PROCESSING
+   |
+   | Assistant xử lý xong + trình
    v
 PENDING_APPROVAL
-   |----------------------|
-   |                      |
-   v                      v
-APPROVED               ADJUSTED
-   |                    /     \
-   |                   /       \
-   |                  v         v
-   |       PENDING_APPROVAL    REVISED
-   |                  ^           |
-   |                  |           | requester chỉnh sửa + gửi lại
-   |                  |           v
-   |                  |       PROCESSING
-   |                  |
-   |      assistant sửa xong + trình lại
-   |                  |
-   v                  |
-COMPLETED             |
-```
+   |---------------------------|
+   |                           |
+   | Leader duyệt              | Leader yêu cầu chỉnh sửa
+   v                           v
+APPROVED                    REVISED
+   |                           |
+   |                           | Requester chỉnh sửa + gửi lại
+   v                           v
+COMPLETED                PENDING_APPROVAL
 
-Ngoài ra có `CANCELLED` khi requester chủ động hủy yêu cầu theo quyền workflow.
+CANCELLED là nhánh hủy riêng theo quyền workflow.
+~~~
 
-Luồng sau `ADJUSTED` có 2 khả năng:
-- Trợ lý tự xử lý được yêu cầu chỉnh sửa → sửa request và gửi thẳng lại `PENDING_APPROVAL`.
-- Trợ lý cần requester bổ sung/chỉnh sửa → chuyển `REVISED`; requester chỉnh sửa và gửi lại → `PROCESSING`.
-## Status và ý nghĩa
+## Quy tắc phân biệt ADJUSTED và REVISED
 
-- `PROCESSING` → **Đang xử lý** đối với requester; **Mới** đối với assistant.
-- `PENDING_APPROVAL` → **Đang xử lý** đối với requester; **Chờ lãnh đạo duyệt** đối với assistant/leader.
-- `ADJUSTED` → trạng thái nội bộ sau khi lãnh đạo yêu cầu chỉnh sửa. Requester vẫn xếp trạng thái này vào nhóm **Đang xử lý**.
-- `REVISED` → **Điều chỉnh** đối với requester; **Chờ requester bổ sung/chỉnh sửa** đối với assistant. Leader có thể xem request ở trạng thái này để theo dõi.
-- `APPROVED` → **Đã duyệt**.
-- `CANCELLED` → **Đã hủy**: requester chủ động hủy đề xuất.
-- `COMPLETED` → **Hoàn thành**: request đã được duyệt và cuộc họp đã qua ngày/thời điểm hiệu lực.
+Đây là rule nghiệp vụ quan trọng nhất của V1:
 
-Không có trạng thái `REJECTED` trong V1. Nếu lãnh đạo không đồng ý nội dung hiện tại, request đi qua `ADJUSTED` và sau đó hoặc được trợ lý xử lý trực tiếp về `PENDING_APPROVAL`, hoặc được gửi cho requester qua `REVISED`.
+- **ADJUSTED** = trợ lý yêu cầu requester bổ sung/chỉnh sửa **trước khi request từng được trình lãnh đạo**.
+  - Requester thấy: **Revised / Điều chỉnh**.
+  - Assistant thấy: **Adjusted / Chờ bổ sung**.
+  - Leader **không thấy request này**.
+- **REVISED** = request **đã từng được trình lãnh đạo** và lãnh đạo yêu cầu chỉnh sửa.
+  - Requester thấy: **Revised / Điều chỉnh**.
+  - Assistant thấy: **Revised / Điều chỉnh**.
+  - Leader thấy: **Revising / Điều chỉnh** để theo dõi.
+
+Một request đã bước vào vòng lãnh đạo thì các vòng chỉnh sửa tiếp theo tiếp tục dùng **REVISED**; không quay lại **ADJUSTED**.
+
+## Status display matrix
+
+| Status hệ thống | Requester – English | Requester – Tiếng Việt | Assistant – English | Assistant – Tiếng Việt | Leader – English | Leader – Tiếng Việt |
+|---|---|---|---|---|---|---|
+| PROCESSING | **Processing** | **Đang xử lý** | **New** | **Mới** | — | — |
+| PENDING_APPROVAL | **Processing** | **Đang xử lý** | **Pending Approval** | **Chờ duyệt** | **New** | **Mới** |
+| ADJUSTED | **Revised** | **Điều chỉnh** | **Adjusted** | **Chờ bổ sung** | — | — |
+| REVISED | **Revised** | **Điều chỉnh** | **Revised** | **Điều chỉnh** | **Revising** | **Điều chỉnh** |
+| APPROVED | **Approved** | **Đã duyệt** | **Approved** | **Đã duyệt** | **Approved** | **Đã duyệt** |
+| CANCELLED | **Cancelled** | **Đã hủy** | **Cancelled** | **Đã hủy** | — | — |
+| COMPLETED | **Completed** | **Hoàn thành** | **Completed** | **Hoàn thành** | **Completed** | **Hoàn thành** |
+
+## Quy tắc hiển thị theo role
+
+### REQUESTER
+
+- PROCESSING, PENDING_APPROVAL, ADJUSTED đều thuộc nhóm **Đang xử lý** ở danh sách.
+- REVISED thuộc nhóm **Điều chỉnh**.
+- Có thể thấy APPROVED, COMPLETED, CANCELLED.
+- Không hiển thị tên trạng thái nội bộ ADJUSTED; chỉ hiển thị nhãn thân thiện **Điều chỉnh**.
+
+### ASSISTANT
+
+Danh sách dùng các nhãn:
+- PROCESSING → **Mới**
+- PENDING_APPROVAL → **Chờ duyệt**
+- ADJUSTED → **Chờ bổ sung**
+- REVISED → **Điều chỉnh**
+- APPROVED → **Đã duyệt**
+- CANCELLED → **Đã hủy**
+- COMPLETED → **Hoàn thành**
+
+### LEADER
+
+Leader chỉ được đưa request vào tập hiển thị khi request đã từng bước vào vòng lãnh đạo:
+
+- PENDING_APPROVAL → **Mới**
+- REVISED → **Điều chỉnh**
+- APPROVED → **Đã duyệt**
+- COMPLETED → **Hoàn thành**
+
+Leader **không hiển thị**:
+- PROCESSING
+- ADJUSTED
+- CANCELLED
+
+Đặc biệt, request đang ADJUSTED do assistant yêu cầu requester bổ sung phải hoàn toàn nằm ngoài danh sách leader.
+
+## Allowed transitions
+
+### Trước vòng lãnh đạo
+
+~~~text
+PROCESSING
+   ├── Assistant yêu cầu bổ sung → ADJUSTED
+   └── Assistant hoàn tất + trình → PENDING_APPROVAL
+
+ADJUSTED
+   ├── Requester chỉnh sửa + gửi lại → PROCESSING
+   └── Requester hủy theo quyền workflow → CANCELLED
+~~~
+
+ADJUSTED có thể lặp lại nhiều lần nếu assistant tiếp tục phát hiện thông tin chưa đủ; mỗi lần requester gửi lại thì trở về PROCESSING.
+
+### Sau khi đã trình lãnh đạo
+
+~~~text
+PENDING_APPROVAL
+   ├── Leader duyệt → APPROVED
+   └── Leader yêu cầu chỉnh sửa → REVISED
+
+REVISED
+   ├── Requester chỉnh sửa + gửi lại → PENDING_APPROVAL
+   └── Requester hủy theo quyền workflow → CANCELLED
+~~~
+
+Trong REVISED, việc requester đang chỉnh sửa không làm status đổi ngay; status chỉ trở lại PENDING_APPROVAL khi requester thực sự gửi lại request cho vòng duyệt.
+
+### Quy tắc chống sai ngữ nghĩa
+
+- Không chuyển ADJUSTED → REVISED.
+- Không dùng REVISED cho việc assistant yêu cầu requester bổ sung trước vòng lãnh đạo.
+- Không chuyển request đã từng vào vòng lãnh đạo trở lại ADJUSTED.
+- Không tạo request thứ hai cho một vòng chỉnh sửa; vẫn giữ nguyên request_id.
+
+## Actions theo role
+
+### REQUESTER
+
+- Tạo request.
+- Chỉnh sửa request khi được yêu cầu.
+- Gửi lại request.
+- Hủy request khi workflow cho phép.
+- Theo dõi trạng thái.
+
+### ASSISTANT
+
+- Tiếp nhận request PROCESSING.
+- Chuẩn hóa/chỉnh thông tin.
+- Yêu cầu requester bổ sung → ADJUSTED.
+- Hoàn tất và trình lãnh đạo → PENDING_APPROVAL.
+- Sau khi leader yêu cầu chỉnh sửa, xử lý request ở REVISED và trình lại → PENDING_APPROVAL.
+- Có thể chỉnh thông tin nghiệp vụ trong phạm vi quyền.
+- Không tự biến một request chưa từng trình lãnh đạo thành REVISED.
+
+### LEADER
+
+- Xem PENDING_APPROVAL liên quan đến mình.
+- Xem REVISED của các request mình đã tham gia để theo dõi.
+- Duyệt PENDING_APPROVAL → APPROVED.
+- Yêu cầu chỉnh sửa PENDING_APPROVAL → REVISED.
+- Không có thao tác REJECTED trong V1.
+
+### ADMIN
+
+- Có quyền quản trị dữ liệu/cấu hình theo phạm vi được thiết kế.
+- Có thể xử lý các trường hợp ngoại lệ workflow.
+- Mọi thay đổi trạng thái thủ công phải ghi AuditLog.
 
 ## Auto-complete
 
-- `APPROVED` tự chuyển sang `COMPLETED` sau khi cuộc họp đã qua ngày/thời điểm hiệu lực.
-- Khi trợ lý đã xác định lịch chính thức, ưu tiên dùng `meeting_date` + `meeting_end_time` (hoặc `meeting_start_time` nếu chưa có end time) làm mốc.
-- Nếu chưa có lịch chính thức, fallback sang `requested_date` + thời gian đề xuất.
-- Chỉ `ADMIN` và `ASSISTANT` được quyền điều chỉnh thủ công một request đang `COMPLETED` sang trạng thái khác.
-- Mọi thay đổi thủ công trạng thái phải ghi vào `AuditLog`.
+- APPROVED tự chuyển sang COMPLETED sau khi cuộc họp đã qua ngày/thời điểm hiệu lực.
+- Khi trợ lý đã xác định lịch chính thức, ưu tiên dùng meeting_date + meeting_end_time (hoặc meeting_start_time nếu chưa có end time) làm mốc.
+- Nếu chưa có lịch chính thức, fallback sang requested_date + thời gian đề xuất.
+- Chỉ ADMIN và ASSISTANT được quyền điều chỉnh thủ công một request đang COMPLETED sang trạng thái khác.
+- Mọi thay đổi thủ công trạng thái phải ghi AuditLog.
 
-## Quy tắc
+## Các quy tắc nền tảng
 
-- Một request có một `request_id` duy nhất trong suốt vòng đời.
-- Trợ lý chỉnh chính request hiện tại, không tạo một request thứ hai.
-- Sau khi requester gửi lần đầu, request vào `PROCESSING`; không sử dụng trạng thái `SUBMITTED`.
-- Khi lãnh đạo yêu cầu chỉnh sửa, request chuyển sang `ADJUSTED`.
-- Từ `ADJUSTED`, trợ lý có thể sửa xong và gửi thẳng lại `PENDING_APPROVAL`, hoặc chuyển `REVISED` nếu cần requester bổ sung/chỉnh sửa.
-- Khi requester chỉnh sửa và gửi lại từ `REVISED`, request trở về `PROCESSING`.
-- Requester được quyền hủy theo workflow khi request chưa hoàn tất và chưa bị khóa bởi trạng thái không cho phép hủy.
-- Lãnh đạo V1 không có thao tác “Từ chối”; chỉ có duyệt hoặc yêu cầu chỉnh sửa.
+- Một request có một request_id duy nhất trong toàn bộ vòng đời.
+- Trợ lý chỉnh chính request hiện tại, không tạo request thứ hai.
+- Sau khi requester gửi lần đầu, request vào PROCESSING; không sử dụng trạng thái SUBMITTED.
+- V1 không có REJECTED; lãnh đạo chỉ duyệt hoặc yêu cầu chỉnh sửa.
 - Request chưa hoàn tất không bị ẩn chỉ vì ngày đề xuất đã qua.
 - Mọi thay đổi quan trọng phải ghi audit.
+
 ## Optimistic locking
 
-`Requests` có cột `version`.
+Requests có cột version.
 
 Mỗi lần ghi thành công:
 
-```
+~~~text
 version = version + 1
-```
+~~~
 
 Nếu người dùng đang sửa version cũ hơn dữ liệu hiện tại, server từ chối overwrite và yêu cầu reload.
