@@ -140,10 +140,18 @@ PENDING_APPROVAL
    | Leader duyệt              | Leader yêu cầu chỉnh sửa
    v                           v
 APPROVED                    REVISED
-   |                           |
-   |                           | Requester chỉnh sửa + gửi lại
-   v                           v
-COMPLETED                PENDING_APPROVAL
+   |                           |\
+   |                           | \ Assistant tự xử lý + trình lại
+   v                           |  \------------------> PENDING_APPROVAL
+COMPLETED                    |
+                             | Assistant gửi requester chỉnh
+                             | Requester chỉnh sửa + gửi lại
+                             v
+                    REVISED_PROCESSING
+                             |
+                             | Assistant xử lý + trình lại
+                             v
+                    PENDING_APPROVAL
 
 CANCELLED là nhánh hủy riêng.
 ~~~
@@ -151,8 +159,10 @@ CANCELLED là nhánh hủy riêng.
 ### Nguyên tắc phân biệt trạng thái
 
 - **ADJUSTED**: assistant yêu cầu requester bổ sung/chỉnh sửa trước khi request từng được trình lãnh đạo. Leader không thấy.
-- **REVISED**: request đã từng được trình lãnh đạo và leader yêu cầu chỉnh sửa. Leader vẫn thấy.
+- **REVISED**: request đã từng được trình lãnh đạo và leader yêu cầu chỉnh sửa. Leader vẫn thấy. Assistant có thể tự xử lý rồi trình lại, hoặc gửi requester chỉnh.
+- **REVISED_PROCESSING**: requester đã gửi lại request sau yêu cầu chỉnh của leader; Assistant đang xử lý trước khi trình lại. Leader vẫn thấy.
 - Một request đã từng vào vòng lãnh đạo không quay lại ADJUSTED.
+- Không dùng PROCESSING cho request hậu-leader đã được requester gửi lại; dùng REVISED_PROCESSING.
 - Không tạo request mới cho các vòng chỉnh sửa.
 
 ## 6. Status display matrix
@@ -163,6 +173,7 @@ CANCELLED là nhánh hủy riêng.
 | PENDING_APPROVAL | Processing / Đang xử lý | Pending Approval / Chờ duyệt | New / Mới |
 | ADJUSTED | Revised / Điều chỉnh | Adjusted / Chờ bổ sung | — |
 | REVISED | Revised / Điều chỉnh | Revised / Điều chỉnh | Revising / Điều chỉnh |
+| REVISED_PROCESSING | Processing / Đang xử lý | Processing / Đang xử lý | Revising / Điều chỉnh |
 | APPROVED | Approved / Đã duyệt | Approved / Đã duyệt | Approved / Đã duyệt |
 | CANCELLED | Cancelled / Đã hủy | Cancelled / Đã hủy | — |
 | COMPLETED | Completed / Hoàn thành | Completed / Hoàn thành | Completed / Hoàn thành |
@@ -185,6 +196,7 @@ Chỉ đưa vào tập hiển thị các request đã từng bước vào vòng 
 
 - PENDING_APPROVAL
 - REVISED
+- REVISED_PROCESSING
 - APPROVED
 - COMPLETED
 
@@ -218,14 +230,15 @@ Mobile:
 Requester:
 - Time filters: Tất cả, Hôm nay, Ngày mai, Tuần này, Tháng này.
 - Multi-select status filter.
-- Nhóm Đang xử lý và Điều chỉnh.
+- Đang xử lý = PROCESSING + PENDING_APPROVAL + REVISED_PROCESSING.
+- Điều chỉnh = ADJUSTED + REVISED.
 
 Assistant:
 - Status, time, unit, leader, assigned assistant, search.
 
 Leader:
 - PENDING_APPROVAL là tập xử lý chính.
-- REVISED là tập theo dõi sau khi leader yêu cầu chỉnh sửa.
+- REVISED và REVISED_PROCESSING là tập theo dõi sau khi leader yêu cầu chỉnh sửa.
 - APPROVED/COMPLETED dùng cho tra cứu.
 
 ### /requests/new
@@ -385,6 +398,7 @@ Các điểm cần chốt trước khi code form:
 - Approve.
 - Request revision.
 - REVISED.
+- REVISED_PROCESSING.
 - Resubmission.
 - Leader visibility rule.
 
@@ -444,7 +458,7 @@ Chỉ cân nhắc sau khi V1 chạy ổn:
 - Workflow semantics.
 - Status names English/Vietnamese.
 - Role-specific status visibility.
-- ADJUSTED vs REVISED distinction.
+- ADJUSTED vs REVISED vs REVISED_PROCESSING distinction.
 - /requests UX baseline.
 - Google Sheets schema baseline.
 - Technical decisions.
