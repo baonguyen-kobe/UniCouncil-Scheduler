@@ -23,16 +23,16 @@ APPROVED               ADJUSTED
    |                    /     \
    |                   /       \
    |                  v         v
-   |           PENDING_APPROVAL  REVISED
+   |       PENDING_APPROVAL    REVISED
    |                  ^           |
    |                  |           | requester chỉnh sửa + gửi lại
    |                  |           v
    |                  |       PROCESSING
    |                  |
-   |                  | assistant sửa xong + trình lại
+   |      assistant sửa xong + trình lại
    |                  |
    v                  |
-COMPLETED <------------
+COMPLETED             |
 ```
 
 Ngoài ra có `CANCELLED` khi requester chủ động hủy yêu cầu theo quyền workflow.
