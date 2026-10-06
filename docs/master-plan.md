@@ -1,0 +1,456 @@
+
+# Master Plan V1 — UniCouncil Scheduler
+
+> Đây là master plan baseline đã thống nhất đến checkpoint hiện tại. Tài liệu này là bản tổng hợp để reviewer có thể đánh giá toàn bộ định hướng trước khi chuyển sang phần thiết kế tiếp theo.
+
+## 1. Mục tiêu sản phẩm
+
+Xây một web app quản lý toàn bộ vòng đời yêu cầu đăng ký họp với lãnh đạo trường:
+
+1. Cán bộ/requester đăng ký trực tiếp trên web.
+2. Trợ lý tiếp nhận, kiểm tra và hoàn thiện request.
+3. Trợ lý trình request cho lãnh đạo.
+4. Lãnh đạo duyệt hoặc yêu cầu chỉnh sửa.
+5. Requester/trợ lý xử lý vòng chỉnh sửa theo đúng ngữ cảnh.
+6. Request đã duyệt được hiển thị trên lịch web.
+7. File đính kèm được lưu trên Google Drive.
+8. Thông báo nghiệp vụ ưu tiên qua Zalo OA/Bot.
+9. Toàn bộ thay đổi quan trọng có audit trail.
+
+## 2. Phạm vi V1
+
+### Có trong V1
+
+- Login bằng Google Workspace / Google OIDC.
+- Session-based authentication.
+- Role-based authorization.
+- Web request form.
+- Request list/detail theo role.
+- Workflow xử lý → trình duyệt → chỉnh sửa → duyệt → hoàn thành.
+- Google Sheets làm operational data store.
+- Google Drive làm file storage.
+- Calendar render trực tiếp từ request đã duyệt.
+- Zalo OA/Bot là notification channel ưu tiên.
+- AuditLog.
+- Optimistic locking bằng version.
+- Soft delete.
+- Responsive UI với layout PC và mobile được tối ưu riêng.
+
+### Không có trong V1
+
+- Google Form.
+- Đồng bộ Google Calendar.
+- Trạng thái REJECTED.
+- Hai bản request song song.
+- Email hàng loạt làm notification chính.
+- Database PostgreSQL/Supabase ngay từ đầu.
+- Workflow nhiều cấp duyệt, trừ khi thực tế phát sinh yêu cầu mới.
+
+## 3. Kiến trúc
+
+~~~text
+Google Workspace Login
+          |
+          v
++---------------------------+
+| Next.js Web App / Vercel  |
+|                           |
+| Requests                  |
+| Calendar                  |
+| Staff                     |
+| Settings                  |
++-----------+---------------+
+            |
+      +-----+------+
+      |            |
+      v            v
+Google Sheets   Google Drive
+ operational      files
+     data
+      |
+      v
+   Zalo OA/Bot
+ notifications
+~~~
+
+### Technology baseline
+
+- Next.js + TypeScript.
+- Tailwind CSS + shadcn/ui.
+- Vercel + custom domain.
+- Google Workspace OIDC/session.
+- Google Sheets API.
+- Google Drive API.
+- Zalo OA/Bot API.
+
+Secret/token chỉ nằm trong Vercel Environment Variables.
+
+## 4. Roles
+
+### REQUESTER
+
+- Tạo request.
+- Xem request do chính mình tạo.
+- Chỉnh sửa khi workflow yêu cầu.
+- Gửi lại request.
+- Hủy khi workflow cho phép.
+
+### ASSISTANT
+
+- Tiếp nhận request.
+- Kiểm tra/chuẩn hóa.
+- Bổ sung thông tin nghiệp vụ.
+- Yêu cầu requester bổ sung.
+- Trình lãnh đạo.
+- Xử lý request sau khi lãnh đạo yêu cầu chỉnh sửa.
+- Quản lý lịch chính thức trong phạm vi được phân quyền.
+
+### LEADER
+
+- Xem request đã bước vào vòng lãnh đạo và có liên quan đến mình.
+- Duyệt.
+- Yêu cầu chỉnh sửa.
+- Theo dõi request đang được requester chỉnh sửa sau ý kiến của mình.
+
+### ADMIN
+
+- Quản trị Staff/Settings và các thao tác ngoại lệ.
+- Có thể xử lý các trường hợp workflow cần can thiệp.
+
+Một user có thể có nhiều role.
+
+## 5. Workflow chính thức
+
+~~~text
+PROCESSING
+   |
+   | Assistant yêu cầu requester bổ sung
+   v
+ADJUSTED
+   |
+   | Requester chỉnh sửa + gửi lại
+   v
+PROCESSING
+   |
+   | Assistant hoàn tất + trình lãnh đạo
+   v
+PENDING_APPROVAL
+   |---------------------------|
+   |                           |
+   | Leader duyệt              | Leader yêu cầu chỉnh sửa
+   v                           v
+APPROVED                    REVISED
+   |                           |
+   |                           | Requester chỉnh sửa + gửi lại
+   v                           v
+COMPLETED                PENDING_APPROVAL
+
+CANCELLED là nhánh hủy riêng.
+~~~
+
+### Nguyên tắc phân biệt trạng thái
+
+- **ADJUSTED**: assistant yêu cầu requester bổ sung/chỉnh sửa trước khi request từng được trình lãnh đạo. Leader không thấy.
+- **REVISED**: request đã từng được trình lãnh đạo và leader yêu cầu chỉnh sửa. Leader vẫn thấy.
+- Một request đã từng vào vòng lãnh đạo không quay lại ADJUSTED.
+- Không tạo request mới cho các vòng chỉnh sửa.
+
+## 6. Status display matrix
+
+| System status | Requester | Assistant | Leader |
+|---|---|---|---|
+| PROCESSING | Processing / Đang xử lý | New / Mới | — |
+| PENDING_APPROVAL | Processing / Đang xử lý | Pending Approval / Chờ duyệt | New / Mới |
+| ADJUSTED | Revised / Điều chỉnh | Adjusted / Chờ bổ sung | — |
+| REVISED | Revised / Điều chỉnh | Revised / Điều chỉnh | Revising / Điều chỉnh |
+| APPROVED | Approved / Đã duyệt | Approved / Đã duyệt | Approved / Đã duyệt |
+| CANCELLED | Cancelled / Đã hủy | Cancelled / Đã hủy | — |
+| COMPLETED | Completed / Hoàn thành | Completed / Hoàn thành | Completed / Hoàn thành |
+
+System status là dữ liệu chuẩn; display label theo role chỉ là presentation layer.
+
+## 7. Visibility rules
+
+### Requester
+
+Chỉ được xem request có requester_id bằng staff_id hiện tại.
+
+### Assistant
+
+Được xem các request thuộc phạm vi nghiệp vụ được phân quyền và có status phù hợp.
+
+### Leader
+
+Chỉ đưa vào tập hiển thị các request đã từng bước vào vòng lãnh đạo:
+
+- PENDING_APPROVAL
+- REVISED
+- APPROVED
+- COMPLETED
+
+Không hiển thị:
+
+- PROCESSING
+- ADJUSTED
+- CANCELLED
+
+Đây là rule backend, không chỉ là filter UI.
+
+## 8. Pages
+
+### /login
+
+- Google sign-in.
+- Chặn user không hợp lệ.
+
+### /requests
+
+Role-specific request list.
+
+Desktop:
+- Table.
+- Click row → detail drawer.
+
+Mobile:
+- Compact card.
+- Click → detail Card/full-page style.
+
+Requester:
+- Time filters: Tất cả, Hôm nay, Ngày mai, Tuần này, Tháng này.
+- Multi-select status filter.
+- Nhóm Đang xử lý và Điều chỉnh.
+
+Assistant:
+- Status, time, unit, leader, assigned assistant, search.
+
+Leader:
+- PENDING_APPROVAL là tập xử lý chính.
+- REVISED là tập theo dõi sau khi leader yêu cầu chỉnh sửa.
+- APPROVED/COMPLETED dùng cho tra cứu.
+
+### /requests/new
+
+Form đăng ký trực tiếp trên web.
+
+### /calendar
+
+- Month/week/list.
+- Render từ request APPROVED/COMPLETED theo lịch chính thức.
+- Filter theo leader/unit/location/meeting type khi có.
+- Không sync Google Calendar ở V1.
+
+### /staff
+
+Quản lý Staff, role, unit, active status, Zalo mapping.
+
+### /settings
+
+System/request/workflow/Drive/Zalo settings.
+
+## 9. Data model V1
+
+Một Google Spreadsheet gồm:
+
+- Requests
+- Staff
+- Units
+- Locations
+- Attachments
+- AuditLog
+- ZaloNotifications
+- Settings
+
+### Requests — nhóm field chính
+
+- request identity: request_id, version, status.
+- requester snapshot: requester_id, requester_name, requester_email, unit_id.
+- requested content: meeting_title, meeting_content, requested_leader_ids, requested_date, requested_start_time, estimated_duration, requested_location, requested_participants, requester_note.
+- official schedule: meeting_date, meeting_start_time, meeting_end_time.
+- official participants/organization: leader_ids, location_id, participants.
+- assistant/approval: assistant_id, assistant_note, priority, approval_note, leader_decision_note, approved_by, approved_at.
+- lifecycle metadata: created_at, created_by, updated_at, updated_by, submitted_at, deleted_at, deleted_by.
+
+### Attachments
+
+File vật lý ở Drive; metadata ở Attachments.
+
+### AuditLog
+
+Mọi thay đổi quan trọng và status transition phải được audit.
+
+## 10. Data integrity & security
+
+- Backend enforce authorization.
+- Requester không thể đọc request của người khác bằng cách sửa request_id trên client.
+- Leader visibility được enforce ở backend.
+- Secrets không nằm trong Sheets.
+- version chống lost update.
+- Soft delete.
+- Một request_id xuyên suốt workflow.
+- File truy cập thông qua quyền của web app/backend, không coi Drive URL là business key.
+
+## 11. Auto-complete
+
+APPROVED tự chuyển COMPLETED sau khi meeting đã qua thời điểm hiệu lực.
+
+Ưu tiên:
+1. meeting_date + meeting_end_time.
+2. meeting_date + meeting_start_time nếu không có end time.
+3. requested_date + requested time nếu chưa có lịch chính thức.
+
+ADMIN và ASSISTANT mới được sửa thủ công request COMPLETED sang status khác; thao tác phải audit.
+
+## 12. UX principles
+
+- PC và mobile được thiết kế tối ưu riêng, không chỉ co nhỏ cùng một layout.
+- Request list PC dùng Table.
+- Request list mobile dùng compact Card.
+- Detail PC dùng drawer.
+- Detail mobile dùng Card/full-page style.
+- Status label phải đúng ngữ cảnh role.
+- Không để user thấy internal status nếu không cần.
+- Action button phải thể hiện rõ ai là người cần hành động tiếp theo.
+
+## 13. Development roadmap
+
+### Phase 0 — Product baseline
+**Trạng thái: Đã chốt về mặt thiết kế**
+
+- Architecture.
+- Roles.
+- Workflow.
+- Status matrix.
+- Role visibility.
+- Page map.
+- Schema baseline.
+- Technical decisions.
+
+### Phase 1 — Foundation
+**Sắp triển khai**
+
+- Khởi tạo Next.js/TypeScript/Tailwind/shadcn.
+- App shell/layout.
+- Google Workspace authentication.
+- Session.
+- Staff lookup.
+- Role guard.
+- Vercel environment configuration.
+
+### Phase 2 — Requests list/detail
+**Sắp triển khai sau khi reviewer duyệt baseline**
+
+- /requests.
+- Role-specific query.
+- Backend visibility.
+- Table desktop.
+- Card mobile.
+- Filters/search.
+- Detail drawer/card.
+- Status badges.
+
+### Phase 3 — Request form
+**Chưa chốt đủ requirements**
+
+- /requests/new.
+- Validation.
+- Attachment upload.
+- Create request.
+- PROCESSING initial state.
+- Local browser protection nếu cần.
+
+Các điểm cần chốt trước khi code form:
+1. Có Meeting Type hay không.
+2. Có cho chọn nhiều leader hay không.
+3. Số lượng người tham dự bắt buộc hay optional.
+4. Participants là free text hay chọn Staff/Unit.
+5. Có Save Draft hay không.
+6. Requested location là room list, free text hay bỏ khỏi form.
+
+### Phase 4 — Assistant workflow
+**Chưa triển khai**
+
+- Process request.
+- ADJUSTED.
+- Chuẩn hóa nội dung.
+- Gắn lịch chính thức.
+- PENDING_APPROVAL.
+- Audit.
+- Optimistic locking.
+- Permission checks.
+
+### Phase 5 — Leader workflow
+**Chưa triển khai**
+
+- PENDING_APPROVAL queue.
+- Approve.
+- Request revision.
+- REVISED.
+- Resubmission.
+- Leader visibility rule.
+
+### Phase 6 — Calendar
+**Chưa triển khai**
+
+- Calendar UI.
+- Approved events.
+- Filters.
+- Detail navigation.
+
+### Phase 7 — Staff & Settings
+**Chưa triển khai**
+
+- Staff management.
+- Units.
+- Locations.
+- Settings.
+- Permission management.
+
+### Phase 8 — Zalo
+**Chưa triển khai**
+
+- Notification templates.
+- Recipient mapping.
+- Queue/status.
+- Retry.
+- Error handling.
+
+### Phase 9 — Hardening & release
+**Chưa triển khai**
+
+- Permission/security testing.
+- Workflow transition testing.
+- Concurrent edit testing.
+- Attachment testing.
+- Mobile/desktop QA.
+- Audit verification.
+- Vercel deployment.
+- Production smoke test.
+
+## 14. V1 → Phase sau
+
+Chỉ cân nhắc sau khi V1 chạy ổn:
+
+- Google Calendar integration.
+- PostgreSQL/Supabase nếu Google Sheets trở thành bottleneck.
+- Dashboard/reporting.
+- Workflow nhiều cấp duyệt.
+- Advanced notification rules.
+
+## 15. Current checkpoint
+
+Đã chốt:
+- Architecture baseline.
+- Roles.
+- Workflow semantics.
+- Status names English/Vietnamese.
+- Role-specific status visibility.
+- ADJUSTED vs REVISED distinction.
+- /requests UX baseline.
+- Google Sheets schema baseline.
+- Technical decisions.
+
+Chưa chốt:
+- Chi tiết form /requests/new ở Part B.
+
+Reviewer checkpoint hiện tại:
+**Review toàn bộ baseline + đặc biệt kiểm tra workflow/status/visibility trước khi tiếp tục chốt Part B.**
