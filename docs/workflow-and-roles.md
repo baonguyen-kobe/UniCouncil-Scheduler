@@ -30,10 +30,18 @@ PENDING_APPROVAL
    | Leader duyệt              | Leader yêu cầu chỉnh sửa
    v                           v
 APPROVED                    REVISED
-   |                           |
-   |                           | Requester chỉnh sửa + gửi lại
-   v                           v
-COMPLETED                PENDING_APPROVAL
+   |                           |\
+   |                           | \ Assistant tự xử lý + trình lại
+   v                           |  \------------------> PENDING_APPROVAL
+COMPLETED                    |
+                             | Assistant gửi requester chỉnh
+                             | Requester chỉnh sửa + gửi lại
+                             v
+                    REVISED_PROCESSING
+                             |
+                             | Assistant xử lý + trình lại
+                             v
+                    PENDING_APPROVAL
 
 CANCELLED là nhánh hủy riêng theo quyền workflow.
 ~~~
@@ -51,7 +59,7 @@ CANCELLED là nhánh hủy riêng theo quyền workflow.
   - Assistant thấy: **Revised / Điều chỉnh**.
   - Leader thấy: **Revising / Điều chỉnh** để theo dõi.
 
-Một request đã bước vào vòng lãnh đạo thì các vòng chỉnh sửa tiếp theo tiếp tục dùng **REVISED**; không quay lại **ADJUSTED**.
+Một request đã bước vào vòng lãnh đạo thì **không bao giờ quay lại ADJUSTED**. Khi leader yêu cầu chỉnh, request vào **REVISED**. Nếu Assistant trả requester chỉnh và requester gửi lại, request chuyển sang **REVISED_PROCESSING** để Assistant tiếp tục xử lý trước khi trình lại leader.
 
 ## Status display matrix
 
@@ -61,6 +69,7 @@ Một request đã bước vào vòng lãnh đạo thì các vòng chỉnh sửa
 | PENDING_APPROVAL | **Processing** | **Đang xử lý** | **Pending Approval** | **Chờ duyệt** | **New** | **Mới** |
 | ADJUSTED | **Revised** | **Điều chỉnh** | **Adjusted** | **Chờ bổ sung** | — | — |
 | REVISED | **Revised** | **Điều chỉnh** | **Revised** | **Điều chỉnh** | **Revising** | **Điều chỉnh** |
+| REVISED_PROCESSING | **Processing** | **Đang xử lý** | **Processing** | **Đang xử lý** | **Revising** | **Điều chỉnh** |
 | APPROVED | **Approved** | **Đã duyệt** | **Approved** | **Đã duyệt** | **Approved** | **Đã duyệt** |
 | CANCELLED | **Cancelled** | **Đã hủy** | **Cancelled** | **Đã hủy** | — | — |
 | COMPLETED | **Completed** | **Hoàn thành** | **Completed** | **Hoàn thành** | **Completed** | **Hoàn thành** |
@@ -69,8 +78,8 @@ Một request đã bước vào vòng lãnh đạo thì các vòng chỉnh sửa
 
 ### REQUESTER
 
-- PROCESSING, PENDING_APPROVAL, ADJUSTED đều thuộc nhóm **Đang xử lý** ở danh sách.
-- REVISED thuộc nhóm **Điều chỉnh**.
+- PROCESSING, PENDING_APPROVAL, REVISED_PROCESSING thuộc nhóm **Đang xử lý** ở danh sách.
+- ADJUSTED, REVISED thuộc nhóm **Điều chỉnh**.
 - Có thể thấy APPROVED, COMPLETED, CANCELLED.
 - Không hiển thị tên trạng thái nội bộ ADJUSTED; chỉ hiển thị nhãn thân thiện **Điều chỉnh**.
 
@@ -81,6 +90,7 @@ Danh sách dùng các nhãn:
 - PENDING_APPROVAL → **Chờ duyệt**
 - ADJUSTED → **Chờ bổ sung**
 - REVISED → **Điều chỉnh**
+- REVISED_PROCESSING → **Đang xử lý**
 - APPROVED → **Đã duyệt**
 - CANCELLED → **Đã hủy**
 - COMPLETED → **Hoàn thành**
@@ -91,6 +101,7 @@ Leader chỉ được đưa request vào tập hiển thị khi request đã t�
 
 - PENDING_APPROVAL → **Mới**
 - REVISED → **Điều chỉnh**
+- REVISED_PROCESSING → **Điều chỉnh**
 - APPROVED → **Đã duyệt**
 - COMPLETED → **Hoàn thành**
 
@@ -125,17 +136,26 @@ PENDING_APPROVAL
    └── Leader yêu cầu chỉnh sửa → REVISED
 
 REVISED
-   ├── Requester chỉnh sửa + gửi lại → PENDING_APPROVAL
+   ├── Assistant tự xử lý + trình lại → PENDING_APPROVAL
+   ├── Assistant gửi requester chỉnh → vẫn REVISED trong thời gian requester chỉnh
    └── Requester hủy theo quyền workflow → CANCELLED
+
+REVISED
+   └── Requester chỉnh sửa + gửi lại → REVISED_PROCESSING
+
+REVISED_PROCESSING
+   ├── Assistant xử lý + trình lại → PENDING_APPROVAL
+   └── Assistant gửi requester chỉnh tiếp → REVISED
 ~~~
 
-Trong REVISED, việc requester đang chỉnh sửa không làm status đổi ngay; status chỉ trở lại PENDING_APPROVAL khi requester thực sự gửi lại request cho vòng duyệt.
+Trong REVISED, requester có thể chỉnh sửa sau khi Assistant trả request; status vẫn là REVISED cho đến khi requester thực sự gửi lại. Khi requester gửi lại, status chuyển sang REVISED_PROCESSING, không chuyển thẳng sang PENDING_APPROVAL.
 
 ### Quy tắc chống sai ngữ nghĩa
 
 - Không chuyển ADJUSTED → REVISED.
 - Không dùng REVISED cho việc assistant yêu cầu requester bổ sung trước vòng lãnh đạo.
 - Không chuyển request đã từng vào vòng lãnh đạo trở lại ADJUSTED.
+- Không dùng PROCESSING cho request đã gửi lại sau yêu cầu chỉnh của leader; dùng REVISED_PROCESSING.
 - Không tạo request thứ hai cho một vòng chỉnh sửa; vẫn giữ nguyên request_id.
 
 ## Actions theo role
@@ -154,14 +174,17 @@ Trong REVISED, việc requester đang chỉnh sửa không làm status đổi ng
 - Chuẩn hóa/chỉnh thông tin.
 - Yêu cầu requester bổ sung → ADJUSTED.
 - Hoàn tất và trình lãnh đạo → PENDING_APPROVAL.
-- Sau khi leader yêu cầu chỉnh sửa, xử lý request ở REVISED và trình lại → PENDING_APPROVAL.
+- Sau khi leader yêu cầu chỉnh sửa, xử lý request ở REVISED.
+- Tại REVISED, Assistant có thể tự xử lý và trình lại → PENDING_APPROVAL, hoặc gửi requester chỉnh.
+- Khi requester gửi lại sau yêu cầu chỉnh của leader → REVISED_PROCESSING.
+- Xử lý REVISED_PROCESSING và trình lại → PENDING_APPROVAL; nếu cần requester chỉnh tiếp thì → REVISED.
 - Có thể chỉnh thông tin nghiệp vụ trong phạm vi quyền.
 - Không tự biến một request chưa từng trình lãnh đạo thành REVISED.
 
 ### LEADER
 
 - Xem PENDING_APPROVAL liên quan đến mình.
-- Xem REVISED của các request mình đã tham gia để theo dõi.
+- Xem REVISED và REVISED_PROCESSING của các request mình đã tham gia để theo dõi.
 - Duyệt PENDING_APPROVAL → APPROVED.
 - Yêu cầu chỉnh sửa PENDING_APPROVAL → REVISED.
 - Không có thao tác REJECTED trong V1.
