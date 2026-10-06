@@ -37,9 +37,9 @@ Filter thời gian:
 
 Filter trạng thái:
 - Dropdown multi-select có checkbox.
-- Nhóm **Đang xử lý** = PROCESSING + PENDING_APPROVAL + ADJUSTED.
-- Nhóm **Điều chỉnh** = REVISED.
-- Các trạng thái requester thấy trong danh sách/filter: PROCESSING, REVISED, APPROVED, COMPLETED, CANCELLED.
+- Nhóm **Đang xử lý** = PROCESSING + PENDING_APPROVAL + REVISED_PROCESSING.
+- Nhóm **Điều chỉnh** = ADJUSTED + REVISED.
+- Các trạng thái requester thấy trong danh sách/filter theo nhãn hiển thị: Đang xử lý, Điều chỉnh, Đã duyệt, Hoàn thành, Đã hủy.
 
 Default list:
 - Ưu tiên các request chưa hoàn tất.
@@ -80,6 +80,7 @@ Assistant nhìn thấy status cụ thể:
 - PENDING_APPROVAL → **Pending Approval / Chờ duyệt**
 - ADJUSTED → **Adjusted / Chờ bổ sung**
 - REVISED → **Revised / Điều chỉnh**
+- REVISED_PROCESSING → **Processing / Đang xử lý**
 - APPROVED → **Approved / Đã duyệt**
 - COMPLETED → **Completed / Hoàn thành**
 - CANCELLED → **Cancelled / Đã hủy**
@@ -93,8 +94,18 @@ Assistant nhìn thấy status cụ thể:
 Ý nghĩa REVISED:
 - Request đã từng được trình lãnh đạo.
 - Leader đã yêu cầu chỉnh sửa.
-- Assistant xử lý ở REVISED và sau khi hoàn tất sẽ trình lại → PENDING_APPROVAL.
+- Assistant kiểm tra ở REVISED.
+- Assistant có thể tự xử lý và trình lại → PENDING_APPROVAL.
+- Hoặc Assistant gửi requester chỉnh; trong thời gian requester chỉnh vẫn là REVISED.
+- Requester gửi lại → REVISED_PROCESSING.
 - Không chuyển REVISED về ADJUSTED.
+
+Ý nghĩa REVISED_PROCESSING:
+- Request hậu-leader đã được requester chỉnh sửa và gửi lại.
+- Assistant đang xử lý trước khi trình lại leader.
+- Assistant hoàn tất + trình lại → PENDING_APPROVAL.
+- Nếu cần requester chỉnh tiếp → REVISED.
+- Leader vẫn thấy request này với nhãn **Revising / Điều chỉnh**.
 
 #### LEADER
 
@@ -109,6 +120,7 @@ Responsive/mobile:
 Tập request leader được phép thấy:
 - PENDING_APPROVAL → **New / Mới**
 - REVISED → **Revising / Điều chỉnh**
+- REVISED_PROCESSING → **Revising / Điều chỉnh**
 - APPROVED → **Approved / Đã duyệt**
 - COMPLETED → **Completed / Hoàn thành**
 
@@ -120,15 +132,16 @@ Leader không thấy:
 Đặc biệt:
 - Request bị assistant yêu cầu requester bổ sung trước khi từng được trình lãnh đạo (ADJUSTED) không xuất hiện ở leader.
 - Request đã từng được trình lãnh đạo và sau đó bị leader yêu cầu chỉnh sửa (REVISED) vẫn xuất hiện ở leader để theo dõi.
+- Khi requester gửi lại sau yêu cầu chỉnh, request chuyển sang REVISED_PROCESSING và vẫn xuất hiện ở leader với nhãn **Điều chỉnh**.
 
 Default:
 - Ưu tiên PENDING_APPROVAL liên quan đến leader để xử lý.
-- REVISED vẫn nằm trong tập theo dõi.
+- REVISED và REVISED_PROCESSING vẫn nằm trong tập theo dõi.
 - APPROVED và COMPLETED có thể xem qua list/filter để tra cứu.
 
 Actions:
 - PENDING_APPROVAL: **Duyệt** / **Yêu cầu chỉnh sửa**
-- REVISED: theo dõi, không tạo một vòng REVISED mới.
+- REVISED/REVISED_PROCESSING: theo dõi; leader không thao tác duyệt cho đến khi request được trình lại thành PENDING_APPROVAL.
 - Không có thao tác **Từ chối** trong V1.
 
 ### 1B. Chi tiết request
@@ -156,7 +169,8 @@ Chi tiết nên thể hiện:
 
 Banner ngữ cảnh:
 - ADJUSTED: requester thấy **Điều chỉnh**; assistant thấy **Chờ bổ sung**.
-- REVISED: requester/assistant thấy **Điều chỉnh**; leader thấy **Điều chỉnh** và biết đây là request đang được requester chỉnh sửa sau ý kiến lãnh đạo.
+- REVISED: requester/assistant thấy **Điều chỉnh**; leader thấy **Điều chỉnh** và biết request đang trong vòng chỉnh sửa sau ý kiến lãnh đạo.
+- REVISED_PROCESSING: requester/assistant thấy **Đang xử lý**; leader vẫn thấy **Điều chỉnh**.
 
 ## REQUESTER — nghiệp vụ
 
@@ -175,14 +189,16 @@ Banner ngữ cảnh:
 - Khi requester gửi lại → PROCESSING.
 - Trình lãnh đạo → PENDING_APPROVAL.
 - Khi leader yêu cầu chỉnh sửa → REVISED.
-- Xử lý request REVISED và trình lại → PENDING_APPROVAL.
+- Ở REVISED, Assistant tự xử lý + trình lại → PENDING_APPROVAL, hoặc gửi requester chỉnh.
+- Requester gửi lại sau yêu cầu chỉnh → REVISED_PROCESSING.
+- Xử lý REVISED_PROCESSING và trình lại → PENDING_APPROVAL; nếu cần requester chỉnh tiếp → REVISED.
 - Có thể chỉnh request trực tiếp trong phạm vi quyền.
 - Không tạo request mới cho một vòng chỉnh sửa.
 
 ## LEADER — nghiệp vụ
 
 - Mặc định xử lý PENDING_APPROVAL liên quan đến mình.
-- Theo dõi REVISED của request mình đã tham gia.
+- Theo dõi REVISED và REVISED_PROCESSING của request mình đã tham gia.
 - Xem APPROVED và COMPLETED để tra cứu.
 - Xem chi tiết và file.
 - Với PENDING_APPROVAL: **Duyệt / Yêu cầu chỉnh sửa**.
