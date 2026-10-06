@@ -20,31 +20,37 @@ PENDING_APPROVAL
    |                      |
    v                      v
 APPROVED               ADJUSTED
-   |                      |
-   |                      v
-   |                  REVISED
-   |                      |
-   |                      | requester chỉnh sửa + gửi lại
-   |                      v
-   |                  PROCESSING
-   |
-   v
-COMPLETED
+   |                    /     \
+   |                   /       \
+   |                  v         v
+   |           PENDING_APPROVAL  REVISED
+   |                  ^           |
+   |                  |           | requester chỉnh sửa + gửi lại
+   |                  |           v
+   |                  |       PROCESSING
+   |                  |
+   |                  | assistant sửa xong + trình lại
+   |                  |
+   v                  |
+COMPLETED <------------
 ```
 
 Ngoài ra có `CANCELLED` khi requester chủ động hủy yêu cầu theo quyền workflow.
 
+Luồng sau `ADJUSTED` có 2 khả năng:
+- Trợ lý tự xử lý được yêu cầu chỉnh sửa → sửa request và gửi thẳng lại `PENDING_APPROVAL`.
+- Trợ lý cần requester bổ sung/chỉnh sửa → chuyển `REVISED`; requester chỉnh sửa và gửi lại → `PROCESSING`.
 ## Status và ý nghĩa
 
-- `PROCESSING` → **Đang xử lý**: request đã được requester gửi và đang trong quy trình xử lý; bao gồm giai đoạn trợ lý tiếp nhận/chỉnh sửa và sau khi requester gửi lại.
-- `PENDING_APPROVAL` → **Đang xử lý** đối với requester; **Chờ lãnh đạo duyệt** đối với assistant.
-- `ADJUSTED` → **Điều chỉnh**: lãnh đạo yêu cầu chỉnh sửa request.
-- `REVISED` → **Điều chỉnh**: trợ lý đã gửi request trở lại cho requester để bổ sung/chỉnh sửa.
-- `APPROVED` → **Đã duyệt**: lãnh đạo đã duyệt request.
+- `PROCESSING` → **Đang xử lý** đối với requester; **Mới** đối với assistant.
+- `PENDING_APPROVAL` → **Đang xử lý** đối với requester; **Chờ lãnh đạo duyệt** đối với assistant/leader.
+- `ADJUSTED` → trạng thái nội bộ sau khi lãnh đạo yêu cầu chỉnh sửa. Requester vẫn xếp trạng thái này vào nhóm **Đang xử lý**.
+- `REVISED` → **Điều chỉnh** đối với requester; **Chờ requester bổ sung/chỉnh sửa** đối với assistant. Leader có thể xem request ở trạng thái này để theo dõi.
+- `APPROVED` → **Đã duyệt**.
 - `CANCELLED` → **Đã hủy**: requester chủ động hủy đề xuất.
 - `COMPLETED` → **Hoàn thành**: request đã được duyệt và cuộc họp đã qua ngày/thời điểm hiệu lực.
 
-Không có trạng thái `REJECTED` trong V1. Nếu lãnh đạo không đồng ý nội dung hiện tại, request đi qua vòng `ADJUSTED → REVISED → PROCESSING` để chỉnh sửa.
+Không có trạng thái `REJECTED` trong V1. Nếu lãnh đạo không đồng ý nội dung hiện tại, request đi qua `ADJUSTED` và sau đó hoặc được trợ lý xử lý trực tiếp về `PENDING_APPROVAL`, hoặc được gửi cho requester qua `REVISED`.
 
 ## Auto-complete
 
@@ -60,13 +66,12 @@ Không có trạng thái `REJECTED` trong V1. Nếu lãnh đạo không đồng 
 - Trợ lý chỉnh chính request hiện tại, không tạo một request thứ hai.
 - Sau khi requester gửi lần đầu, request vào `PROCESSING`; không sử dụng trạng thái `SUBMITTED`.
 - Khi lãnh đạo yêu cầu chỉnh sửa, request chuyển sang `ADJUSTED`.
-- Trợ lý gửi request cho requester bổ sung/chỉnh sửa thì chuyển sang `REVISED`.
-- Khi requester chỉnh sửa và gửi lại, request trở về `PROCESSING`.
+- Từ `ADJUSTED`, trợ lý có thể sửa xong và gửi thẳng lại `PENDING_APPROVAL`, hoặc chuyển `REVISED` nếu cần requester bổ sung/chỉnh sửa.
+- Khi requester chỉnh sửa và gửi lại từ `REVISED`, request trở về `PROCESSING`.
 - Requester được quyền hủy theo workflow khi request chưa hoàn tất và chưa bị khóa bởi trạng thái không cho phép hủy.
 - Lãnh đạo V1 không có thao tác “Từ chối”; chỉ có duyệt hoặc yêu cầu chỉnh sửa.
 - Request chưa hoàn tất không bị ẩn chỉ vì ngày đề xuất đã qua.
 - Mọi thay đổi quan trọng phải ghi audit.
-
 ## Optimistic locking
 
 `Requests` có cột `version`.
