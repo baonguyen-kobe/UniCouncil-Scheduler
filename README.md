@@ -38,8 +38,9 @@ Baseline V1 đã được tổng hợp trong Master Plan và Handoff.
 
 Checkpoint hiện tại:
 - Đã chốt architecture, roles, workflow, status display, role visibility, /requests UX và schema baseline.
-- Đang chờ reviewer kiểm tra toàn bộ baseline.
-- Phần tiếp theo dự kiến là Part B: thiết kế chi tiết /requests/new.
+- Workflow sử dụng 8 system status, gồm REVISED_PROCESSING cho request hậu-leader đã được requester gửi lại và đang được Assistant xử lý.
+- Baseline workflow đã qua reviewer checkpoint.
+- Đang thực hiện Part B: thiết kế chi tiết /requests/new.
 - Các quyết định còn mở của Part B được liệt kê trong docs/master-plan.md và docs/handoff.md.
 
 ## Quy tắc review
