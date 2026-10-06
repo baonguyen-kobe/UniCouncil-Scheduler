@@ -8,7 +8,7 @@ Một Google Spreadsheet vận hành gồm các sheet sau.
 |---|---|
 | request_id | ID nghiệp vụ, ví dụ `REQ-2026-000001` |
 | version | Optimistic locking |
-| status | `PROCESSING` / `PENDING_APPROVAL` / `ADJUSTED` / `REVISED` / `APPROVED` / `CANCELLED` / `COMPLETED` |
+| status | `PROCESSING` / `PENDING_APPROVAL` / `ADJUSTED` / `REVISED` / `REVISED_PROCESSING` / `APPROVED` / `CANCELLED` / `COMPLETED` |
 | requester_id | Staff ID người đăng ký |
 | requester_name | Snapshot tên |
 | requester_email | Snapshot email |
