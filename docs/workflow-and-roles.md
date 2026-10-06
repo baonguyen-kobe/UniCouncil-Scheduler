@@ -11,7 +11,7 @@ Một người có thể có nhiều role.
 
 ## Workflow V1
 
-NaN``
+```
 PROCESSING
    |
    v
@@ -30,7 +30,7 @@ APPROVED               ADJUSTED
    |
    v
 COMPLETED
-NaN``
+```
 
 Ngoài ra có `CANCELLED` khi requester chủ động hủy yêu cầu theo quyền workflow.
 
@@ -73,8 +73,8 @@ Không có trạng thái `REJECTED` trong V1. Nếu lãnh đạo không đồng 
 
 Mỗi lần ghi thành công:
 
-NaN``
+```
 version = version + 1
-NaN``
+```
 
 Nếu người dùng đang sửa version cũ hơn dữ liệu hiện tại, server từ chối overwrite và yêu cầu reload.
