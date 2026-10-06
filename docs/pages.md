@@ -37,12 +37,12 @@ Filter thời gian:
 
 Filter trạng thái:
 - Dropdown multi-select có checkbox.
-- Các nhóm hiển thị cho requester: Đã gửi, Đang xử lý, Điều chỉnh, Đã duyệt, Không được duyệt, Đã hủy, Hoàn thành.
+- Các nhóm hiển thị cho requester: Đang xử lý, Điều chỉnh, Đã duyệt, Đã hủy, Hoàn thành.
 
 Default list:
 - Ưu tiên hiển thị các request chưa hoàn tất bất kể ngày đăng ký đã qua.
 - Hiển thị request đã duyệt nếu cuộc họp vẫn còn hiệu lực/sắp tới.
-- Ẩn lịch sử cũ như `REJECTED`, `CANCELLED`, `COMPLETED` và các cuộc họp đã qua khỏi màn hình mặc định; user vẫn có thể filter để xem lại.
+- Ẩn lịch sử cũ như `CANCELLED`, `COMPLETED` và các cuộc họp đã qua khỏi màn hình mặc định; user vẫn có thể filter để xem lại.
 
 Requester card/row nên ưu tiên các dữ liệu phục vụ đọc nhanh:
 - request_id
@@ -95,7 +95,9 @@ Các cột desktop cụ thể sẽ chốt ở bước riêng.
 - Chuẩn hóa/chỉnh thông tin.
 - Gắn lãnh đạo, ngày giờ, địa điểm, thành phần.
 - Trình lãnh đạo.
-- Có thể trả lại request cho requester bổ sung/chỉnh sửa (`ADJUSTED`).
+- Khi lãnh đạo yêu cầu chỉnh sửa, chuyển request sang `ADJUSTED`.
+- Gửi request cho requester bổ sung/chỉnh sửa, chuyển sang `REVISED`.
+- Khi requester chỉnh sửa và gửi lại, request trở về `PROCESSING`.
 
 ### LEADER
 - Mặc định xem các request `PENDING_APPROVAL` liên quan đến mình.
