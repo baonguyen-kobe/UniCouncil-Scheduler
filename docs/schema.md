@@ -8,7 +8,7 @@ Một Google Spreadsheet vận hành gồm các sheet sau.
 |---|---|
 | request_id | ID nghiệp vụ, ví dụ `REQ-2026-000001` |
 | version | Optimistic locking |
-| status | Workflow status |
+| status | `PROCESSING` / `PENDING_APPROVAL` / `ADJUSTED` / `REVISED` / `APPROVED` / `CANCELLED` / `COMPLETED` |
 | requester_id | Staff ID người đăng ký |
 | requester_name | Snapshot tên |
 | requester_email | Snapshot email |
@@ -98,7 +98,7 @@ Một Google Spreadsheet vận hành gồm các sheet sau.
 | log_id | ID log |
 | request_id | Request liên quan |
 | actor_id | Người thao tác |
-| action | CREATE / UPDATE / SUBMIT / APPROVE / ... |
+| action | CREATE / UPDATE / STATUS_CHANGE / SUBMIT / APPROVE / ... |
 | field_name | Field bị thay đổi |
 | old_value | Giá trị cũ |
 | new_value | Giá trị mới |
