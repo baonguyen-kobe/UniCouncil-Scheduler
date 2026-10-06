@@ -74,13 +74,11 @@ Filter đề xuất:
 - Search theo mã request / nội dung / người đăng ký
 
 Trợ lý nhìn thấy status chi tiết hơn requester, ví dụ:
-- `SUBMITTED` → Mới
-- `ASSISTANT_REVIEW` → Đang xử lý
+- `PROCESSING` → Đang xử lý
 - `PENDING_APPROVAL` → Chờ lãnh đạo duyệt
-- `NEEDS_REVISION` → Lãnh đạo yêu cầu chỉnh
-- `ADJUSTED` → Chờ đơn vị bổ sung
+- `ADJUSTED` → Lãnh đạo yêu cầu chỉnh sửa
+- `REVISED` → Chờ requester bổ sung/chỉnh sửa
 - `APPROVED` → Đã duyệt
-- `REJECTED` → Không được duyệt
 - `CANCELLED` → Đã hủy
 - `COMPLETED` → Hoàn thành
 
@@ -102,7 +100,8 @@ Các cột desktop cụ thể sẽ chốt ở bước riêng.
 ### LEADER
 - Mặc định xem các request `PENDING_APPROVAL` liên quan đến mình.
 - Xem chi tiết và file.
-- Duyệt / Yêu cầu chỉnh sửa / Từ chối.
+- Duyệt / Yêu cầu chỉnh sửa.
+- Không có thao tác từ chối trong V1.
 
 ### Form request
 
