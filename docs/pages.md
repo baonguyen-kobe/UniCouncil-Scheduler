@@ -20,13 +20,12 @@ Quyền xem:
 - Backend bắt buộc filter theo `requester_id = current_user.staff_id`; không chỉ dựa vào UI.
 
 Desktop:
-- Hỗ trợ 2 chế độ xem: `Table` và `Card`.
-- Có nút chuyển chế độ xem.
-- Mặc định ưu tiên `Table` trên PC.
+- Chỉ dùng `Table`.
+- Click từng request mở `detail drawer`.
 
 Responsive/mobile:
 - Hiển thị compact cards.
-- Chạm card để mở phần chi tiết/full-screen detail sheet.
+- Chạm card để mở `detail Card`.
 
 Filter thời gian:
 - Tất cả
@@ -37,12 +36,14 @@ Filter thời gian:
 
 Filter trạng thái:
 - Dropdown multi-select có checkbox.
-- Các nhóm hiển thị cho requester: Đang xử lý, Điều chỉnh, Đã duyệt, Đã hủy, Hoàn thành.
+- Nhóm **Đang xử lý** = `PROCESSING` + `PENDING_APPROVAL` + `ADJUSTED`.
+- Nhóm **Điều chỉnh** = `REVISED`.
+- Các trạng thái requester thấy trong danh sách/filter: `PROCESSING`, `REVISED`, `APPROVED`, `COMPLETED`, `CANCELLED`.
 
 Default list:
-- Ưu tiên hiển thị các request chưa hoàn tất bất kể ngày đăng ký đã qua.
-- Hiển thị request đã duyệt nếu cuộc họp vẫn còn hiệu lực/sắp tới.
-- Ẩn lịch sử cũ như `CANCELLED`, `COMPLETED` và các cuộc họp đã qua khỏi màn hình mặc định; user vẫn có thể filter để xem lại.
+- Ưu tiên các request chưa hoàn tất.
+- Ưu tiên tiếp các cuộc họp sắp tới.
+- Các request lịch sử vẫn có thể xem qua filter trạng thái/thời gian.
 
 Requester card/row nên ưu tiên các dữ liệu phục vụ đọc nhanh:
 - request_id
@@ -56,14 +57,12 @@ Requester card/row nên ưu tiên các dữ liệu phục vụ đọc nhanh:
 #### ASSISTANT
 
 Desktop:
-- Dùng `Table` làm chế độ chính.
-- Không đưa toàn bộ field của request thành cột; chỉ hiện các field cần quét nhanh.
-- Có thể bổ sung Card view nếu cần đồng bộ trải nghiệm.
-- Click row mở detail drawer bên phải để xem/xử lý nhanh mà không mất vị trí trong danh sách.
+- Dùng `Table` làm chế độ duy nhất ở V1.
+- Click từng request mở `detail drawer`.
 
 Responsive/mobile:
-- Compact cards.
-- Chạm card mở detail sheet/full-screen detail.
+- Hiển thị compact cards.
+- Chạm card để mở `detail Card`.
 
 Filter đề xuất:
 - Trạng thái nội bộ
@@ -73,36 +72,51 @@ Filter đề xuất:
 - Trợ lý phụ trách
 - Search theo mã request / nội dung / người đăng ký
 
-Trợ lý nhìn thấy status chi tiết hơn requester, ví dụ:
-- `PROCESSING` → Đang xử lý
-- `PENDING_APPROVAL` → Chờ lãnh đạo duyệt
-- `ADJUSTED` → Lãnh đạo yêu cầu chỉnh sửa
-- `REVISED` → Chờ requester bổ sung/chỉnh sửa
-- `APPROVED` → Đã duyệt
-- `CANCELLED` → Đã hủy
-- `COMPLETED` → Hoàn thành
+Assistant nhìn thấy status nội bộ cụ thể:
+- `PROCESSING` → hiển thị **Mới**.
+- `PENDING_APPROVAL` → **Chờ lãnh đạo duyệt**.
+- `REVISED` → **Chờ requester bổ sung/chỉnh sửa**.
+- `APPROVED` → **Đã duyệt**.
+- `COMPLETED` → **Hoàn thành**.
+- `CANCELLED` → **Đã hủy**.
+- `ADJUSTED` vẫn là trạng thái workflow bắt buộc để assistant xử lý sau khi leader yêu cầu chỉnh; assistant có thể xử lý và gửi thẳng `PENDING_APPROVAL` hoặc chuyển `REVISED` khi cần requester bổ sung.
 
-Các cột desktop cụ thể sẽ chốt ở bước riêng.
+#### LEADER
+
+Desktop:
+- Dùng `Table`.
+- Click từng request mở `detail drawer`.
+
+Responsive/mobile:
+- Hiển thị compact cards.
+- Chạm card để mở `detail Card`.
+
+Leader nhìn thấy các trạng thái:
+- `PENDING_APPROVAL` → hiển thị **Mới**; đây là trạng thái có thao tác duyệt/yêu cầu chỉnh sửa.
+- `REVISED` → có thể xem để theo dõi.
+- `APPROVED` → **Đã duyệt**.
+- `COMPLETED` → **Hoàn thành**.
 
 ### REQUESTER — nghiệp vụ
 - Tạo đăng ký họp.
 - Xem yêu cầu của mình.
-- Theo dõi trạng thái.
+- Theo dõi trạng thái theo cách hiển thị dành cho requester.
 - Chỉnh/hủy khi workflow còn cho phép.
 
 ### ASSISTANT — nghiệp vụ
 - Tiếp nhận request.
 - Chuẩn hóa/chỉnh thông tin.
 - Gắn lãnh đạo, ngày giờ, địa điểm, thành phần.
-- Trình lãnh đạo.
-- Khi lãnh đạo yêu cầu chỉnh sửa, chuyển request sang `ADJUSTED`.
-- Gửi request cho requester bổ sung/chỉnh sửa, chuyển sang `REVISED`.
-- Khi requester chỉnh sửa và gửi lại, request trở về `PROCESSING`.
+- Trình lãnh đạo bằng cách chuyển `PENDING_APPROVAL`.
+- Khi lãnh đạo yêu cầu chỉnh sửa, request chuyển `ADJUSTED`.
+- Từ `ADJUSTED`, trợ lý có thể sửa xong và trình lại thẳng `PENDING_APPROVAL`.
+- Nếu cần requester bổ sung/chỉnh sửa, chuyển `REVISED`; khi requester gửi lại, request trở về `PROCESSING`.
 
 ### LEADER
 - Mặc định xem các request `PENDING_APPROVAL` liên quan đến mình.
+- Có thể xem thêm `REVISED`, `APPROVED`, `COMPLETED` để theo dõi.
 - Xem chi tiết và file.
-- Duyệt / Yêu cầu chỉnh sửa.
+- Với `PENDING_APPROVAL`: Duyệt / Yêu cầu chỉnh sửa.
 - Không có thao tác từ chối trong V1.
 
 ### Form request
