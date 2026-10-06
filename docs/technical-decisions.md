@@ -21,13 +21,16 @@
 16. Requester chỉnh sửa và gửi lại từ ADJUSTED → PROCESSING.
 17. Assistant hoàn tất request → PENDING_APPROVAL.
 18. Leader yêu cầu chỉnh sửa một request đã ở PENDING_APPROVAL → REVISED.
-19. Request đã từng bước vào vòng lãnh đạo không quay lại ADJUSTED; các vòng chỉnh sửa tiếp theo tiếp tục dùng REVISED.
-20. Requester chỉnh sửa và gửi lại từ REVISED → PENDING_APPROVAL.
-21. APPROVED → COMPLETED được tự động hóa sau khi cuộc họp đã qua ngày/thời điểm hiệu lực.
-22. Chỉ ADMIN và ASSISTANT được phép chuyển thủ công một request COMPLETED sang trạng thái khác.
-23. Leader chỉ nhìn thấy request đã từng bước vào vòng lãnh đạo: PENDING_APPROVAL, REVISED, APPROVED, COMPLETED. Leader không thấy PROCESSING, ADJUSTED, CANCELLED.
-24. Status display là role-specific; system status là nguồn dữ liệu chuẩn, nhãn hiển thị không được dùng làm logic backend.
-25. Một request có thể có nhiều role trên cùng một user; authorization phải tính theo quyền role và quan hệ với request.
+19. Request đã từng bước vào vòng lãnh đạo không quay lại ADJUSTED.
+20. Ở REVISED, Assistant có hai hướng: tự xử lý và trình lại → PENDING_APPROVAL; hoặc gửi requester chỉnh, trong thời gian requester chỉnh status vẫn là REVISED.
+21. Requester gửi lại sau yêu cầu chỉnh của leader → REVISED_PROCESSING.
+22. REVISED_PROCESSING nghĩa là request hậu-leader đang được Assistant xử lý trước khi trình lại; Assistant trình lại → PENDING_APPROVAL, hoặc gửi requester chỉnh tiếp → REVISED.
+23. APPROVED → COMPLETED được tự động hóa sau khi cuộc họp đã qua ngày/thời điểm hiệu lực.
+24. Chỉ ADMIN và ASSISTANT được phép chuyển thủ công một request COMPLETED sang trạng thái khác.
+25. Leader nhìn thấy PENDING_APPROVAL, REVISED, REVISED_PROCESSING, APPROVED, COMPLETED. Leader không thấy PROCESSING, ADJUSTED, CANCELLED.
+26. Status display là role-specific; system status là nguồn dữ liệu chuẩn, nhãn hiển thị không được dùng làm logic backend.
+27. Requester hiển thị Đang xử lý cho PROCESSING, PENDING_APPROVAL, REVISED_PROCESSING; hiển thị Điều chỉnh cho ADJUSTED, REVISED.
+28. Một request có thể có nhiều role trên cùng một user; authorization phải tính theo quyền role và quan hệ với request.
 
 ## Status display đã chốt
 
@@ -36,7 +39,7 @@
 | PROCESSING | Processing / Đang xử lý | New / Mới | — |
 | PENDING_APPROVAL | Processing / Đang xử lý | Pending Approval / Chờ duyệt | New / Mới |
 | ADJUSTED | Revised / Điều chỉnh | Adjusted / Chờ bổ sung | — |
-| REVISED | Revised / Điều chỉnh | Revised / Điều chỉnh | Revising / Điều chỉnh |
+| REVISED | Revised / Điều chỉnh | Revised / Điều chỉnh | Revising / Điều chỉnh |\n| REVISED_PROCESSING | Processing / Đang xử lý | Processing / Đang xử lý | Revising / Điều chỉnh |
 | APPROVED | Approved / Đã duyệt | Approved / Đã duyệt | Approved / Đã duyệt |
 | CANCELLED | Cancelled / Đã hủy | Cancelled / Đã hủy | — |
 | COMPLETED | Completed / Hoàn thành | Completed / Hoàn thành | Completed / Hoàn thành |
