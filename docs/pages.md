@@ -1,18 +1,24 @@
-
 # Pages V1
 
-## 0. Login /login
+## 0. Language / i18n
+
+- Web app hỗ trợ chuyển đổi **VI / EN**.
+- UI labels, navigation, buttons, validation messages, status labels và system text phải có cả hai ngôn ngữ.
+- Dữ liệu free-text do người dùng nhập không tự dịch.
+- Danh mục hiển thị cho người dùng như Units, MeetingTypes và Locations dùng nhãn theo locale hiện tại; nếu thiếu nhãn ở locale đang chọn thì fallback sang nhãn còn lại.
+
+## 1. Login /login
 
 - Logo trường.
-- Tên hệ thống.
-- Nút **Đăng nhập bằng Google**.
+- Tên hệ thống theo VI/EN.
+- Nút đăng nhập Google theo locale hiện tại.
 - Chỉ user hợp lệ trong Google Workspace + Staff mới được vào.
 
-## 1. Requests /requests
+## 2. Requests /requests
 
 Page nghiệp vụ trung tâm, hiển thị khác nhau theo role.
 
-### 1A. Danh sách yêu cầu — đã chốt
+### 2A. Danh sách yêu cầu — đã chốt
 
 #### REQUESTER
 
@@ -29,17 +35,17 @@ Responsive/mobile:
 - Chạm card để mở **detail Card**.
 
 Filter thời gian:
-- Tất cả
-- Hôm nay
-- Ngày mai
-- Tuần này
-- Tháng này
+- Tất cả / All
+- Hôm nay / Today
+- Ngày mai / Tomorrow
+- Tuần này / This week
+- Tháng này / This month
 
 Filter trạng thái:
 - Dropdown multi-select có checkbox.
-- Nhóm **Đang xử lý** = PROCESSING + PENDING_APPROVAL + REVISED_PROCESSING.
-- Nhóm **Điều chỉnh** = ADJUSTED + REVISED.
-- Các trạng thái requester thấy trong danh sách/filter theo nhãn hiển thị: Đang xử lý, Điều chỉnh, Đã duyệt, Hoàn thành, Đã hủy.
+- Nhóm **Đang xử lý / Processing** = PROCESSING + PENDING_APPROVAL + REVISED_PROCESSING.
+- Nhóm **Điều chỉnh / Revised** = ADJUSTED + REVISED.
+- Các trạng thái requester thấy trong danh sách/filter theo nhãn hiển thị: Đang xử lý, Điều chỉnh, Đã duyệt, Hoàn thành, Đã hủy và bản EN tương ứng.
 
 Default list:
 - Ưu tiên các request chưa hoàn tất.
@@ -49,13 +55,14 @@ Default list:
 Requester card/row nên ưu tiên:
 - request_id
 - trạng thái thân thiện với requester
-- meeting_title
+- nội dung/agenda tóm tắt
 - effective date/time
-- lãnh đạo liên quan
+- lãnh đạo liên quan khi đã được Assistant gắn
 - địa điểm nếu đã xác định
 - thời gian cập nhật gần nhất
 
-Requester không cần biết ADJUSTED là trạng thái nội bộ; mọi ADJUSTED hiển thị là **Điều chỉnh**.
+Requester không cần biết ADJUSTED là trạng thái nội bộ; mọi ADJUSTED hiển thị là **Điều chỉnh / Revised**.
+Requester không thấy Meeting Type.
 
 #### ASSISTANT
 
@@ -73,6 +80,7 @@ Filter:
 - Đơn vị
 - Lãnh đạo
 - Trợ lý phụ trách
+- Meeting Type
 - Search theo mã request / nội dung / người đăng ký
 
 Assistant nhìn thấy status cụ thể:
@@ -84,6 +92,8 @@ Assistant nhìn thấy status cụ thể:
 - APPROVED → **Approved / Đã duyệt**
 - COMPLETED → **Completed / Hoàn thành**
 - CANCELLED → **Cancelled / Đã hủy**
+
+Assistant được xem và thay đổi Meeting Type. Mọi thay đổi Meeting Type phải ghi AuditLog.
 
 Ý nghĩa ADJUSTED:
 - Request chưa từng được trình lãnh đạo.
@@ -129,6 +139,8 @@ Leader không thấy:
 - ADJUSTED
 - CANCELLED
 
+Leader được **xem Meeting Type** theo locale hiện tại nhưng không được thay đổi.
+
 Đặc biệt:
 - Request bị assistant yêu cầu requester bổ sung trước khi từng được trình lãnh đạo (ADJUSTED) không xuất hiện ở leader.
 - Request đã từng được trình lãnh đạo và sau đó bị leader yêu cầu chỉnh sửa (REVISED) vẫn xuất hiện ở leader để theo dõi.
@@ -140,11 +152,11 @@ Default:
 - APPROVED và COMPLETED có thể xem qua list/filter để tra cứu.
 
 Actions:
-- PENDING_APPROVAL: **Duyệt** / **Yêu cầu chỉnh sửa**
+- PENDING_APPROVAL: **Duyệt / Approve** / **Yêu cầu chỉnh sửa / Request revision**
 - REVISED/REVISED_PROCESSING: theo dõi; leader không thao tác duyệt cho đến khi request được trình lại thành PENDING_APPROVAL.
-- Không có thao tác **Từ chối** trong V1.
+- Không có thao tác **Từ chối / Reject** trong V1.
 
-### 1B. Chi tiết request
+### 2B. Chi tiết request
 
 Desktop:
 - Mở bằng drawer từ danh sách.
@@ -153,19 +165,21 @@ Desktop:
 Mobile:
 - Dùng detail Card/full-page style thay vì cố ép drawer rộng.
 
-Chi tiết nên thể hiện:
+Chi tiết nên thể hiện theo quyền:
 - Request ID
 - Status theo role
-- Nội dung request
-- Người đăng ký / đơn vị
-- Lãnh đạo liên quan
-- Thời gian đề xuất
+- Nội dung/agenda
+- Người đăng ký
+- School/Office/Unit đã chọn
+- Lãnh đạo liên quan khi đã được Assistant gắn
+- Ngày đề xuất
 - Lịch chính thức nếu đã có
-- Địa điểm
-- Thành phần
+- Địa điểm chính thức nếu đã có
+- Thành phần đề xuất/chính thức
 - File đính kèm
 - Ghi chú phù hợp với role
 - Timeline/audit summary khi cần
+- Meeting Type: Assistant xem/sửa; Leader chỉ xem; Requester không thấy
 
 Banner ngữ cảnh:
 - ADJUSTED: requester thấy **Điều chỉnh**; assistant thấy **Chờ bổ sung**.
@@ -179,12 +193,13 @@ Banner ngữ cảnh:
 - Theo dõi trạng thái theo cách hiển thị dành cho requester.
 - Chỉnh/hủy khi workflow còn cho phép.
 - Không được truy cập request của requester khác; backend phải enforce quyền này.
+- Không xem/chỉnh Meeting Type.
 
 ## ASSISTANT — nghiệp vụ
 
 - Tiếp nhận request PROCESSING.
 - Chuẩn hóa/chỉnh thông tin.
-- Gắn lãnh đạo, ngày giờ, địa điểm, thành phần.
+- Gắn Meeting Type, lãnh đạo, ngày giờ chính thức, địa điểm, thành phần.
 - Yêu cầu requester bổ sung → ADJUSTED.
 - Khi requester gửi lại → PROCESSING.
 - Trình lãnh đạo → PENDING_APPROVAL.
@@ -200,63 +215,86 @@ Banner ngữ cảnh:
 - Mặc định xử lý PENDING_APPROVAL liên quan đến mình.
 - Theo dõi REVISED và REVISED_PROCESSING của request mình đã tham gia.
 - Xem APPROVED và COMPLETED để tra cứu.
-- Xem chi tiết và file.
+- Xem chi tiết, file và Meeting Type.
 - Với PENDING_APPROVAL: **Duyệt / Yêu cầu chỉnh sửa**.
 - Không có **Từ chối** trong V1.
 - Không thấy request đang ADJUSTED trước vòng lãnh đạo.
+- Không chỉnh Meeting Type.
 
-## 2. Request form /requests/new
+## 3. Request form /requests/new — Part B baseline
 
-Form được xây trực tiếp trên web, không dùng Google Form ở V1.
+Form được xây trực tiếp trên web, không dùng Google Form ở V1. Form Requester cố ý tối giản và hỗ trợ VI/EN.
 
-Thông tin người đăng ký:
-- requester
-- email
-- unit
-- meeting_title
-- meeting_content / purpose
-- requested_leaders
-- requested_date
-- requested_start_time
-- estimated_duration
-- requested_location
-- requested_participants
-- requester_note
-- attachments
+### Field requester nhìn thấy
 
-Thông tin trợ lý hoàn thiện:
-- assigned assistant
-- meeting_date
-- meeting_start_time
-- meeting_end_time
-- leader_ids
-- location_id
-- meeting_title/content đã chuẩn hóa
-- participants
-- assistant_note
-- priority
-- approval_note
+1. **Full name / Họ và tên**
+   - Tự động lấy từ tài khoản Google Workspace/Staff đã đăng nhập.
+   - Read-only trên form; requester không tự gõ lại.
 
-Các field và validation chi tiết của form sẽ được chốt ở Part B.
+2. **School/Office/Unit / Trường-Văn phòng-Đơn vị**
+   - Lấy từ sheet `Units`.
+   - Dropdown **multi-select**.
+   - Hiển thị tên VI/EN theo locale hiện tại.
 
-## 3. Calendar /calendar
+3. **Proposed meeting agenda / Nội dung cuộc họp đề xuất**
+   - Text input/textarea cho nội dung cuộc họp.
+
+4. **Proposed meeting participants / Thành phần tham dự đề xuất**
+   - Free-text textarea.
+   - Requester tự nhập danh sách/mô tả thành phần; không bắt buộc chọn Staff/Unit ở V1.
+
+5. **Preferred meeting date / Ngày họp mong muốn**
+   - Date picker.
+   - Chỉ chọn **ngày**, không có giờ đề xuất.
+   - Default = ngày hiện tại theo timezone cấu hình hệ thống.
+   - UI phải hiển thị cảnh báo rằng lịch chính thức có thể không trùng ngày này.
+
+6. **Meeting documents and reports for review (if any) / Tài liệu, báo cáo phục vụ xem xét (nếu có)**
+   - Upload file.
+   - File vật lý lưu Google Drive; metadata lưu trong `Attachments`.
+   - Attachment là optional trừ khi sau này có rule riêng.
+
+### Meeting Type
+
+- Có Meeting Type nhưng **không hiển thị cho Requester** trên form hoặc requester detail.
+- Danh mục nằm trong sheet `MeetingTypes` riêng.
+- Khi request được tạo, backend tự gán item `active` đầu tiên theo `sort_order`.
+- Chỉ **Assistant** được thay đổi Meeting Type trong workflow thông thường.
+- Leader chỉ được **xem** Meeting Type.
+- Meeting Type hiển thị VI/EN theo locale hiện tại.
+- Mọi thay đổi Meeting Type phải audit.
+
+### Các field không có trên requester form V1
+
+- requested leader
+- requested start time
+- estimated duration
+- requested location
+- requester note riêng
+- Meeting Type
+
+Các thông tin lãnh đạo, giờ họp chính thức, thời lượng/end time, địa điểm và các metadata nghiệp vụ sẽ do Assistant hoàn thiện sau khi tiếp nhận.
+
+## 4. Calendar /calendar
 
 - Lịch tháng / tuần / danh sách.
 - Render từ request đã được duyệt.
-- Filter theo lãnh đạo, đơn vị, địa điểm, loại họp khi có.
+- Filter theo lãnh đạo, đơn vị, địa điểm, Meeting Type.
 - Click event để xem chi tiết và tài liệu.
 - V1 chưa tích hợp Google Calendar.
+- UI hỗ trợ VI/EN.
 
-## 4. Staff /staff
+## 5. Staff /staff
 
 - Quản lý nhân sự.
 - Họ tên, email, đơn vị, chức vụ, roles, trạng thái hoạt động, Zalo mapping.
 - Chỉ admin hoặc người được phân quyền.
+- UI hỗ trợ VI/EN.
 
-## 5. Settings /settings
+## 6. Settings /settings
 
 Nhóm cấu hình:
-- Hệ thống: tên trường, tên app, timezone, logo.
+- Hệ thống: tên trường VI/EN, tên app VI/EN, timezone, logo, default locale.
 - Request: giới hạn file, thời lượng mặc định, quy tắc đăng ký.
 - Workflow: quyền chỉnh sửa, quy tắc duyệt.
 - Drive: root folder ID / cấu trúc folder.
