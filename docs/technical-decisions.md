@@ -1,4 +1,3 @@
-
 # Technical Decisions V1
 
 ## Chốt
@@ -31,6 +30,16 @@
 26. Status display là role-specific; system status là nguồn dữ liệu chuẩn, nhãn hiển thị không được dùng làm logic backend.
 27. Requester hiển thị Đang xử lý cho PROCESSING, PENDING_APPROVAL, REVISED_PROCESSING; hiển thị Điều chỉnh cho ADJUSTED, REVISED.
 28. Một request có thể có nhiều role trên cùng một user; authorization phải tính theo quyền role và quan hệ với request.
+29. Web app V1 hỗ trợ chuyển đổi VI/EN. System text, labels, validation và status labels phải được localize; free-text do người dùng nhập không tự dịch.
+30. Danh mục dùng trong UI có nhãn VI/EN. Units, MeetingTypes và Locations dùng cột tên theo locale và fallback sang ngôn ngữ còn lại khi cần.
+31. Requester form V1 gồm: Full name read-only từ login/Staff; School/Office/Unit multi-select; Proposed meeting agenda; Proposed meeting participants dạng free text; Preferred meeting date chỉ có ngày và default today; attachment optional.
+32. Requester form V1 không có requested leader, requested start time, estimated duration, requested location, requester note riêng hoặc Meeting Type.
+33. School/Office/Unit trên requester form là multi-select và được lưu riêng với snapshot đơn vị chính của requester.
+34. Meeting Type nằm trong sheet MeetingTypes riêng; request mới tự gán item active đầu tiên theo sort_order.
+35. Meeting Type không hiển thị với Requester. Chỉ Assistant được thay đổi Meeting Type trong workflow thông thường; Leader chỉ được xem. Mọi thay đổi phải ghi AuditLog.
+36. Proposed meeting participants là free text ở V1; không có field attendee count riêng.
+37. Preferred meeting date chỉ là ngày đề xuất; lịch chính thức không bắt buộc trùng ngày này và được Assistant hoàn thiện sau.
+38. Attachment vật lý lưu trên Google Drive; metadata lưu trong Attachments.
 
 ## Status display đã chốt
 
@@ -39,7 +48,8 @@
 | PROCESSING | Processing / Đang xử lý | New / Mới | — |
 | PENDING_APPROVAL | Processing / Đang xử lý | Pending Approval / Chờ duyệt | New / Mới |
 | ADJUSTED | Revised / Điều chỉnh | Adjusted / Chờ bổ sung | — |
-| REVISED | Revised / Điều chỉnh | Revised / Điều chỉnh | Revising / Điều chỉnh |\n| REVISED_PROCESSING | Processing / Đang xử lý | Processing / Đang xử lý | Revising / Điều chỉnh |
+| REVISED | Revised / Điều chỉnh | Revised / Điều chỉnh | Revising / Điều chỉnh |
+| REVISED_PROCESSING | Processing / Đang xử lý | Processing / Đang xử lý | Revising / Điều chỉnh |
 | APPROVED | Approved / Đã duyệt | Approved / Đã duyệt | Approved / Đã duyệt |
 | CANCELLED | Cancelled / Đã hủy | Cancelled / Đã hủy | — |
 | COMPLETED | Completed / Hoàn thành | Completed / Hoàn thành | Completed / Hoàn thành |
@@ -71,6 +81,7 @@ Một Google Spreadsheet vận hành gồm:
 - Requests
 - Staff
 - Units
+- MeetingTypes
 - Locations
 - Attachments
 - AuditLog
