@@ -26,7 +26,7 @@
 22. REVISED_PROCESSING nghĩa là request hậu-leader đang được Assistant xử lý trước khi trình lại; Assistant trình lại → PENDING_APPROVAL, hoặc gửi requester chỉnh tiếp → REVISED.
 23. APPROVED → COMPLETED được tự động hóa sau khi cuộc họp đã qua ngày/thời điểm hiệu lực.
 24. Chỉ ADMIN và ASSISTANT được phép chuyển thủ công một request COMPLETED sang trạng thái khác.
-25. Leader nhìn thấy PENDING_APPROVAL, REVISED, REVISED_PROCESSING, APPROVED, COMPLETED. Leader không thấy PROCESSING, ADJUSTED, CANCELLED.
+25. Mọi user có role LEADER nhìn thấy cùng tập PENDING_APPROVAL, REVISED, REVISED_PROCESSING, APPROVED, COMPLETED. V1 chưa filter visibility theo từng leader cụ thể; Leader không thấy PROCESSING, ADJUSTED, CANCELLED.
 26. Status display là role-specific; system status là nguồn dữ liệu chuẩn, nhãn hiển thị không được dùng làm logic backend.
 27. Requester hiển thị Đang xử lý cho PROCESSING, PENDING_APPROVAL, REVISED_PROCESSING; hiển thị Điều chỉnh cho ADJUSTED, REVISED.
 28. Một request có thể có nhiều role trên cùng một user; authorization phải tính theo quyền role và quan hệ với request.
@@ -40,6 +40,10 @@
 36. Proposed meeting participants là free text ở V1; không có field attendee count riêng.
 37. Preferred meeting date chỉ là ngày đề xuất; lịch chính thức không bắt buộc trùng ngày này và được Assistant hoàn thiện sau.
 38. Attachment vật lý lưu trên Google Drive; metadata lưu trong Attachments.
+39. Proposed meeting participants là free text và có thể bao gồm cả lãnh đạo dự kiến; Requester không có control riêng để chọn leader.
+40. Assistant chịu trách nhiệm chuẩn hóa từ requested_participants/nghiệp vụ sang leader_ids và participants chính thức. leader_ids không được dùng để giới hạn Leader visibility ở V1.
+41. V1 không có Save Draft, status DRAFT, server-side draft hoặc local autosave/persistence cho requester form.
+42. Request chỉ được tạo khi requester submit thành công; trạng thái khởi tạo là PROCESSING.
 
 ## Status display đã chốt
 
