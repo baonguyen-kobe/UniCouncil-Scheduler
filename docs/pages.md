@@ -212,8 +212,9 @@ Banner ngữ cảnh:
 
 ## LEADER — nghiệp vụ
 
-- Mặc định xử lý PENDING_APPROVAL liên quan đến mình.
-- Theo dõi REVISED và REVISED_PROCESSING của request mình đã tham gia.
+- Mọi user có role LEADER thấy cùng một leader queue ở V1; chưa phân biệt request theo từng leader cụ thể.
+- Mặc định xử lý toàn bộ PENDING_APPROVAL trong leader queue.
+- Theo dõi toàn bộ REVISED và REVISED_PROCESSING.
 - Xem APPROVED và COMPLETED để tra cứu.
 - Xem chi tiết, file và Meeting Type.
 - Với PENDING_APPROVAL: **Duyệt / Yêu cầu chỉnh sửa**.
@@ -241,7 +242,9 @@ Form được xây trực tiếp trên web, không dùng Google Form ở V1. For
 
 4. **Proposed meeting participants / Thành phần tham dự đề xuất**
    - Free-text textarea.
-   - Requester tự nhập danh sách/mô tả thành phần; không bắt buộc chọn Staff/Unit ở V1.
+   - Requester tự nhập danh sách/mô tả thành phần; nội dung có thể bao gồm cả lãnh đạo dự kiến.
+   - Không bắt buộc chọn Staff/Unit/Leader bằng control riêng ở V1.
+   - Assistant sẽ đọc và chuẩn hóa lại thành phần, gồm `leader_ids` và `participants` chính thức khi phù hợp.
 
 5. **Preferred meeting date / Ngày họp mong muốn**
    - Date picker.
@@ -274,6 +277,12 @@ Form được xây trực tiếp trên web, không dùng Google Form ở V1. For
 - Meeting Type
 
 Các thông tin lãnh đạo, giờ họp chính thức, thời lượng/end time, địa điểm và các metadata nghiệp vụ sẽ do Assistant hoàn thiện sau khi tiếp nhận.
+
+### Save Draft
+
+- V1 **không có Save Draft**.
+- Không có status DRAFT, server-side draft hoặc local autosave/persistence cho form.
+- Chỉ khi requester bấm gửi thành công mới tạo request ở trạng thái PROCESSING.
 
 ## 4. Calendar /calendar
 
