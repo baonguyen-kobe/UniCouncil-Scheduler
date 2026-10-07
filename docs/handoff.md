@@ -215,47 +215,37 @@ Các tài liệu đã có:
 
 Đây là **design baseline**, không có nghĩa các integration/UI/backend đã được triển khai production.
 
-## 5. Chưa chốt — cần reviewer lưu ý
+## 5. Part B — /requests/new: field baseline đã chốt
 
-Phần tiếp theo là **Part B — /requests/new**.
+- Web app hỗ trợ VI/EN; free-text không tự dịch.
+- Full name lấy từ Google Workspace/Staff và read-only.
+- School/Office/Unit lấy từ Units và cho multi-select.
+- Proposed meeting agenda là free text.
+- Proposed meeting participants là free text, có thể bao gồm cả lãnh đạo dự kiến.
+- Requester không chọn leader bằng control riêng.
+- Assistant chuẩn hóa leader_ids và participants chính thức.
+- Preferred meeting date chỉ có ngày, default today; không có giờ đề xuất.
+- Attachment optional; file lưu Google Drive, metadata lưu Attachments.
+- Meeting Type nằm trong MeetingTypes, tự lấy item active đầu tiên theo sort_order; Requester không thấy, Assistant được đổi, Leader chỉ xem.
+- Requester không chọn requested time/duration/location.
+- Không có attendee count riêng.
+- Không có Save Draft, DRAFT, server-side draft hoặc local autosave/persistence.
+- Submit thành công mới tạo request PROCESSING.
+- Mọi user có role LEADER thấy cùng một leader queue ở V1; không scope visibility theo leader_ids.
 
-Các câu hỏi còn mở:
+### Part B còn cần chốt chi tiết
 
-1. **Meeting Type**
-   - Có cần field loại cuộc họp không?
-   - Nếu có: dùng danh mục nào?
-
-2. **Multiple Leaders**
-   - Requester có được chọn nhiều lãnh đạo không?
-   - Nếu có, semantics của “requested leaders” và leader liên quan cần chốt.
-
-3. **Attendee Count**
-   - Số lượng người tham dự có bắt buộc không?
-   - Hay chỉ là optional?
-
-4. **Participants**
-   - Free text.
-   - Chọn Staff.
-   - Chọn Unit.
-   - Hay hybrid?
-
-5. **Save Draft**
-   - V1 không có status DRAFT trong workflow.
-   - Có cần local browser autosave để tránh mất form khi reload không?
-   - Nếu cần server-side draft thì phải chốt lại lifecycle.
-
-6. **Requested Location**
-   - Chọn từ Locations.
-   - Free text.
-   - Hay bỏ field khỏi form request và để assistant xử lý sau?
+1. Validation bắt buộc/giới hạn ký tự cho agenda, participants, units và date.
+2. Attachment constraints: loại file, số file, dung lượng tối đa, replace/delete behavior.
+3. Submit UX và lỗi upload/submit.
+4. Requester edit/resubmit UX khi ADJUSTED/REVISED.
 
 ## 6. Những phần sắp triển khai
 
 ### Ngay sau reviewer checkpoint
 
 **Part B — /requests/new**
-- Chốt 6 điểm còn mở.
-- Chốt field.
+- Field baseline đã chốt.
 - Chốt validation.
 - Chốt attachment UX.
 - Chốt submit flow.
