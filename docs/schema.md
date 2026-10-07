@@ -15,15 +15,15 @@ Một Google Spreadsheet vận hành gồm các sheet sau.
 | requester_unit_id | Snapshot đơn vị chính của requester trong Staff, nếu có |
 | requested_unit_ids | Các School/Office/Unit requester chọn trên form; multi-select |
 | meeting_content | Proposed meeting agenda / Nội dung cuộc họp |
-| requested_participants | Proposed meeting participants / Thành phần đề xuất; free text |
+| requested_participants | Proposed meeting participants / Thành phần đề xuất; free text, có thể bao gồm cả tên/chức danh lãnh đạo do requester đề xuất |
 | requested_date | Preferred meeting date / Ngày họp đề xuất; chỉ ngày, không có giờ |
 | meeting_type_id | Loại cuộc họp nội bộ; default từ MeetingTypes, chỉ Assistant được đổi, Leader được xem, Requester không thấy |
 | meeting_date | Ngày họp chính thức |
 | meeting_start_time | Giờ bắt đầu chính thức |
 | meeting_end_time | Giờ kết thúc chính thức |
-| leader_ids | Lãnh đạo chính thức |
+| leader_ids | Lãnh đạo chính thức do Assistant chuẩn hóa từ nội dung request/nghiệp vụ; có thể nhiều giá trị; không dùng để giới hạn Leader visibility ở V1 |
 | location_id | Địa điểm chính thức |
-| participants | Thành phần chính thức |
+| participants | Thành phần chính thức do Assistant chuẩn hóa; có thể khác free text requester nhập |
 | assistant_id | Trợ lý phụ trách |
 | assistant_note | Ghi chú nội bộ |
 | priority | Mức độ ưu tiên |
@@ -40,6 +40,8 @@ Một Google Spreadsheet vận hành gồm các sheet sau.
 | deleted_by | Người loại bỏ |
 
 Requester form V1 không yêu cầu giờ đề xuất, thời lượng đề xuất, địa điểm đề xuất, requester note hoặc meeting type. Các thông tin lịch chính thức do Assistant hoàn thiện sau.
+
+Requester form V1 không có Save Draft/DRAFT và không lưu local/server draft. `requested_participants` có thể ghi cả lãnh đạo; Assistant chịu trách nhiệm chuẩn hóa `leader_ids` và `participants` chính thức.
 
 ## Staff
 
