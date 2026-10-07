@@ -107,10 +107,11 @@ Secret/token chỉ nằm trong Vercel Environment Variables.
 
 ### LEADER
 
-- Xem request đã bước vào vòng lãnh đạo và có liên quan đến mình.
+- Mọi user có role LEADER thấy cùng một leader queue ở V1; chưa phân tách visibility theo từng leader cụ thể.
+- Xem request đã bước vào vòng lãnh đạo.
 - Duyệt.
 - Yêu cầu chỉnh sửa.
-- Theo dõi request đang được requester chỉnh sửa sau ý kiến của mình.
+- Theo dõi request đang trong vòng chỉnh sửa sau ý kiến lãnh đạo.
 
 ### ADMIN
 
@@ -276,8 +277,9 @@ Một Google Spreadsheet gồm:
 ### Requests — nhóm field chính
 
 - request identity: request_id, version, status.
-- requester snapshot: requester_id, requester_name, requester_email, unit_id.
-- requested content: meeting_title, meeting_content, requested_leader_ids, requested_date, requested_start_time, estimated_duration, requested_location, requested_participants, requester_note.
+- requester snapshot: requester_id, requester_name, requester_email, requester_unit_id.
+- requested content: requested_unit_ids, meeting_content, requested_participants, requested_date.
+- internal classification: meeting_type_id.
 - official schedule: meeting_date, meeting_start_time, meeting_end_time.
 - official participants/organization: leader_ids, location_id, participants.
 - assistant/approval: assistant_id, assistant_note, priority, approval_note, leader_decision_note, approved_by, approved_at.
@@ -362,22 +364,21 @@ ADMIN và ASSISTANT mới được sửa thủ công request COMPLETED sang stat
 - Status badges.
 
 ### Phase 3 — Request form
-**Chưa chốt đủ requirements**
+**Part B field baseline đã chốt; còn validation/upload/submit UX chi tiết**
 
-- /requests/new.
-- Validation.
-- Attachment upload.
-- Create request.
-- PROCESSING initial state.
-- Local browser protection nếu cần.
-
-Các điểm cần chốt trước khi code form:
-1. Có Meeting Type hay không.
-2. Có cho chọn nhiều leader hay không.
-3. Số lượng người tham dự bắt buộc hay optional.
-4. Participants là free text hay chọn Staff/Unit.
-5. Có Save Draft hay không.
-6. Requested location là room list, free text hay bỏ khỏi form.
+- /requests/new hỗ trợ VI/EN.
+- Full name read-only từ Google Workspace/Staff.
+- School/Office/Unit multi-select từ Units.
+- Proposed meeting agenda.
+- Proposed meeting participants là free text và có thể bao gồm lãnh đạo dự kiến.
+- Preferred meeting date chỉ ngày, default today.
+- Attachment optional, lưu Drive.
+- Requester không chọn leader/time/duration/location/Meeting Type.
+- Meeting Type là metadata nội bộ từ MeetingTypes; Assistant được đổi, Leader chỉ xem.
+- Assistant chuẩn hóa leader_ids và participants chính thức.
+- Không có Save Draft/local autosave/server draft.
+- Submit thành công tạo request PROCESSING.
+- Cần chốt tiếp validation, giới hạn attachment và submit/resubmit UX.
 
 ### Phase 4 — Assistant workflow
 **Chưa triển khai**
@@ -463,8 +464,9 @@ Chỉ cân nhắc sau khi V1 chạy ổn:
 - Google Sheets schema baseline.
 - Technical decisions.
 
-Chưa chốt:
-- Chi tiết form /requests/new ở Part B.
+Đang chốt Part B:
+- Field baseline /requests/new đã chốt.
+- Còn validation, attachment constraints và submit/resubmit UX chi tiết.
 
 Reviewer checkpoint hiện tại:
 **Review toàn bộ baseline + đặc biệt kiểm tra workflow/status/visibility trước khi tiếp tục chốt Part B.**
