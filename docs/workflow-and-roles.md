@@ -112,6 +112,8 @@ Leader **không hiển thị**:
 
 Đặc biệt, request đang ADJUSTED do assistant yêu cầu requester bổ sung phải hoàn toàn nằm ngoài danh sách leader.
 
+Trong V1, tất cả user có role LEADER dùng cùng một leader queue. Không filter danh sách theo `leader_ids` hoặc “leader liên quan”.
+
 ## Allowed transitions
 
 ### Trước vòng lãnh đạo
@@ -183,11 +185,13 @@ Trong REVISED, requester có thể chỉnh sửa sau khi Assistant trả request
 
 ### LEADER
 
-- Xem PENDING_APPROVAL liên quan đến mình.
-- Xem REVISED và REVISED_PROCESSING của các request mình đã tham gia để theo dõi.
+- Mọi user có role LEADER nhìn thấy cùng một tập request dành cho Leader; V1 chưa phân tách visibility theo từng leader cụ thể.
+- Xem toàn bộ PENDING_APPROVAL trong leader queue.
+- Xem toàn bộ REVISED và REVISED_PROCESSING để theo dõi.
 - Duyệt PENDING_APPROVAL → APPROVED.
 - Yêu cầu chỉnh sửa PENDING_APPROVAL → REVISED.
 - Không có thao tác REJECTED trong V1.
+- `leader_ids` là metadata cuộc họp do Assistant chuẩn hóa; không dùng để giới hạn Leader visibility ở V1.
 
 ### ADMIN
 
