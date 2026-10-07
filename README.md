@@ -40,8 +40,8 @@ Checkpoint hiện tại:
 - Đã chốt architecture, roles, workflow, status display, role visibility, /requests UX và schema baseline.
 - Workflow sử dụng 8 system status, gồm REVISED_PROCESSING cho request hậu-leader đã được requester gửi lại và đang được Assistant xử lý.
 - Baseline workflow đã qua reviewer checkpoint.
-- Đang thực hiện Part B: thiết kế chi tiết /requests/new.
-- Các quyết định còn mở của Part B được liệt kê trong docs/master-plan.md và docs/handoff.md.
+- Đang thực hiện Part B: field baseline của /requests/new đã chốt, gồm VI/EN, form tối giản, Meeting Type nội bộ và không có Save Draft.
+- Còn chốt validation, attachment constraints và submit/resubmit UX; xem docs/master-plan.md và docs/handoff.md.
 
 ## Quy tắc review
 
