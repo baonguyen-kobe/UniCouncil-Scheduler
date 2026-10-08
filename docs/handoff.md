@@ -402,7 +402,10 @@ Reviewer nên tập trung kiểm tra:
 - User đã gửi ảnh chính thức Primary/Secondary Colour (2026-10-08). Xem [ui-ux-guidelines.md](ui-ux-guidelines.md) cho từng HEX và ghi chú sự khác biệt giữa metadata RGB/HEX (đặc biệt Cream).
 - Sidebar **giống baseline được duyệt của EIU MedLabs V2 Master**, giữ gradient xanh, logo nền trắng, active menu vạch vàng; menu nghiệp vụ của UniCouncil vẫn là riêng.
 - Dùng **EIU Full Logo** trong Sidebar và **EIU Corner Logo** trên trang Login (source assets trong `baonguyen-kobe/eiu-medlabs/public`).
-- Font chính **Crimson**, font phụ **Be Vietnam Pro**, thay thế quyết định font của MedLabs. Cần hỏi lại biến thể Crimson chính xác trước khi cài package.
+- Font chính **Crimson Pro** (user đã chốt), font phụ **Be Vietnam Pro**; không dùng Crimson Text/Montserrat của repo EIU Schedule hay chỉ Be Vietnam Pro như MedLabs.
+- User muốn badge trạng thái **nền pastel nhạt + chữ đậm + viền nhẹ**; đã nghiên cứu `eiu-schedule/components/ui/badge.tsx` và `docs/design-system/TOKENS.md`. Có 5 tone: info, warning, success, danger, neutral. Role-specific labels phải giữ đúng Part B; bảng tone là đề xuất cần review.
+- Tham khảo từ EIU Schedule: quick date filters + reset, latest-response-wins, bảng sticky header/local horizontal scroll, loading/empty/error UX; không copy EduHub analytics/cloud-sync logic.
+- Repo tham khảo ghi EIU Cream swatch `#EAE2D6`, Gray RGB `#58595B`; đang đề xuất sửa lệch so với các mã in sai trong ảnh trước khi chốt tokens.
 - Part C vẫn đang thiết kế: cần chốt navigation workspace theo role, bố cục login và một vài chi tiết UI; chưa có UI production.
 
 ## 8. Quy tắc làm việc sau handoff
