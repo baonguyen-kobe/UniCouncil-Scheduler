@@ -1,0 +1,599 @@
+/* CSS Module for RequestDetail */
+
+.drawerBody {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1rem 0 2rem;
+  font-family:
+    "Be Vietnam Pro",
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+  color: var(--text);
+}
+
+/* Header Area */
+.headerCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  background-color: var(--canvas);
+  border: 1px solid var(--eiu-cream);
+  border-radius: 12px;
+}
+
+.headerTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.requestId {
+  font-family: "Crimson Pro", Georgia, serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--brand-primary);
+  margin: 0;
+}
+
+.badgesRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.actionOwnerBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  background-color: #fff8e8;
+  color: #765a0d;
+  border: 1px solid var(--eiu-yellow);
+}
+
+.headerMeta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+/* Demo Notice Banner */
+.demoNotice {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 0.875rem;
+  background-color: #f0f4f8;
+  border: 1px solid var(--brand-primary);
+  border-radius: 8px;
+  font-size: 0.75rem;
+  color: var(--brand-primary);
+}
+
+.demoIcon {
+  width: 1.125rem;
+  height: 1.125rem;
+  flex-shrink: 0;
+}
+
+/* Workflow Context Banners */
+.banner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem 1.25rem;
+  border-radius: 10px;
+  border: 1px solid transparent;
+}
+
+.bannerWarning {
+  background-color: #fff8e8;
+  border-color: var(--eiu-orange);
+  border-left: 4px solid var(--eiu-orange);
+}
+
+.bannerInfo {
+  background-color: #f0f4f8;
+  border-color: var(--brand-primary);
+  border-left: 4px solid var(--brand-primary);
+}
+
+.bannerSuccess {
+  background-color: #f2f6ee;
+  border-color: var(--success);
+  border-left: 4px solid var(--success);
+}
+
+.bannerDanger {
+  background-color: #fff1ed;
+  border-color: var(--danger);
+  border-left: 4px solid var(--danger);
+}
+
+.bannerHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.bannerHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.bannerIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+}
+
+.bannerText {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.bannerInstructionBox {
+  padding: 0.75rem 1rem;
+  background-color: var(--surface);
+  border: 1px dashed var(--eiu-orange);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+/* Detail Section Panels */
+.sectionPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  background-color: var(--surface);
+  border: 1px solid var(--eiu-cream);
+  border-radius: 12px;
+}
+
+.sectionEyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-accent);
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.sectionEyebrowIcon {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.sectionTitle {
+  font-family: "Crimson Pro", Georgia, serif;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--brand-primary);
+  margin: 0;
+}
+
+/* Grid Layout for Meta Fields */
+.metaGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.metaItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.metaLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.metaValue {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.textContentBox {
+  padding: 0.875rem 1rem;
+  background-color: var(--canvas);
+  border: 1px solid var(--eiu-cream);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Documents / Attachments List */
+.attachmentList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.attachmentCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background-color: var(--surface);
+  border: 1px solid var(--eiu-cream);
+  border-radius: 8px;
+  transition: all 0.15s ease;
+}
+
+.attachmentCard:hover {
+  border-color: var(--brand-accent);
+  background-color: #fffdfa;
+}
+
+.attachmentLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.attachmentIcon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--brand-primary);
+  flex-shrink: 0;
+}
+
+.attachmentMeta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.attachmentName {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--brand-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.attachmentSize {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.downloadBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 6px;
+  border: 1px solid var(--brand-primary);
+  background-color: var(--surface);
+  color: var(--brand-primary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.downloadBtn:hover {
+  background-color: #f0f4f8;
+}
+
+.attachmentDisclaimer {
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-style: italic;
+  margin-top: 0.25rem;
+}
+
+.emptyState {
+  font-size: 0.875rem;
+  color: var(--muted);
+  font-style: italic;
+  padding: 0.5rem 0;
+}
+
+/* Timeline & Audit History */
+.timeline {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding-left: 1.5rem;
+  gap: 1.25rem;
+}
+
+.timeline::before {
+  content: "";
+  position: absolute;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  left: 0.4375rem;
+  width: 2px;
+  background-color: var(--eiu-cream);
+}
+
+.timelineItem {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.timelineDot {
+  position: absolute;
+  left: -1.5rem;
+  top: 0.25rem;
+  width: 0.875rem;
+  height: 0.875rem;
+  border-radius: 9999px;
+  background-color: var(--surface);
+  border: 2px solid var(--brand-primary);
+}
+
+.timelineDotInternal {
+  border-color: var(--brand-accent);
+  background-color: #fff8e8;
+}
+
+.timelineHeader {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.timelineActor {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--brand-primary);
+}
+
+.timelineDate {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.internalBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.375rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  border-radius: 4px;
+  background-color: #fff8e8;
+  color: #765a0d;
+  border: 1px solid var(--eiu-yellow);
+}
+
+.timelineLabel {
+  font-size: 0.8125rem;
+  color: var(--text);
+}
+
+.timelineNote {
+  padding: 0.5rem 0.75rem;
+  background-color: var(--canvas);
+  border-left: 3px solid var(--brand-accent);
+  border-radius: 4px;
+  font-size: 0.8125rem;
+  color: var(--muted);
+  margin-top: 0.25rem;
+  white-space: pre-wrap;
+}
+
+.leaderNoteCard {
+  padding: 0.875rem 1rem;
+  background-color: #fff8e8;
+  border: 1px solid var(--eiu-yellow);
+  border-left: 4px solid var(--eiu-orange);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.leaderNoteTitle {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #765a0d;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.leaderNoteText {
+  font-size: 0.875rem;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+/* Interactive Action Panels (Inline inside Drawer) */
+.actionPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem;
+  background-color: var(--surface);
+  border: 2px solid var(--brand-primary);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(20, 64, 105, 0.08);
+}
+
+.actionPanelWarning {
+  border-color: var(--eiu-orange);
+}
+
+.actionPanelDanger {
+  border-color: var(--danger);
+}
+
+.actionPanelTitle {
+  font-family: "Crimson Pro", Georgia, serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--brand-primary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.actionPanelDesc {
+  font-size: 0.8125rem;
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.actionFormGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+
+.actionFieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.actionLabel {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.actionInput,
+.actionSelect,
+.actionTextarea {
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.875rem;
+  color: var(--text);
+  background-color: var(--surface);
+}
+
+.actionInput:focus,
+.actionSelect:focus,
+.actionTextarea:focus {
+  outline: none;
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 2px rgba(20, 64, 105, 0.15);
+}
+
+.actionButtonsRow {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--eiu-cream);
+}
+
+/* Sticky Action Footer */
+.actionFooter {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background-color: var(--surface);
+  border-top: 1px solid var(--eiu-cream);
+  border-radius: 0 0 12px 12px;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.04);
+  z-index: 10;
+}
+
+.actionFooterLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.actionFooterRight {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.backBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.875rem;
+  background-color: var(--canvas);
+  border: 1px solid var(--eiu-cream);
+  border-radius: 8px;
+  color: var(--brand-primary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  transition: all 0.15s ease;
+}
+
+.backBtn:hover {
+  background-color: var(--eiu-cream);
+}
+
+@media (max-width: 640px) {
+  .metaGrid,
+  .actionFormGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .actionFooter {
+    flex-direction: column-reverse;
+  }
+
+  .actionFooterLeft,
+  .actionFooterRight {
+    width: 100%;
+  }
+
+  .actionFooterLeft button,
+  .actionFooterRight button {
+    width: 100%;
+  }
+}
