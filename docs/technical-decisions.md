@@ -44,6 +44,11 @@
 40. Assistant chịu trách nhiệm chuẩn hóa từ requested_participants/nghiệp vụ sang leader_ids và participants chính thức. leader_ids không được dùng để giới hạn Leader visibility ở V1.
 41. V1 không có Save Draft, status DRAFT, server-side draft hoặc local autosave/persistence cho requester form.
 42. Request chỉ được tạo khi requester submit thành công; trạng thái khởi tạo là PROCESSING.
+43. Request form validation V1: Full name phải resolve từ session/Staff; Units chọn ít nhất 1; agenda bắt buộc tối đa 3.000 ký tự; participants bắt buộc tối đa 3.000 ký tự; preferred date bắt buộc, default today theo timezone hệ thống và không được ở quá khứ.
+44. Validation chạy cả client và server; server-side validation là authoritative. Validation message hỗ trợ VI/EN.
+45. Attachment V1 là optional, tối đa 10 file/request và 20 MB/file.
+46. Attachment V1 cho phép PDF, DOC/DOCX, XLS/XLSX, PPT/PPTX, JPG/JPEG, PNG, WEBP; backend kiểm tra dung lượng và file type/MIME.
+47. Trước khi submit, requester có thể bỏ file đã chọn khỏi upload list.
 
 ## Status display đã chốt
 
