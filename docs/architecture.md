@@ -44,13 +44,13 @@ notifications
 - Các sheet chính: `Requests`, `Staff`, `Units`, `MeetingTypes`, `Locations`, `Attachments`, `AuditLog`, `ZaloNotifications`, `Settings`.
 
 ### File storage
-- Google Drive.
-- Web upload file bằng Drive API.
+- Google Drive là nơi duy nhất lưu file lâu dài.
+- Vercel chạy web/backend, không dùng làm file storage; backend nhận từng file nhỏ và chuyển ngay vào Drive bằng Drive API.
 - Lưu `drive_file_id`, không xem URL Drive là khóa chính.
 - Backend có thể proxy file để preview/download theo quyền của web app.
-- Mỗi request có folder riêng: `root/YYYY/request_id/`; lưu `drive_folder_id` trong Requests và `drive_file_id` trong Attachments.
-- Upload V1 tối đa 20 MB/file phải tránh gửi file lớn qua body của Vercel Function (giới hạn 4.5 MB). Thiết kế resumable/direct-to-Drive session hoặc đường upload tương đương; kiểm chứng CORS, quyền và retry trước khi code.
-- Không đưa service account credentials, refresh/access tokens hoặc secrets cho browser.
+- Mỗi request có folder riêng: `root/YYYY/request_id/`; lưu `drive_folder_id`, `drive_folder_url` trong Requests và `drive_file_id`, `drive_file_url` trong Attachments. Không tạo sheet mapping Drive riêng.
+- V1 giới hạn **4 MB/file**, tối đa 10 file/request. Vì Vercel Function giới hạn request body **4.5 MB**, upload từng file qua một HTTP request riêng (bao gồm multipart overhead dưới ngưỡng), không gộp file, không dùng base64. Backend gửi file sang Drive và không lưu bản sao lâu dài trên Vercel.
+- Không đưa service account credentials, refresh/access tokens hoặc secrets cho browser; backend xác thực/validate từng file trước khi chuyển sang Drive.
 - Với Drive và Sheets, không có transaction chung; dùng cleanup bù trừ và reconciliation cho file/folder rác hoặc kết quả commit không rõ.
 
 ### Calendar
