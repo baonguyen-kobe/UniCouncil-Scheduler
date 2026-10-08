@@ -12,6 +12,7 @@ Một Google Spreadsheet vận hành gồm các sheet sau.
 | drive_folder_url | Link mở folder trong Google Drive (lấy từ Drive API nếu có; không dùng làm business key) |
 | version | Optimistic locking |
 | status | `PROCESSING` / `PENDING_APPROVAL` / `ADJUSTED` / `REVISED` / `REVISED_PROCESSING` / `APPROVED` / `CANCELLED` / `COMPLETED` |
+| revision_target | Nullable: `ASSISTANT` / `REQUESTER`; người cần hành động khi request được yêu cầu điều chỉnh. Không phải system status mới |
 | requester_id | Staff ID người đăng ký |
 | requester_name | Snapshot họ tên lấy từ tài khoản/Staff khi tạo request |
 | requester_email | Snapshot email Google Workspace |
@@ -28,10 +29,11 @@ Một Google Spreadsheet vận hành gồm các sheet sau.
 | location_id | Địa điểm chính thức |
 | participants | Thành phần chính thức do Assistant chuẩn hóa; có thể khác free text requester nhập |
 | assistant_id | Trợ lý phụ trách |
-| assistant_note | Ghi chú nội bộ |
+| assistant_note | Ghi chú nội bộ của Assistant; không chia sẻ tự động cho Requester |
+| revision_instruction | Hướng dẫn chỉnh sửa bắt buộc do Assistant nhập khi giao request cho Requester; Requester được xem |
 | priority | Mức độ ưu tiên |
 | approval_note | Nội dung trình lãnh đạo |
-| leader_decision_note | Ý kiến lãnh đạo |
+| leader_decision_note | Góp ý tùy chọn của Leader khi chọn Yêu cầu chỉnh sửa từ PENDING_APPROVAL; được phép rỗng, dành cho Leader/Assistant và lưu lịch sử thay đổi ở AuditLog |
 | approved_by | Người duyệt |
 | approved_at | Thời gian duyệt |
 | created_at | Ngày tạo |
@@ -45,6 +47,17 @@ Một Google Spreadsheet vận hành gồm các sheet sau.
 Requester form V1 không yêu cầu giờ đề xuất, thời lượng đề xuất, địa điểm đề xuất, requester note hoặc meeting type. Các thông tin lịch chính thức do Assistant hoàn thiện sau.
 
 Requester form V1 không có Save Draft/DRAFT và không lưu local/server draft. `requested_participants` có thể ghi cả lãnh đạo; Assistant chịu trách nhiệm chuẩn hóa `leader_ids` và `participants` chính thức.
+
+## Quy tắc revision_target và resubmit
+
+- `PROCESSING`, `PENDING_APPROVAL`, `REVISED_PROCESSING`, `APPROVED`, `CANCELLED`, `COMPLETED`: `revision_target` rỗng trong workflow thông thường.
+- `PROCESSING → ADJUSTED`: Assistant **bắt buộc** nhập `revision_instruction` (text không rỗng sau trim) và set `revision_target=REQUESTER`.
+- `PENDING_APPROVAL → REVISED`: Leader chọn **Yêu cầu chỉnh sửa**, textarea `leader_decision_note` **optional**, không được chặn chuyển trạng thái khi trống; set `revision_target=ASSISTANT`.
+- `REVISED` + `revision_target=ASSISTANT`: Assistant tự chỉnh và trình lại `PENDING_APPROVAL`, hoặc giao Requester bằng cách nhập `revision_instruction` **required**, set `revision_target=REQUESTER` trong khi vẫn giữ status `REVISED`.
+- `REVISED_PROCESSING → REVISED` khi Assistant cần Requester chỉnh tiếp: `revision_instruction` **required** và `revision_target=REQUESTER`.
+- Requester chỉ được **Edit/Resubmit** khi chính họ là owner và request đang `ADJUSTED + REQUESTER` hoặc `REVISED + REQUESTER`. Resubmit chuyển lần lượt sang `PROCESSING` hoặc `REVISED_PROCESSING`; reset `revision_target` về rỗng.
+- Ghi `revision_target`, `revision_instruction`, `leader_decision_note` và các transition vào `AuditLog`; phân quyền hiển thị tách biệt: `revision_instruction` dành cho Requester, `leader_decision_note` dành cho Leader/Assistant. Góp ý các vòng cũ nằm trong AuditLog, không ghi đè lịch sử chỉ bằng cột current note.
+- Resubmit giữ nguyên `request_id`, kiểm tra `version` theo optimistic locking; không tạo request thứ hai và không Save Draft.
 
 ## Staff
 
