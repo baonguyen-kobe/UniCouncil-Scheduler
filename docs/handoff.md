@@ -233,12 +233,23 @@ Các tài liệu đã có:
 - Submit thành công mới tạo request PROCESSING.
 - Mọi user có role LEADER thấy cùng một leader queue ở V1; không scope visibility theo leader_ids.
 
+### Validation và attachment đã chốt
+
+- Full name phải resolve từ session/Staff và read-only.
+- School/Office/Unit bắt buộc chọn ít nhất 1.
+- Proposed meeting agenda bắt buộc, tối đa 3.000 ký tự.
+- Proposed meeting participants bắt buộc, tối đa 3.000 ký tự.
+- Preferred meeting date bắt buộc, default today theo timezone hệ thống, không cho ngày quá khứ.
+- Validation chạy cả client và server; server authoritative; message hỗ trợ VI/EN.
+- Attachment optional, tối đa 10 file/request, 20 MB/file.
+- Cho phép PDF, DOC/DOCX, XLS/XLSX, PPT/PPTX, JPG/JPEG, PNG, WEBP.
+- Requester có thể bỏ file khỏi upload list trước submit; backend kiểm tra lại type/MIME và size.
+
 ### Part B còn cần chốt chi tiết
 
-1. Validation bắt buộc/giới hạn ký tự cho agenda, participants, units và date.
-2. Attachment constraints: loại file, số file, dung lượng tối đa, replace/delete behavior.
-3. Submit UX và lỗi upload/submit.
-4. Requester edit/resubmit UX khi ADJUSTED/REVISED.
+1. Submit transaction và behavior khi Drive/Sheets/Audit gặp lỗi.
+2. Cấu trúc folder Drive và naming convention.
+3. Requester edit/resubmit UX khi ADJUSTED/REVISED.
 
 ## 6. Những phần sắp triển khai
 
@@ -246,8 +257,8 @@ Các tài liệu đã có:
 
 **Part B — /requests/new**
 - Field baseline đã chốt.
-- Chốt validation.
-- Chốt attachment UX.
+- Validation đã chốt.
+- Attachment constraints đã chốt.
 - Chốt submit flow.
 - Chốt requester edit/resubmit behavior.
 
