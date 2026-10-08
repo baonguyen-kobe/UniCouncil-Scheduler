@@ -1,6 +1,6 @@
 # Pages V1
 
-> Quy chuẩn giao diện, màu sắc, logo và font của UniCouncil được quản lý ở [Part C — UI/UX Guidelines](ui-ux-guidelines.md). Branding EIU: Crimson chính, Be Vietnam Pro phụ; sidebar kế thừa MedLabs V2; Full Logo nền trắng ở sidebar, Corner Logo ở login.
+> Quy chuẩn giao diện, màu sắc, logo và font của UniCouncil được quản lý ở [Part C — UI/UX Guidelines](ui-ux-guidelines.md). Branding EIU: **Crimson Pro chính**, Be Vietnam Pro phụ; **toàn bộ icon dùng Heroicons v2**; sidebar kế thừa MedLabs V2; Full Logo nền trắng ở sidebar, Corner Logo ở login.
 
 ## 0. Language / i18n
 
