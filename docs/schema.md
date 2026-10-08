@@ -7,6 +7,8 @@ Một Google Spreadsheet vận hành gồm các sheet sau.
 | Column | Mục đích |
 |---|---|
 | request_id | ID nghiệp vụ, ví dụ `REQ-2026-000001` |
+| submission_id | Idempotency key do client tạo mỗi lần submit; dùng lại khi retry để không tạo request trùng |
+| drive_folder_id | Folder Google Drive chứa file của request; ID chuẩn để backend truy xuất/đối soát |
 | version | Optimistic locking |
 | status | `PROCESSING` / `PENDING_APPROVAL` / `ADJUSTED` / `REVISED` / `REVISED_PROCESSING` / `APPROVED` / `CANCELLED` / `COMPLETED` |
 | requester_id | Staff ID người đăng ký |
@@ -107,7 +109,7 @@ Quy tắc:
 | attachment_id | ID attachment |
 | request_id | Request sở hữu |
 | drive_file_id | Google Drive file ID |
-| file_name | Tên file |
+| file_name | Tên gốc của file (tên lưu trên Drive có thể được thêm attachment_id để tránh trùng) |
 | mime_type | MIME type |
 | file_size | Dung lượng |
 | uploaded_by | Người upload |
@@ -115,6 +117,8 @@ Quy tắc:
 | status | ACTIVE / REPLACED / DELETED |
 
 File vật lý nằm trong Google Drive; web app lưu metadata ở sheet Attachments và kiểm soát quyền truy cập qua backend.
+
+Drive folder convention: `drive_root_folder_id/YYYY/request_id/`. Một request có một folder riêng. Link thư mục/file để người quản trị bấm mở trực tiếp đang được đề xuất trong Part B; chưa quyết định tạo thêm sheet mapping riêng.
 
 ## AuditLog
 
