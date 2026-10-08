@@ -11,6 +11,20 @@ test("captures EIU preview screens for design comparison", async ({ page }) => {
 
   await page.getByRole("button", { name: "Vào giao diện demo" }).click();
   await expect(page.getByRole("heading", { name: "Yêu cầu của tôi" })).toBeVisible();
+  await expect(page.locator(".requests-page .page-title-row")).toHaveCount(0);
+  await expect(page.locator(".stats-row .stat-card")).toHaveCount(3);
+  await expect(page.locator(".stats-row")).toContainText("Yêu cầu mới");
+  await expect(page.locator(".stats-row")).toContainText("Đang điều chỉnh");
+  await expect(page.locator(".stats-row")).toContainText("Đã duyệt");
+  await expect(page.locator(".side-nav .nav-link").first()).toContainText("Tạo yêu cầu");
+  await expect(page.locator(".table-card-heading").getByRole("button", { name: "Tạo yêu cầu" })).toBeVisible();
+  await expect(page.locator(".topbar-avatar")).toBeHidden();
+  await page.evaluate(() => document.fonts.ready);
+  const singleLineBrand = await page.locator(".side-product-title").evaluate(element => {
+    const style = getComputedStyle(element);
+    return style.whiteSpace === "nowrap" && element.scrollWidth <= element.clientWidth;
+  });
+  expect(singleLineBrand).toBe(true);
   await page.screenshot({ path: output + "/02-requester-desktop.png", fullPage: true });
 
   await page.locator(".requests-table tbody tr").first().click();
@@ -26,6 +40,8 @@ test("captures EIU preview screens for design comparison", async ({ page }) => {
   await page.locator(".workspace-trigger").click();
   await page.locator(".workspace-dropdown").getByRole("button", { name: "Trợ lý lãnh đạo" }).click();
   await expect(page.getByRole("heading", { name: "Xử lý yêu cầu" })).toBeVisible();
+  await expect(page.locator(".side-nav .nav-link").first()).toContainText("Tạo yêu cầu");
+  await expect(page.locator(".table-card-heading").getByRole("button", { name: "Tạo yêu cầu" })).toBeVisible();
   await page.screenshot({ path: output + "/05-assistant-desktop.png", fullPage: true });
 
   await page.locator(".workspace-trigger").click();
@@ -38,5 +54,6 @@ test("captures EIU preview screens for design comparison", async ({ page }) => {
   await page.screenshot({ path: output + "/07-request-form-mobile.png", fullPage: true });
   await page.goto("/requests");
   await expect(page.locator(".request-mobile-card").first()).toBeVisible();
+  await expect(page.locator(".topbar-avatar")).toBeVisible();
   await page.screenshot({ path: output + "/08-requester-mobile.png", fullPage: true });
 });
