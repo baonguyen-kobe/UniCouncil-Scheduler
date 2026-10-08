@@ -370,20 +370,83 @@ function NewRequestView({locale,requests,onCreate,editId,back}:{locale:Locale;re
  </div>;
 }
 
-function CalendarView({locale,requests,open}:{locale:Locale;requests:MeetingRequest[];open:(r:MeetingRequest)=>void}){
- const [month,setMonth]=useState(()=>new Date());
- const [selected,setSelected]=useState(todayIso());
- const m=month.getMonth(),y=month.getFullYear(),first=new Date(y,m,1),offset=(first.getDay()+6)%7;
- const days=Array.from({length:42},(_,i)=>new Date(y,m,i-offset+1));
- const scheduled=requests.filter(r=>r.status==="APPROVED"||r.status==="COMPLETED");
- function key(d:Date){return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");}
- const label=new Intl.DateTimeFormat(locale==="vi"?"vi-VN":"en-US",{month:"long",year:"numeric"}).format(month);
- return <div className="page-shell">
-  <div className="page-title-row"><div><SectionEyebrow>{t(locale,"scheduled")}</SectionEyebrow><h1 className="page-title">{t(locale,"calendarTitle")}</h1><p className="page-subtitle">{t(locale,"calendarSub")}</p></div><div className="calendar-month-nav"><button className="icon-button" type="button" aria-label="Previous month" onClick={()=>setMonth(new Date(y,m-1,1))}><ChevronLeftIcon/></button><span>{label}</span><button className="icon-button" type="button" aria-label="Next month" onClick={()=>setMonth(new Date(y,m+1,1))}><ChevronRightIcon/></button></div></div>
-  <div className="calendar-layout"><section className="calendar-panel"><div className="calendar-panel-head"><div><span className="calendar-legend-dot"/>{t(locale,"legend")}</div><span className="result-counter">{scheduled.length} {t(locale,"scheduled").toLowerCase()}</span></div><div className="calendar-grid">{(locale==="vi"?["T2","T3","T4","T5","T6","T7","CN"]:["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]).map(d=><div key={d} className="weekday">{d}</div>)}{days.map((d,i)=>{const id=key(d),meetings=scheduled.filter(x=>x.meetingDate===id);return <button type="button" key={i} className={"calendar-day "+(d.getMonth()!==m?"other-month ":"")+(id===todayIso()?"today-cell ":"")+(selected===id?"selected-cell":"")} onClick={()=>setSelected(id)}><span>{d.getDate()}</span>{meetings.slice(0,2).map(x=><span key={x.id} className="meeting-dot">{x.meetingTime||"09:00"} · {x.agenda}</span>)}{meetings.length>2&&<small>+{meetings.length-2}</small>}</button>})}</div></section>
-  <aside className="calendar-aside"><SectionEyebrow>{t(locale,"upcoming")}</SectionEyebrow><h2>{friendlyDate(selected,locale)}</h2>{scheduled.filter(r=>r.meetingDate===selected).length?scheduled.filter(r=>r.meetingDate===selected).map(r=><button className="day-event" type="button" key={r.id} onClick={()=>open(r)}><div className="day-event-time">{r.meetingTime||"09:00"}</div><strong>{r.agenda}</strong><small><MapPinIcon/>{r.location||t(locale,"noOfficial")}</small><ArrowRightIcon className="icon-sm"/></button>):<div className="calendar-no-event"><CalendarDaysIcon/><p>{t(locale,"noneScheduled")}</p></div>}</aside></div>
+type CalendarMode="month"|"week"|"list";
+function CalendarView({role,locale,requests,open}:{role:Role;locale:Locale;requests:MeetingRequest[];open:(r:MeetingRequest)=>void}){
+ const [mode,setMode]=useState<CalendarMode>("week");
+ const [anchor,setAnchor]=useState(()=>new Date());
+ const [hidden,setHidden]=useState<string[]>([]);
+ const labelDate=(d:Date)=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");
+ const monday=(d:Date)=>{const a=new Date(d.getFullYear(),d.getMonth(),d.getDate(),12);a.setDate(a.getDate()-(a.getDay()+6)%7);return a;};
+ const scoped=requests.filter(r=>role==="REQUESTER"?r.requester===MOCK_USER:role==="LEADER"?["PENDING_APPROVAL","REVISED","REVISED_PROCESSING","APPROVED","COMPLETED"].includes(r.status):true);
+ const sortedStatuses:Status[]=["PROCESSING","PENDING_APPROVAL","ADJUSTED","REVISED","REVISED_PROCESSING","APPROVED","COMPLETED","CANCELLED"];
+ const groups=sortedStatuses.filter(status=>scoped.some(r=>r.status===status)).reduce<{key:string;label:string;status:Status}[]>((arr,status)=>{
+  const key=statusLabel(status,role,"vi");if(!arr.some(x=>x.key===key))arr.push({key,label:statusLabel(status,role,locale),status});return arr;
+ },[]);
+ const visible=scoped.filter(r=>!hidden.includes(statusLabel(r.status,role,"vi")));
+ const official=(r:MeetingRequest)=>Boolean((r.status==="APPROVED"||r.status==="COMPLETED")&&r.meetingDate);
+ const eventDate=(r:MeetingRequest)=>official(r)?r.meetingDate!:r.preferredDate;
+ const onDay=(iso:string)=>visible.filter(r=>eventDate(r)===iso);
+ const first=mode==="month"?monday(new Date(anchor.getFullYear(),anchor.getMonth(),1,12)):monday(anchor);
+ const days=Array.from({length:mode==="month"?42:7},(_,i)=>new Date(first.getFullYear(),first.getMonth(),first.getDate()+i,12));
+ const last=days[days.length-1];
+ const period=mode==="month"?new Intl.DateTimeFormat(locale==="vi"?"vi-VN":"en-GB",{month:"long",year:"numeric"}).format(anchor):
+  String(first.getDate()).padStart(2,"0")+"/"+String(first.getMonth()+1).padStart(2,"0")+" – "+String(last.getDate()).padStart(2,"0")+"/"+String(last.getMonth()+1).padStart(2,"0")+"/"+last.getFullYear();
+ const copy=locale==="vi"?{prev:"Kỳ trước",next:"Kỳ sau",currentWeek:"Tuần này",currentMonth:"Tháng này",month:"Tháng",week:"Tuần",list:"Danh sách",official:"Lịch chính thức",proposed:"Ngày đề xuất"}:
+  {prev:"Previous period",next:"Next period",currentWeek:"This week",currentMonth:"This month",month:"Month",week:"Week",list:"List",official:"Official schedule",proposed:"Proposed date"};
+ const weekdays=locale==="vi"?["T2","T3","T4","T5","T6","T7","CN"]:["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+ const visibleDays=mode==="month"?days.filter(d=>d.getMonth()===anchor.getMonth()):days;
+ const count=visibleDays.reduce((n,d)=>n+onDay(labelDate(d)).length,0);
+ const move=(direction:number)=>setAnchor(d=>mode==="month"?new Date(d.getFullYear(),d.getMonth()+direction,1,12):new Date(d.getFullYear(),d.getMonth(),d.getDate()+direction*7,12));
+ function toggle(key:string){
+  if(!hidden.includes(key)&&hidden.length>=groups.length-1)return;
+  setHidden(current=>current.includes(key)?current.filter(s=>s!==key):[...current,key]);
+ }
+ return <div className="page-shell calendar-page">
+   <section className="calendar-panel calendar-schedule">
+    <div className="schedule-toolbar">
+      <div className="schedule-period">
+       <div className="schedule-date-nav">
+        <button type="button" aria-label={copy.prev} onClick={()=>move(-1)}><ChevronLeftIcon/></button>
+        <button type="button" className="schedule-today" onClick={()=>setAnchor(new Date())}>{mode==="month"?copy.currentMonth:copy.currentWeek}</button>
+        <button type="button" aria-label={copy.next} onClick={()=>move(1)}><ChevronRightIcon/></button>
+       </div>
+       <strong className="schedule-range">{period}</strong>
+      </div>
+      <div className="schedule-toolbar-right">
+       <div className="schedule-layer-options" role="group" aria-label={t(locale,"status")}>
+        {groups.map(group=><label className={"schedule-layer "+(hidden.includes(group.key)?"schedule-layer-off":"")} key={group.key}>
+         <input type="checkbox" checked={!hidden.includes(group.key)} onChange={()=>toggle(group.key)} aria-label={group.label}/>
+         <span className={"schedule-layer-dot tone-"+badgeTone(group.status,role)} aria-hidden="true"/><span>{group.label}</span>
+        </label>)}
+       </div>
+       <div className="schedule-view-control" role="group" aria-label={locale==="vi"?"Chế độ xem":"Calendar view"}>
+        {(["month","week","list"] as CalendarMode[]).map(option=><button type="button" aria-pressed={mode===option} className={mode===option?"selected":""} key={option} onClick={()=>setMode(option)}>{copy[option]}</button>)}
+       </div>
+      </div>
+    </div>
+    <div className="calendar-context"><span className="schedule-official-dot"/>{copy.official}<span className="schedule-proposed-dot"/>{copy.proposed}<span className="calendar-event-count">{count} {locale==="vi"?"yêu cầu":"requests"}</span></div>
+    {mode==="list"?<div className="schedule-list">{days.map(d=><div className="schedule-list-day" key={labelDate(d)}>
+      <div className="schedule-list-date"><strong>{friendlyDate(labelDate(d),locale)}</strong><span>{new Intl.DateTimeFormat(locale==="vi"?"vi-VN":"en-US",{weekday:"long"}).format(d)}</span></div>
+      <div className="schedule-list-events">{onDay(labelDate(d)).length?onDay(labelDate(d)).map(r=><button className="schedule-list-entry" type="button" key={r.id} onClick={()=>open(r)}>
+        <span className={"calendar-list-symbol "+(official(r)?"calendar-list-confirmed":"calendar-list-proposed")}/>
+        <span className="schedule-list-main"><strong>{r.agenda}</strong><small>{r.unit} · {official(r)?r.meetingTime||copy.official:copy.proposed}</small></span>
+        <StatusBadge status={r.status} role={role} locale={locale}/><ChevronRightIcon className="icon-sm"/>
+      </button>):<span className="schedule-no-events">—</span>}</div>
+     </div>)}</div>:
+     <div className={"calendar-grid "+(mode==="week"?"calendar-grid-week":"")}>
+      {weekdays.map(d=><div className="weekday" key={d}>{d}</div>)}
+      {days.map(d=>{const id=labelDate(d),items=onDay(id),max=mode==="week"?6:2;return <div key={id} className={"calendar-day "+(mode==="month"&&d.getMonth()!==anchor.getMonth()?"other-month ":"")+(id===todayIso()?"today-cell":"")}>
+       <div className="calendar-day-number"><span>{d.getDate()}</span></div>
+       {items.slice(0,max).map(r=><button type="button" key={r.id} className={"calendar-event "+(official(r)?"calendar-event-official":"calendar-event-proposed")} onClick={()=>open(r)} title={r.agenda+" · "+statusLabel(r.status,role,locale)}>
+        <span className="calendar-event-line">{r.agenda}</span><span className="calendar-event-meta">{official(r)?r.meetingTime||copy.official:copy.proposed} · {statusLabel(r.status,role,locale)}</span>
+       </button>)}
+       {items.length>max&&<small className="calendar-more">+{items.length-max}</small>}
+      </div>})}
+     </div>}
+   </section>
  </div>;
 }
+
 function AdminView({locale}:{locale:Locale}){
  const items=[{icon:UserGroupIcon,title:t(locale,"staff"),description:locale==="vi"?"Tài khoản, vai trò và đơn vị":"Accounts, roles and units"},{icon:Cog6ToothIcon,title:t(locale,"catalogs"),description:locale==="vi"?"Loại cuộc họp, đơn vị, địa điểm":"Meeting types, units and locations"},{icon:ShieldCheckIcon,title:t(locale,"logs"),description:locale==="vi"?"Theo dõi các thay đổi hệ thống":"Trace important system changes"}];
  return <div className="page-shell admin-page"><div className="admin-grid">{items.map(({icon:Icon,title,description})=><div className="admin-card" key={title}><span className="admin-icon"><Icon/></span><h2>{title}</h2><p>{description}</p><span className="admin-preview-tag">{t(locale,"preview")}</span></div>)}</div><div className="admin-message"><InformationCircleIcon/>{t(locale,"adminNote")}</div></div>;
