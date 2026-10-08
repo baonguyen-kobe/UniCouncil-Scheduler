@@ -405,7 +405,8 @@ Reviewer nên tập trung kiểm tra:
 - Font chính **Crimson Pro** (user đã chốt), font phụ **Be Vietnam Pro**; không dùng Crimson Text/Montserrat của repo EIU Schedule hay chỉ Be Vietnam Pro như MedLabs.
 - User muốn badge trạng thái **nền pastel nhạt + chữ đậm + viền nhẹ**; đã nghiên cứu `eiu-schedule/components/ui/badge.tsx` và `docs/design-system/TOKENS.md`. Có 5 tone: info, warning, success, danger, neutral. Role-specific labels phải giữ đúng Part B; bảng tone là đề xuất cần review.
 - Tham khảo từ EIU Schedule: quick date filters + reset, latest-response-wins, bảng sticky header/local horizontal scroll, loading/empty/error UX; không copy EduHub analytics/cloud-sync logic.
-- Repo tham khảo ghi EIU Cream swatch `#EAE2D6`, Gray RGB `#58595B`; đang đề xuất sửa lệch so với các mã in sai trong ảnh trước khi chốt tokens.
+- **Đã chốt EIU Cream `#EAE2D6`, Gray `#58595B`** theo xác nhận của người dùng. Không còn pending về hai mã màu này.
+- **Iconography: tất cả icon sản phẩm dùng Heroicons v2 (`@heroicons/react`)**; user đã đính chính thay cho đề xuất dùng Lucide trước đó. Logo EIU là ảnh brand, không phải icon UI.
 - Part C vẫn đang thiết kế: cần chốt navigation workspace theo role, bố cục login và một vài chi tiết UI; chưa có UI production.
 
 ## 8. Quy tắc làm việc sau handoff
