@@ -450,3 +450,109 @@ h1,h2,h3{line-height:1.23}
 @media(prefers-reduced-motion:reduce){
  *,*:before,*:after{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important}
 }
+
+/* MedLabs V2 compact fixed page header and brand lockup (October 2026 review) */
+.topbar{min-height:82px;padding:16px 30px;background:rgba(255,255,255,.94);backdrop-filter:blur(14px);z-index:35}
+.topbar-page-title{font-family:var(--font-ui);font-size:clamp(27px,2vw,32px);font-weight:750;line-height:1.2;letter-spacing:-.025em;color:var(--eiu-blue)}
+.side-product{padding:22px 2px 25px;text-align:center}
+.side-product-title{font-family:var(--font-display);font-size:21.5px;font-weight:700;letter-spacing:-.045em;line-height:1.2;white-space:nowrap}
+.side-product-title em{font-weight:700;font-style:italic}
+.form-page{padding-top:26px}
+.admin-page{padding-top:27px}
+
+/* Skills Lab inspired calendar toolbar, role-specific semantic layers */
+.calendar-page{max-width:1640px;padding-top:27px}
+.calendar-schedule{overflow:hidden}
+.schedule-toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px 18px;min-height:74px;padding:13px 16px;border-bottom:1px solid var(--line)}
+.schedule-period,.schedule-date-nav,.schedule-toolbar-right,.schedule-layer-options,.schedule-view-control{display:flex;align-items:center}
+.schedule-period{gap:13px;min-width:0}
+.schedule-date-nav{gap:4px;flex-shrink:0}
+.schedule-date-nav button{height:31px;min-width:31px;display:grid;place-items:center;padding:0 8px;color:#52616a;background:#fff;border:1px solid #ded9d0;border-radius:8px}
+.schedule-date-nav button:hover{background:#f0f4f8;border-color:#9aadc1;color:#144069}
+.schedule-date-nav button svg{width:17px;height:17px}
+.schedule-date-nav .schedule-today{font-size:10px;font-weight:700;white-space:nowrap}
+.schedule-range{font-family:var(--font-ui);font-size:14px;font-weight:600;color:#144069;line-height:1.3;white-space:nowrap;text-transform:capitalize}
+.schedule-toolbar-right{gap:11px;justify-content:flex-end;flex:1;flex-wrap:wrap;min-width:0}
+.schedule-layer-options{gap:9px 11px;flex-wrap:wrap;justify-content:flex-end}
+.schedule-layer{display:inline-flex;align-items:center;gap:5px;position:relative;cursor:pointer;color:#68686b;font-size:10px;white-space:nowrap}
+.schedule-layer input{position:absolute;opacity:0;width:1px;height:1px}
+.schedule-layer:focus-within{outline:2px solid #84a0b9;outline-offset:3px;border-radius:4px}
+.schedule-layer-dot{display:block;flex-shrink:0;height:10px;width:10px;border-radius:3px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.07)}
+.schedule-layer-dot.tone-info{background:#144069}
+.schedule-layer-dot.tone-warning{background:#d88327}
+.schedule-layer-dot.tone-success{background:#52813b}
+.schedule-layer-dot.tone-danger{background:#b44425}
+.schedule-layer-dot.tone-neutral{background:#58595b}
+.schedule-layer-off{opacity:.48}
+.schedule-layer-off .schedule-layer-dot{background:white!important;border:1px solid #9da6aa}
+.schedule-view-control{padding:3px;background:#f9f8f5;border:1px solid #e6ded2;border-radius:9px;flex-shrink:0}
+.schedule-view-control button{height:27px;border:0;border-radius:6px;background:transparent;color:#777979;font-size:10px;padding:0 10px;white-space:nowrap}
+.schedule-view-control button.selected{background:white;color:var(--eiu-blue);box-shadow:0 1px 5px rgba(0,0,0,.09);font-weight:700}
+.calendar-context{display:flex;align-items:center;gap:7px;border-bottom:1px solid #eae8e2;padding:10px 17px;color:#7f8585;font-size:10px}
+.schedule-official-dot,.schedule-proposed-dot,.calendar-list-symbol{width:9px;height:9px;display:inline-block;flex-shrink:0;border-radius:3px}
+.schedule-official-dot,.calendar-list-confirmed{background:#52813b}
+.schedule-proposed-dot,.calendar-list-proposed{background:#a78656}
+.schedule-proposed-dot{margin-left:12px}
+.calendar-event-count{margin-left:auto;font-weight:700;color:#8d8d8b}
+.calendar-grid{max-width:100%}
+.calendar-grid .calendar-day{height:auto;min-height:112px;display:flex;flex-direction:column;align-items:stretch;overflow:hidden;gap:6px;padding:9px 7px}
+.calendar-day-number{height:25px;flex-shrink:0;display:flex;align-items:center}
+.calendar-day-number span{font-size:12px;color:#5c686c;font-weight:600}
+.calendar-day.today-cell .calendar-day-number span{width:25px;height:25px;border-radius:50%;background:#144069;color:white;display:grid;place-items:center}
+.calendar-day.other-month{background:#fafaf8}
+.calendar-day.other-month .calendar-day-number span{color:#bdc2c1}
+.calendar-event{width:100%;min-width:0;display:flex;flex-direction:column;gap:3px;align-items:flex-start;text-align:left;padding:6px 7px;border-radius:5px;border:1px solid #dae7d3;border-left:3px solid #52813b;background:#f2f6ee;color:#335b29}
+.calendar-event:hover{filter:brightness(.98);border-color:#9ebb8f}
+.calendar-event-proposed{border:1px dashed #ddcdb5;border-left:3px solid #a78656;background:#fbf8f1;color:#725a39}
+.calendar-event-line{font-size:10px;line-height:1.5;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}
+.calendar-event-meta{font-size:9px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;opacity:.85}
+.calendar-more{font-size:10px;color:#6f7776}
+.calendar-grid-week .calendar-day{min-height:280px;gap:9px;padding:12px}
+.calendar-grid-week .calendar-event{padding:8px}
+.calendar-grid-week .calendar-event-line{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.schedule-list{display:flex;flex-direction:column}
+.schedule-list-day{display:grid;grid-template-columns:176px minmax(0,1fr);gap:16px;border-bottom:1px solid #efede8;padding:15px 18px}
+.schedule-list-day:last-child{border-bottom:0}
+.schedule-list-date{display:flex;flex-direction:column;gap:4px;padding-top:5px;color:#144069}
+.schedule-list-date strong{font-size:12px}
+.schedule-list-date span{font-size:10px;color:#8a8c8d;text-transform:capitalize}
+.schedule-list-events{display:flex;flex-direction:column;gap:8px;min-width:0}
+.schedule-list-entry{display:flex;gap:11px;align-items:center;min-width:0;width:100%;padding:11px 13px;border:1px solid #eae9e3;border-radius:10px;background:#fff;text-align:left}
+.schedule-list-entry:hover{background:#fafbf9;border-color:#bdc7c9}
+.schedule-list-main{display:flex;flex-direction:column;gap:4px;min-width:0;flex:1}
+.schedule-list-main strong{font-size:12px;color:#314250}
+.schedule-list-main small{font-size:10px;color:#888c8e}
+.schedule-no-events{color:#b1b4b0;padding:9px;font-size:12px}
+@media(max-width:1200px){
+ .schedule-toolbar-right{justify-content:flex-start}
+ .schedule-layer-options{justify-content:flex-start}
+}
+@media(max-width:700px){
+ .topbar{min-height:68px;padding:12px 16px}
+ .topbar-page-title{font-size:clamp(21px,5vw,27px)}
+ .schedule-toolbar{padding:12px;gap:12px}
+ .schedule-period{flex-wrap:wrap;gap:9px}
+ .schedule-range{font-size:12px}
+ .schedule-toolbar-right{width:100%;gap:10px}
+ .schedule-layer-options{justify-content:flex-start;gap:8px}
+ .schedule-view-control{margin-left:auto}
+ .calendar-context{flex-wrap:wrap}
+ .calendar-grid .calendar-day{min-height:79px;padding:6px 4px;gap:4px}
+ .calendar-grid:not(.calendar-grid-week) .calendar-event{font-size:0;height:7px;width:22px;padding:0;border:0;background:#52813b}
+ .calendar-grid:not(.calendar-grid-week) .calendar-event-proposed{background:#a78656}
+ .calendar-grid:not(.calendar-grid-week) .calendar-event *{display:none}
+ .calendar-grid-week{overflow-x:auto;grid-template-columns:repeat(7,minmax(136px,1fr))}
+ .calendar-grid-week .calendar-day{height:auto;min-height:230px;padding:9px}
+ .calendar-grid-week .calendar-event{padding:6px}
+ .schedule-list-day{grid-template-columns:1fr;gap:8px;padding:12px}
+ .schedule-list-date{flex-direction:row;align-items:center;gap:9px}
+ .schedule-list-entry{flex-wrap:wrap;gap:8px}
+ .schedule-list-entry .status-badge{margin-left:auto}
+ .schedule-list-main{flex-basis:60%}
+}
+@media(max-width:390px){
+ .side-product-title{font-size:21px}
+ .schedule-period{gap:8px}
+ .schedule-range{font-size:11px}
+ .schedule-view-control button{padding:0 7px}
+}
