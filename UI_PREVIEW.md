@@ -22,7 +22,7 @@ Routes use an optional catch-all UI preview page:
 - VI/EN, table/filters, drawer detail, demo actions, request form and file validation
 - Responsive layout: desktop table + drawer, mobile cards
 
-**Deliberate limitations:** no actual sign-in, server role enforcement, Sheets, Drive, Zalo or backend writes. Buttons that mimic submission/approval only change temporary browser UI state for review. The logo assets use public raw URLs from the linked EIU MedLabs repository during this preview; copy approved binaries to this repo before production. This branch is independent of the OMP comparison branch.
+**Deliberate limitations:** no actual sign-in, server role enforcement, Sheets, Drive, Zalo or backend writes. Buttons that mimic submission/approval only change temporary browser UI state for review. The approved EIU Full Logo and Corner Logo binaries are copied locally into `public/` from `baonguyen-kobe/eiu-medlabs` for a stable offline preview. This branch is independent of the OMP comparison branch.
 
 ## Review checklist
 1. View /login; demo enters role workspace.
