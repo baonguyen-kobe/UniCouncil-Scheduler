@@ -378,7 +378,9 @@ ADMIN và ASSISTANT mới được sửa thủ công request COMPLETED sang stat
 - Assistant chuẩn hóa leader_ids và participants chính thức.
 - Không có Save Draft/local autosave/server draft.
 - Submit thành công tạo request PROCESSING.
-- Cần chốt tiếp validation, giới hạn attachment và submit/resubmit UX.
+- Validation đã chốt: Units >= 1; agenda và participants bắt buộc, tối đa 3.000 ký tự; preferred date >= today; server validation authoritative.
+- Attachment đã chốt: optional, tối đa 10 file, 20 MB/file; PDF/Office/ảnh phổ biến.
+- Cần chốt tiếp submit transaction/error handling và requester edit/resubmit UX.
 
 ### Phase 4 — Assistant workflow
 **Chưa triển khai**
@@ -465,8 +467,8 @@ Chỉ cân nhắc sau khi V1 chạy ổn:
 - Technical decisions.
 
 Đang chốt Part B:
-- Field baseline /requests/new đã chốt.
-- Còn validation, attachment constraints và submit/resubmit UX chi tiết.
+- Field baseline, validation và attachment constraints của /requests/new đã chốt.
+- Còn submit transaction/error handling và requester edit/resubmit UX chi tiết.
 
 Reviewer checkpoint hiện tại:
 **Review toàn bộ baseline + đặc biệt kiểm tra workflow/status/visibility trước khi tiếp tục chốt Part B.**
