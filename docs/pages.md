@@ -271,11 +271,12 @@ Form được xây trực tiếp trên web, không dùng Google Form ở V1. For
 
 - Attachment là optional.
 - Cho phép tối đa **10 file/request**.
-- Tối đa **20 MB/file**.
+- Tối đa **4 MB/file** (cap an toàn dưới giới hạn request body 4.5 MB của Vercel Functions).
 - Loại file cho phép: PDF, Word (`.doc`, `.docx`), Excel (`.xls`, `.xlsx`), PowerPoint (`.ppt`, `.pptx`) và ảnh phổ biến (`.jpg`, `.jpeg`, `.png`, `.webp`).
 - Backend phải kiểm tra lại extension/MIME type và dung lượng; không chỉ tin validation phía browser.
 - Trước khi submit, requester có thể bỏ file khỏi danh sách upload.
-- File vật lý lưu Google Drive; metadata lưu trong `Attachments`.
+- File vật lý lưu Google Drive; metadata và link Drive lưu trong `Attachments`.
+- Upload **mỗi file trong một HTTP request riêng** từ browser qua backend Vercel tới Google Drive; không gộp 10 file trong một request và không lưu file lâu dài trên Vercel.
 
 ### Meeting Type
 
@@ -304,8 +305,8 @@ Các thông tin lãnh đạo, giờ họp chính thức, thời lượng/end tim
 2. Backend kiểm tra session Google Workspace, Staff, quyền REQUESTER; validate lại toàn bộ fields/attachment (VI/EN là UI only).
 3. Client tạo `submission_id` duy nhất cho một lần submit; retry phải dùng lại ID này. Backend tra cứu `submission_id` đã commit; nếu có, trả về `request_id` cũ.
 4. Tạo `request_id` duy nhất theo cơ chế an toàn với các submit đồng thời (không dùng số dòng Sheet + 1). Chuẩn bị folder Drive theo cấu trúc `root/YYYY/request_id/`; ghi nhận `drive_folder_id`.
-5. Upload toàn bộ file lên folder trên Drive. Tên vật lý file là `attachment_id__<original_filename>`; `Attachments.file_name` giữ tên gốc. Dùng upload session/resumable hoặc kiến trúc upload được xác minh không vượt giới hạn body của Vercel Function. Không gửi trực tiếp token/secret Google service account cho browser.
-6. Chỉ sau khi mọi upload thành công, ghi dữ liệu `Requests` (status `PROCESSING`, `version` khởi tạo, `submission_id`, `drive_folder_id`), `Attachments` và `AuditLog` như một logical commit; ưu tiên `spreadsheets.batchUpdate` với các thao tác `UpdateCells/AppendCells` trong **một batch atomic**.
+5. Upload lần lượt từng file (tối đa **4 MB/file**, **mỗi file một HTTP request** có tổng body dưới 4.5 MB) qua backend Vercel rồi chuyển sang Drive; không lưu file lâu dài trên Vercel. Tên vật lý là `attachment_id__<original_filename>`; `Attachments.file_name` giữ tên gốc. Backend kiểm tra payload size, file type và quyền; không gửi token/secret Google service account cho browser.
+6. Chỉ sau khi mọi upload thành công, ghi dữ liệu `Requests` (status `PROCESSING`, `version` khởi tạo, `submission_id`, `drive_folder_id`, `drive_folder_url`), `Attachments` (`drive_file_id`, `drive_file_url`) và `AuditLog` như một logical commit; ưu tiên `spreadsheets.batchUpdate` với các thao tác `UpdateCells/AppendCells` trong **một batch atomic**.
 7. Nếu upload lỗi: không commit request; cố gắng dọn folder/file tạm; giữ nguyên form và danh sách file đang chọn để requester retry.
 8. Nếu ghi Sheets lỗi: không báo success; thực hiện cleanup Drive theo hướng compensating transaction, đồng thời ghi nhận tình huống cleanup không hoàn tất để đối soát sau.
 9. Nếu server/browser mất kết nối hoặc timeout sau khi đã ghi dữ liệu: **không mặc định coi là thất bại**. Retry với cùng `submission_id` phải kiểm tra đã commit hay chưa; tuyệt đối không tự tạo request thứ hai.
@@ -314,8 +315,10 @@ Các thông tin lãnh đạo, giờ họp chính thức, thời lượng/end tim
 Quy tắc:
 - Drive và Sheets **không có distributed transaction chung**, vì vậy cleanup là best-effort; cần cơ chế retry/reconciliation cho orphan folders/files và commit không rõ kết quả.
 - `submission_id` là idempotency key cho lệnh submit, **không phải Save Draft**.
+- Google Drive là nơi lưu trữ file duy nhất; Vercel chỉ chạy frontend/backend và truyền file tạm thời khi upload.
+- **Không tạo sheet DriveMap/DriveIndex riêng**: link folder đặt ở `Requests.drive_folder_url`, link từng file ở `Attachments.drive_file_url`. Drive IDs là khóa chuẩn; link phải kiểm tra quyền khi mở qua web app.
 - Backend phải xử lý đồng thời/idempotency bằng cơ chế serialize hoặc khóa phù hợp; chỉ “check xem có submission_id chưa” không đủ chống race condition.
-- V1 giữ giới hạn tối đa 10 file / 20 MB mỗi file; trước implementation phải kiểm chứng upload path thật sự hỗ trợ 20 MB trên Vercel.
+- V1 giữ giới hạn tối đa 10 file / **4 MB mỗi file**; backend kiểm tra tổng HTTP body (bao gồm multipart overhead) luôn dưới 4.5 MB. Không cần Vercel Blob hoặc upload trực tiếp từ browser tới Drive ở V1.
 
 ### Save Draft
 
