@@ -58,6 +58,9 @@ CANCELLED là nhánh hủy riêng theo quyền workflow.
   - Requester thấy: **Revised / Điều chỉnh**.
   - Assistant thấy: **Revised / Điều chỉnh**.
   - Leader thấy: **Revising / Điều chỉnh** để theo dõi.
+  - Leader có ô góp ý tự do **optional**, được ghi vào `leader_decision_note`; **không bắt buộc** nhập nội dung mới được yêu cầu chỉnh.
+  - Khi Leader vừa yêu cầu chỉnh, `revision_target=ASSISTANT`; Requester **chưa được sửa**.
+  - Assistant có thể tự sửa rồi trình lại, hoặc nhập hướng dẫn chỉnh sửa **bắt buộc** và chuyển `revision_target=REQUESTER` để Requester sửa.
 
 Một request đã bước vào vòng lãnh đạo thì **không bao giờ quay lại ADJUSTED**. Khi leader yêu cầu chỉnh, request vào **REVISED**. Nếu Assistant trả requester chỉnh và requester gửi lại, request chuyển sang **REVISED_PROCESSING** để Assistant tiếp tục xử lý trước khi trình lại leader.
 
@@ -114,17 +117,40 @@ Leader **không hiển thị**:
 
 Trong V1, tất cả user có role LEADER dùng cùng một leader queue. Không filter danh sách theo `leader_ids` hoặc “leader liên quan”.
 
+## Người cần hành động và nội dung góp ý (V1 — đã chốt)
+
+`revision_target` là cột **nội bộ** của Requests, nhận `ASSISTANT`, `REQUESTER` hoặc rỗng (`null`). Đây là **action owner marker**, không phải system status mới.
+
+| System status | revision_target | Requester có thể sửa? | Hành động |
+|---|---|---|---|
+| PROCESSING | null | Không | Assistant kiểm tra |
+| ADJUSTED | REQUESTER | **Có** | Requester chỉnh và gửi lại → PROCESSING |
+| PENDING_APPROVAL | null | Không | Leader xem xét |
+| REVISED | ASSISTANT | Không | Assistant tự xử lý hoặc chuyển Requester |
+| REVISED | REQUESTER | **Có** | Requester chỉnh và gửi lại → REVISED_PROCESSING |
+| REVISED_PROCESSING | null | Không | Assistant xử lý/trình lại |
+| APPROVED / CANCELLED / COMPLETED | null | Không | Theo workflow, không mở edit thông thường |
+
+- Leader bấm **Yêu cầu chỉnh sửa / Request revision** tại PENDING_APPROVAL: chuyển `REVISED`, gán `revision_target=ASSISTANT`; hiển thị textarea **Góp ý của lãnh đạo / Leader comments (optional)**. Cho phép bỏ trống và vẫn thực hiện hành động.
+- `leader_decision_note` lưu góp ý của quyết định hiện tại nếu có (rỗng nếu Leader không nhập); AuditLog lưu sự kiện và bảo toàn lịch sử các vòng góp ý cũ. Nội dung này phục vụ Leader/Assistant; **không tự động phát nguyên văn cho Requester**.
+- Assistant chuyển request cho Requester chỉnh: **bắt buộc** nhập nội dung cụ thể ở `revision_instruction` (trim không được rỗng). Áp dụng cả PROCESSING → ADJUSTED lẫn REVISED (ASSISTANT) → REVISED (REQUESTER), và REVISED_PROCESSING → REVISED (REQUESTER).
+- `revision_instruction` là hướng dẫn **Requester được xem** trên màn hình chi tiết/chỉnh sửa; không tái sử dụng `assistant_note` nội bộ. Các nội dung hướng dẫn cũ cần có lịch sử trong AuditLog.
+- Khi Requester gửi lại ADJUSTED/REVISED hoặc Assistant trình lại Leader, reset `revision_target=null`. Đối với REVISED_PROCESSING, Assistant có thể trả lại Requester bằng `REVISED + REQUESTER` với hướng dẫn mới.
+- Requester được chỉnh **chỉ khi** là chủ request và `(status=ADJUSTED && revision_target=REQUESTER) || (status=REVISED && revision_target=REQUESTER)`; backend bắt buộc enforce, kể cả user có nhiều role.
+- Các field Requester được chỉnh khi có quyền: `requested_unit_ids`, `meeting_content`, `requested_participants`, `requested_date` và attachments. Tên/email từ Staff là read-only; Meeting Type, leader_ids và lịch chính thức thuộc Assistant. Giới hạn/validation form và file **4 MB/file** vẫn áp dụng.
+- Không có Save Draft: gửi lại là action có commit; giữ cùng `request_id`, tăng `version`, ghi AuditLog gồm actor, old/new status, revision_target và field changes. Kiểm tra optimistic locking khi gửi lại.
+
 ## Allowed transitions
 
 ### Trước vòng lãnh đạo
 
 ~~~text
 PROCESSING
-   ├── Assistant yêu cầu bổ sung → ADJUSTED
-   └── Assistant hoàn tất + trình → PENDING_APPROVAL
+   ├── Assistant nhập revision_instruction bắt buộc, yêu cầu bổ sung → ADJUSTED (revision_target=REQUESTER)
+   └── Assistant hoàn tất + trình → PENDING_APPROVAL (revision_target=null)
 
-ADJUSTED
-   ├── Requester chỉnh sửa + gửi lại → PROCESSING
+ADJUSTED (revision_target=REQUESTER)
+   ├── Requester chỉnh sửa + gửi lại → PROCESSING (revision_target=null)
    └── Requester hủy theo quyền workflow → CANCELLED
 ~~~
 
@@ -135,22 +161,24 @@ ADJUSTED có thể lặp lại nhiều lần nếu assistant tiếp tục phát 
 ~~~text
 PENDING_APPROVAL
    ├── Leader duyệt → APPROVED
-   └── Leader yêu cầu chỉnh sửa → REVISED
+   └── Leader yêu cầu chỉnh (góp ý optional) → REVISED (revision_target=ASSISTANT)
 
-REVISED
-   ├── Assistant tự xử lý + trình lại → PENDING_APPROVAL
-   ├── Assistant gửi requester chỉnh → vẫn REVISED trong thời gian requester chỉnh
+REVISED (revision_target=ASSISTANT)
+   ├── Assistant tự xử lý + trình lại → PENDING_APPROVAL (revision_target=null)
+   └── Assistant nhập revision_instruction bắt buộc + chuyển Requester
+       → REVISED (revision_target=REQUESTER)
+
+REVISED (revision_target=REQUESTER)
+   ├── Requester chỉnh sửa + gửi lại → REVISED_PROCESSING (revision_target=null)
    └── Requester hủy theo quyền workflow → CANCELLED
 
-REVISED
-   └── Requester chỉnh sửa + gửi lại → REVISED_PROCESSING
-
 REVISED_PROCESSING
-   ├── Assistant xử lý + trình lại → PENDING_APPROVAL
-   └── Assistant gửi requester chỉnh tiếp → REVISED
+   ├── Assistant xử lý + trình lại → PENDING_APPROVAL (revision_target=null)
+   └── Assistant nhập revision_instruction bắt buộc + gửi Requester chỉnh tiếp
+       → REVISED (revision_target=REQUESTER)
 ~~~
 
-Trong REVISED, requester có thể chỉnh sửa sau khi Assistant trả request; status vẫn là REVISED cho đến khi requester thực sự gửi lại. Khi requester gửi lại, status chuyển sang REVISED_PROCESSING, không chuyển thẳng sang PENDING_APPROVAL.
+Trong REVISED, requester chỉ có thể chỉnh sửa sau khi Assistant trả request và set `revision_target=REQUESTER`; status vẫn là REVISED cho đến khi requester thực sự gửi lại. Khi requester gửi lại, status chuyển sang REVISED_PROCESSING, không chuyển thẳng sang PENDING_APPROVAL.
 
 ### Quy tắc chống sai ngữ nghĩa
 
@@ -165,8 +193,8 @@ Trong REVISED, requester có thể chỉnh sửa sau khi Assistant trả request
 ### REQUESTER
 
 - Tạo request.
-- Chỉnh sửa request khi được yêu cầu.
-- Gửi lại request.
+- Chỉnh sửa request khi `revision_target=REQUESTER` và status là ADJUSTED hoặc REVISED, với quyền sở hữu phù hợp.
+- Xem hướng dẫn chỉnh sửa `revision_instruction` và gửi lại request.
 - Hủy request khi workflow cho phép.
 - Theo dõi trạng thái.
 
@@ -174,12 +202,12 @@ Trong REVISED, requester có thể chỉnh sửa sau khi Assistant trả request
 
 - Tiếp nhận request PROCESSING.
 - Chuẩn hóa/chỉnh thông tin.
-- Yêu cầu requester bổ sung → ADJUSTED.
+- Yêu cầu requester bổ sung → ADJUSTED, bắt buộc ghi `revision_instruction` và set `revision_target=REQUESTER`.
 - Hoàn tất và trình lãnh đạo → PENDING_APPROVAL.
 - Sau khi leader yêu cầu chỉnh sửa, xử lý request ở REVISED.
-- Tại REVISED, Assistant có thể tự xử lý và trình lại → PENDING_APPROVAL, hoặc gửi requester chỉnh.
+- Tại REVISED với `revision_target=ASSISTANT`, Assistant có thể tự xử lý và trình lại → PENDING_APPROVAL, hoặc nhập `revision_instruction` bắt buộc rồi chuyển `revision_target=REQUESTER` để requester chỉnh.
 - Khi requester gửi lại sau yêu cầu chỉnh của leader → REVISED_PROCESSING.
-- Xử lý REVISED_PROCESSING và trình lại → PENDING_APPROVAL; nếu cần requester chỉnh tiếp thì → REVISED.
+- Xử lý REVISED_PROCESSING và trình lại → PENDING_APPROVAL; nếu cần requester chỉnh tiếp thì ghi `revision_instruction` bắt buộc và → REVISED với `revision_target=REQUESTER`.
 - Có thể chỉnh thông tin nghiệp vụ trong phạm vi quyền.
 - Không tự biến một request chưa từng trình lãnh đạo thành REVISED.
 
@@ -189,7 +217,7 @@ Trong REVISED, requester có thể chỉnh sửa sau khi Assistant trả request
 - Xem toàn bộ PENDING_APPROVAL trong leader queue.
 - Xem toàn bộ REVISED và REVISED_PROCESSING để theo dõi.
 - Duyệt PENDING_APPROVAL → APPROVED.
-- Yêu cầu chỉnh sửa PENDING_APPROVAL → REVISED.
+- Yêu cầu chỉnh sửa PENDING_APPROVAL → REVISED với `revision_target=ASSISTANT`; có ô `leader_decision_note` tùy chọn (được để trống).
 - Không có thao tác REJECTED trong V1.
 - `leader_ids` là metadata cuộc họp do Assistant chuẩn hóa; không dùng để giới hạn Leader visibility ở V1.
 
