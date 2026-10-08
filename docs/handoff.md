@@ -407,7 +407,8 @@ Reviewer nên tập trung kiểm tra:
 - Tham khảo từ EIU Schedule: quick date filters + reset, latest-response-wins, bảng sticky header/local horizontal scroll, loading/empty/error UX; không copy EduHub analytics/cloud-sync logic.
 - **Đã chốt EIU Cream `#EAE2D6`, Gray `#58595B`** theo xác nhận của người dùng. Không còn pending về hai mã màu này.
 - **Iconography: tất cả icon sản phẩm dùng Heroicons v2 (`@heroicons/react`)**; user đã đính chính thay cho đề xuất dùng Lucide trước đó. Logo EIU là ảnh brand, không phải icon UI.
-- Part C vẫn đang thiết kế: cần chốt navigation workspace theo role, bố cục login và một vài chi tiết UI; chưa có UI production.
+- **Workspace Switcher (A) đã được duyệt**: desktop switcher dưới Full Logo/product title trong sidebar MedLabs-style, chỉ hiện các role có thật; đổi workspace thay menu/label/landing page chứ không thay quyền backend. Mobile dùng sidebar overlay có switcher. Chủ sản phẩm sẽ điều chỉnh sau khi xem preview.
+- Part C đủ baseline để bắt đầu code UI shell/preview; bố cục login và sắc thái từng badge có thể tinh chỉnh khi nhìn thấy UI thực tế. Chưa có UI production.
 
 ## 8. Quy tắc làm việc sau handoff
 
