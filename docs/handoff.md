@@ -251,7 +251,11 @@ Các tài liệu đã có:
 - Một submit tạo `submission_id` để retry không tạo request trùng.
 - Cấp `request_id` an toàn với concurrent submits (không dùng sheet row count + 1).
 - Folder Drive `root/YYYY/request_id/`; file vật lý `attachment_id__original_filename`, metadata lưu trong Attachments.
-- Upload hoàn tất tất cả file rồi mới commit Requests + Attachments + AuditLog bằng một `spreadsheets.batchUpdate` atomic.
+- Upload hoàn tất tất cả file còn được chọn rồi mới commit Requests + Attachments + AuditLog bằng một `spreadsheets.batchUpdate` atomic.
+- Mỗi file có trạng thái riêng Pending/Uploading/Uploaded/Failed với thông báo VI/EN và tên file; file lỗi có Retry/Replace/Remove.
+- **Một file lỗi không xóa các file đã upload thành công**: file tốt giữ trong staging folder Drive. Requester chỉ retry file lỗi hoặc bỏ file lỗi. Chỉ finalize khi toàn bộ file còn trong danh sách thành công.
+- Mỗi file có upload_item_id ổn định, retry/timeout phải chống duplicate bằng submission_id + upload_item_id.
+- File staging bị bỏ dở/quá hạn phải cleanup bằng reconciliation sau khi kiểm tra chưa commit; không có Save Draft.
 - Không có transaction chung giữa Drive/Sheets; lỗi thì cleanup bù trừ, đối soát orphan files/folders hoặc commit không rõ kết quả.
 - Request commit thành công mới chuyển /requests; nếu lỗi giữ nguyên dữ liệu/file selection trên browser (không phải Save Draft).
 - V1 upload **mỗi file 4 MB tối đa bằng một HTTP request riêng** qua Vercel backend tới Google Drive, đảm bảo cả request body (kể cả multipart overhead) dưới 4.5 MB; không lộ Google credentials, không lưu file lâu dài trên Vercel.
