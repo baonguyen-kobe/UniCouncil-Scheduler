@@ -24,3 +24,21 @@ jobs:
         run: npm run lint
       - name: Build
         run: npm run build
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Capture desktop and mobile screenshots
+        run: npm run test:e2e
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unicouncil-chatgpt-ui-screenshots
+          path: artifacts/screenshots/
+          if-no-files-found: warn
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-playwright-report
+          path: playwright-report/
+          if-no-files-found: ignore
