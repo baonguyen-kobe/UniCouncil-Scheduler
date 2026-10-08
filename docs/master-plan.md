@@ -381,7 +381,9 @@ ADMIN và ASSISTANT mới được sửa thủ công request COMPLETED sang stat
 - Validation đã chốt: Units >= 1; agenda và participants bắt buộc, tối đa 3.000 ký tự; preferred date >= today; server validation authoritative.
 - Attachment đã chốt: optional, tối đa 10 file, **4 MB/file**; PDF/Office/ảnh phổ biến.
 - Submit flow đã chốt: client submission_id; backend validate và chống gửi trùng; folder Drive `root/YYYY/request_id/`; upload file xong mới commit Requests + Attachments + AuditLog atomically trong Sheets; trả success sau commit.
-- Nếu upload/Sheet gặp lỗi: rollback bù trừ Drive và đối soát khi cleanup hoặc kết quả commit không chắc chắn.
+- Nếu **một file** upload lỗi: hiển thị chính xác file lỗi, nguyên nhân và Retry/Replace/Remove. File khác đã upload thành công được giữ trong staging Drive; không rollback toàn bộ ngay. Chỉ commit request khi các file còn trong danh sách đều thành công.
+- Nếu form bị bỏ dở hoặc staging hết hạn: cleanup folder/file chưa commit qua reconciliation. Lỗi commit Sheets xử lý riêng, phải kiểm tra submission_id trước khi retry/cleanup, không bắt upload lại file đã thành công.
+- File có upload_item_id cố định theo submission_id để retry/timeout không tạo file trùng.
 - Upload mỗi file tối đa **4 MB** trong một HTTP request riêng qua Vercel backend sang Google Drive, đảm bảo tổng payload dưới giới hạn 4.5 MB; không dùng Vercel làm nơi lưu file.
 - **Đã chốt không tạo Drive mapping sheet riêng**. Requests lưu drive_folder_id/drive_folder_url và Attachments lưu drive_file_id/drive_file_url; link để bấm mở trong Google Sheets, IDs là khóa chuẩn.
 - Còn requester edit/resubmit UX khi ADJUSTED/REVISED.
