@@ -49,6 +49,15 @@
 45. Attachment V1 là optional, tối đa 10 file/request và 20 MB/file.
 46. Attachment V1 cho phép PDF, DOC/DOCX, XLS/XLSX, PPT/PPTX, JPG/JPEG, PNG, WEBP; backend kiểm tra dung lượng và file type/MIME.
 47. Trước khi submit, requester có thể bỏ file đã chọn khỏi upload list.
+48. Submit có `submission_id` idempotency key: retry phải trả đúng request đã commit, tránh duplicate do timeout/double-click.
+49. Backend xác thực + validate lại trước upload. Khi Submit, UI disable nút và giữ form/file list nếu upload lỗi.
+50. Mỗi request có Drive folder riêng dưới `root/YYYY/request_id/`; lưu `drive_folder_id` trong Requests. File vật lý có prefix `attachment_id__` để tránh trùng; tên gốc giữ ở Attachments.
+51. Upload toàn bộ file thành công trước khi commit Sheet. Chỉ khi Requests + Attachments + AuditLog được ghi thành công mới báo success và chuyển về /requests.
+52. Sheets commit ưu tiên một `spreadsheets.batchUpdate` atomic chứa thao tác ghi dữ liệu các tab liên quan; không hiểu nhầm API batch với transaction liên dịch vụ.
+53. Drive và Sheets không có distributed transaction chung. Khi lỗi, cleanup folder/file tạm theo cơ chế bù trừ (best effort); phải hỗ trợ reconciliation nếu cleanup thất bại hoặc không xác định được commit đã hoàn tất.
+54. Idempotency/unique request_id phải chống race condition của submit đồng thời; không cấp request_id bằng số dòng Sheet + 1, cũng không chỉ read-then-write để chống duplicate.
+55. Vercel Functions có payload limit 4.5 MB; upload 20 MB/file phải có verified resumable/direct-to-Drive upload path (hoặc giải pháp tương đương) mà không đưa token Google service account cho browser.
+56. Link Drive để truy cập trực tiếp trên Sheets nên dùng URL do Drive trả về khi có; quyền xem file vẫn enforce qua backend/Drive permissions. Chưa chốt có cần sheet mapping riêng hay chỉ bổ sung cột vào Requests + Attachments.
 
 ## Status display đã chốt
 
