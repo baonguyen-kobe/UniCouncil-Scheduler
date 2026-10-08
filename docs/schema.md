@@ -156,7 +156,9 @@ Dạng key/value:
 - app_name_en
 - timezone
 - drive_root_folder_id
-- max_upload_mb
+- max_upload_mb = 20
+- max_upload_files = 10
+- allowed_upload_extensions = pdf,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png,webp
 - default_meeting_duration
 - request_edit_until_status
 - default_locale
