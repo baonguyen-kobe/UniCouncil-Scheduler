@@ -268,6 +268,7 @@ Một Google Spreadsheet gồm:
 - Requests
 - Staff
 - Units
+- MeetingTypes
 - Locations
 - Attachments
 - AuditLog
@@ -276,13 +277,13 @@ Một Google Spreadsheet gồm:
 
 ### Requests — nhóm field chính
 
-- request identity: request_id, version, status.
+- request identity: request_id, version, status, submission_id, drive_folder_id, drive_folder_url.
 - requester snapshot: requester_id, requester_name, requester_email, requester_unit_id.
 - requested content: requested_unit_ids, meeting_content, requested_participants, requested_date.
 - internal classification: meeting_type_id.
 - official schedule: meeting_date, meeting_start_time, meeting_end_time.
 - official participants/organization: leader_ids, location_id, participants.
-- assistant/approval: assistant_id, assistant_note, priority, approval_note, leader_decision_note, approved_by, approved_at.
+- assistant/approval: assistant_id, assistant_note, priority, approval_note, revision_target, revision_instruction, leader_decision_note, approved_by, approved_at.
 - lifecycle metadata: created_at, created_by, updated_at, updated_by, submitted_at, deleted_at, deleted_by.
 
 ### Attachments
@@ -364,7 +365,7 @@ ADMIN và ASSISTANT mới được sửa thủ công request COMPLETED sang stat
 - Status badges.
 
 ### Phase 3 — Request form
-**Part B field baseline đã chốt; còn validation/upload/submit UX chi tiết**
+**Part B đã chốt về mặt yêu cầu; còn triển khai và QA**
 
 - /requests/new hỗ trợ VI/EN.
 - Full name read-only từ Google Workspace/Staff.
@@ -386,13 +387,15 @@ ADMIN và ASSISTANT mới được sửa thủ công request COMPLETED sang stat
 - File có upload_item_id cố định theo submission_id để retry/timeout không tạo file trùng.
 - Upload mỗi file tối đa **4 MB** trong một HTTP request riêng qua Vercel backend sang Google Drive, đảm bảo tổng payload dưới giới hạn 4.5 MB; không dùng Vercel làm nơi lưu file.
 - **Đã chốt không tạo Drive mapping sheet riêng**. Requests lưu drive_folder_id/drive_folder_url và Attachments lưu drive_file_id/drive_file_url; link để bấm mở trong Google Sheets, IDs là khóa chuẩn.
-- Còn requester edit/resubmit UX khi ADJUSTED/REVISED.
+- **Requester edit/resubmit đã chốt:** chỉ cho chủ request sửa khi ADJUSTED+REQUESTER hoặc REVISED+REQUESTER; giữ request_id, optimistic locking/version và AuditLog.
+- **Assistant bắt buộc ghi revision_instruction** khi chuyển cho Requester chỉnh. **Leader có textarea góp ý tùy chọn** (leader_decision_note) khi yêu cầu chỉnh; nếu để trống vẫn REVISED+ASSISTANT.
+- Resubmit ADJUSTED→PROCESSING; REVISED+REQUESTER→REVISED_PROCESSING; reset revision_target. Không có status mới.
 
 ### Phase 4 — Assistant workflow
 **Chưa triển khai**
 
 - Process request.
-- ADJUSTED.
+- ADJUSTED+REQUESTER (revision_instruction required), requester resubmit.
 - Chuẩn hóa nội dung.
 - Gắn lịch chính thức.
 - PENDING_APPROVAL.
@@ -405,8 +408,8 @@ ADMIN và ASSISTANT mới được sửa thủ công request COMPLETED sang stat
 
 - PENDING_APPROVAL queue.
 - Approve.
-- Request revision.
-- REVISED.
+- Request revision + leader_decision_note optional.
+- REVISED với revision_target=ASSISTANT/REQUESTER.
 - REVISED_PROCESSING.
 - Resubmission.
 - Leader visibility rule.
@@ -472,10 +475,10 @@ Chỉ cân nhắc sau khi V1 chạy ổn:
 - Google Sheets schema baseline.
 - Technical decisions.
 
-Đang chốt Part B:
-- Field baseline, validation và attachment constraints của /requests/new đã chốt.
-- Submit flow, folder convention và failure handling đã chốt ở mức requirement (cần triển khai/kiểm chứng).
-- Còn requester edit/resubmit UX khi ADJUSTED/REVISED.
+Part B đã chốt về mặt yêu cầu:
+- Field baseline, validation, attachment, submit flow và xử lý lỗi đã chốt.
+- Requester edit/resubmit, revision_target, Assistant instructions required và Leader comments optional đã chốt.
+- Cần triển khai/kiểm chứng workflow, concurrency, staging upload và permissions trước production.
 
 Reviewer checkpoint hiện tại:
-**Review toàn bộ baseline + đặc biệt kiểm tra workflow/status/visibility trước khi tiếp tục chốt Part B.**
+**Part B requirement baseline hoàn tất; tiếp theo là implementation và QA permission/workflow/upload.**
