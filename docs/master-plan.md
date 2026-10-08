@@ -465,12 +465,12 @@ Chỉ cân nhắc sau khi V1 chạy ổn:
 ## 14A. Part C — EIU branding và UI/UX trước implementation
 
 - Tham chiếu [UniCouncil Part C UI/UX Guidelines](ui-ux-guidelines.md).
-- Bộ màu EIU nhận từ user (2026-10-08); EIU Blue `#144069`, EIU Gold `#A78656` và màu phụ theo ảnh. EIU Cream cần đối chiếu mã HEX vì ảnh lặp thông số của Gold; tạm dùng `#F6F1E8` từ MedLabs V2.
+- Bộ màu EIU đã chốt với user (2026-10-08): EIU Blue `#144069`, EIU Gold `#A78656`, EIU Gray **`#58595B`**, EIU Cream **`#EAE2D6`** và các màu phụ trong `ui-ux-guidelines.md`.
 - Sidebar kế thừa đúng **EIU MedLabs V2 Master** (gradient xanh, menu active nền trắng + vạch gold), Full Logo EIU trong nền trắng; Login dùng EIU Corner Logo.
 - Typography theo override của user: **Crimson Pro chính (đã chốt)**, **Be Vietnam Pro phụ** (khác MedLabs V2 vốn dùng Be Vietnam Pro).
 - Người dùng muốn **badge trạng thái nền pastel nhạt**, tham khảo [EIU Schedule](https://github.com/nhutbao1314-hub/eiu-schedule): 5 tone Info/Warning/Success/Danger/Neutral. Chi tiết foreground/background và role-label mapping trong ui-ux-guidelines.md; mapping cụ thể là đề xuất chờ review.
-- Repo EIU Schedule ghi nhận normalizing Gray `#58595B` (trùng screenshot RGB) và Cream `#EAE2D6` từ ảnh branding; đề nghị xác nhận thay cho thông tin HEX/RGB bị lệch trong ảnh.
-- Cần chốt role-based workspace/navigation, palette normalization và badge mapping trước khi bắt đầu UI coding.
+- Người dùng **đã xác nhận** EIU Gray `#58595B` và EIU Cream `#EAE2D6` sau khi đối chiếu sai lệch HEX/RGB trong ảnh branding.
+- **Tất cả icon dùng Heroicons v2 (`@heroicons/react`)**, theo đính chính mới nhất của người dùng; không trộn các bộ icon. Còn chốt role-based workspace/navigation và mapping badge pastel trước UI coding.
 - Quyền role/workflow/status theo Part B giữ nguyên; không copy business logic MedLabs.
 
 ## 15. Current checkpoint
