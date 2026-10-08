@@ -138,6 +138,23 @@ These exact **foreground/background** pairs come from the EIU Schedule repo. The
 | `CANCELLED` | danger | Cancelled |
 | `COMPLETED` | neutral | Completed, historical |
 
+### Role-specific badge consistency (V1 proposal)
+
+**Prefer consistent tone for the label actually shown in each workspace**, rather than making the same user-visible text switch between pastel colors:
+
+| Workspace | Display label VI | Typical system statuses | Badge tone |
+|---|---|---|---|
+| Requester | Đang xử lý | PROCESSING, PENDING_APPROVAL, REVISED_PROCESSING | info |
+| Requester | Điều chỉnh | ADJUSTED, REVISED | warning |
+| Requester | Đã duyệt / Hoàn thành / Đã hủy | APPROVED / COMPLETED / CANCELLED | success / neutral / danger |
+| Assistant | Mới / Đang xử lý | PROCESSING / REVISED_PROCESSING | info |
+| Assistant | Chờ duyệt / Chờ bổ sung / Điều chỉnh | PENDING_APPROVAL / ADJUSTED / REVISED | warning |
+| Leader | Mới | PENDING_APPROVAL | info |
+| Leader | Điều chỉnh | REVISED, REVISED_PROCESSING | warning |
+| Assistant / Leader | Đã duyệt / Hoàn thành | APPROVED / COMPLETED | success / neutral |
+
+The earlier system-status table is only a default phase-inspired starting point; this **role-specific visible-label consistency takes precedence** if the two suggestions conflict. Exact English labels inherit the agreed translations from workflow docs.
+
 Rules:
 - **Keep eight canonical statuses and role-specific labels exactly as previously approved.** Tone is decorative semantic presentation; do not use it as backend state or filtering key.
 - Compact badge with readable text, pill radius, subtle border. Don't repeat status with multiple badges in one row; don't decorate headings with status-badge styling.
