@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent, type ReactNode } from "react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -9,12 +9,12 @@ import {
   ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, ClipboardDocumentListIcon,
   ClockIcon, Cog6ToothIcon, DocumentTextIcon, ExclamationCircleIcon,
   FunnelIcon, InformationCircleIcon, MagnifyingGlassIcon, MapPinIcon,
-  PaperClipIcon, PencilSquareIcon, PlusIcon, ShieldCheckIcon, Squares2X2Icon,
+  PaperClipIcon, PencilSquareIcon, PlusIcon, ShieldCheckIcon,
   TrashIcon, UserCircleIcon, UserGroupIcon, XMarkIcon
 } from "@heroicons/react/24/outline";
 import { useDemo } from "@/components/demo-provider";
 import {
-  badgeTone, createMockRequests, displayDate, EIU_ASSETS, MOCK_EMAIL,
+  badgeTone, displayDate, EIU_ASSETS, MOCK_EMAIL,
   MOCK_USER, statusLabel, todayIso, type Locale, type MeetingRequest, type Role,
   type Status
 } from "@/lib/demo-data";
@@ -134,7 +134,7 @@ function StatusBadge({status,role,locale}:{status:Status;role:Role;locale:Locale
 function DemoNotice({locale}:{locale:Locale}) {
   return <span className="demo-flag"><span className="blink-dot"/>{t(locale,"demo")}</span>;
 }
-function SectionEyebrow({children}:{children:React.ReactNode}){
+function SectionEyebrow({children}:{children:ReactNode}){
   return <span className="eyebrow">{children}</span>;
 }
 function Logo({corner=false}:{corner?:boolean}) {
@@ -269,9 +269,9 @@ function RequestsView({role,locale,requests,open,newRequest}:{role:Role;locale:L
  const counts={total:list.length,waiting:list.filter(r=>["PROCESSING","PENDING_APPROVAL","ADJUSTED","REVISED","REVISED_PROCESSING"].includes(r.status)).length,approved:list.filter(r=>r.status==="APPROVED").length};
  const title=role==="REQUESTER"?t(locale,"myRequests"):role==="ASSISTANT"?t(locale,"workQueue"):role==="LEADER"?t(locale,"leaderQueue"):t(locale,"requestList");
  const subtitle=role==="REQUESTER"?t(locale,"ownSub"):role==="ASSISTANT"?t(locale,"assistantSub"):role==="LEADER"?t(locale,"leaderSub"):t(locale,"pageDescription");
- const statuses=role==="REQUESTER"?[["all",t(locale,"allStatuses")],["processing",t(locale,"vi" as TextKey)||""],["revision",locale==="vi"?"Điều chỉnh":"Revision needed"],["APPROVED",t(locale,"approved")],["COMPLETED",statusLabel("COMPLETED",role,locale)],["CANCELLED",statusLabel("CANCELLED",role,locale)]]:[[ "all",t(locale,"allStatuses")],...(["PROCESSING","PENDING_APPROVAL","ADJUSTED","REVISED","REVISED_PROCESSING","APPROVED","CANCELLED","COMPLETED"] as Status[]).map(s=>[s,statusLabel(s,role,locale)])];
+ const statuses=role==="REQUESTER"?[["all",t(locale,"allStatuses")],["processing",locale==="vi"?"Đang xử lý":"Processing"],["revision",locale==="vi"?"Điều chỉnh":"Revision needed"],["APPROVED",t(locale,"approved")],["COMPLETED",statusLabel("COMPLETED",role,locale)],["CANCELLED",statusLabel("CANCELLED",role,locale)]]:[[ "all",t(locale,"allStatuses")],...(["PROCESSING","PENDING_APPROVAL","ADJUSTED","REVISED","REVISED_PROCESSING","APPROVED","CANCELLED","COMPLETED"] as Status[]).map(s=>[s,statusLabel(s,role,locale)])];
  // Fix requester-specific group text without exposing the technical status.
- if(role==="REQUESTER") statuses[1][1]=locale==="vi"?"Đang xử lý":"Processing";
+
  return <div className="page-shell">
    <div className="page-title-row"><div><SectionEyebrow>{t(locale,"overview")}</SectionEyebrow><h1 className="page-title">{title}</h1><p className="page-subtitle">{subtitle}</p></div>{role==="REQUESTER"&&<button type="button" className="button button-primary create-button" onClick={newRequest}><PlusIcon className="icon-sm"/>{t(locale,"newRequest")}</button>}</div>
    <div className="stats-row">
