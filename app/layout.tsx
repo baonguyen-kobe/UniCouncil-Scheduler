@@ -7,6 +7,7 @@ import "@fontsource/be-vietnam-pro/500.css";
 import "@fontsource/be-vietnam-pro/600.css";
 import "@fontsource/be-vietnam-pro/700.css";
 import "./globals.css";
+import { DemoProvider } from "@/components/demo-provider";
 
 export const metadata: Metadata = {
   title: "UniCouncil Scheduler · EIU",
@@ -18,7 +19,7 @@ export default function RootLayout({ children }: Readonly<{children: React.React
     <html lang="vi">
       <body>
         <a className="skip-link" href="#main-content">Đi tới nội dung chính / Skip to content</a>
-        {children}
+        <DemoProvider>{children}</DemoProvider>
       </body>
     </html>
   );
