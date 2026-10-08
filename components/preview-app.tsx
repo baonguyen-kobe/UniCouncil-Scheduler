@@ -27,7 +27,7 @@ const COPY = {
     signIn:"Tiếp tục với tài khoản EIU",loginNote:"Bản thử nghiệm giao diện. Không kết nối Google Workspace hoặc gửi dữ liệu thật.",
     enterDemo:"Vào giao diện demo",user:"Tài khoản minh họa",workspace:"KHÔNG GIAN LÀM VIỆC",nav:"ĐIỀU HƯỚNG",
     REQUESTER:"Người đăng ký",ASSISTANT:"Trợ lý lãnh đạo",LEADER:"Lãnh đạo",ADMIN:"Quản trị",
-    myRequests:"Yêu cầu của tôi",workQueue:"Xử lý yêu cầu",leaderQueue:"Phê duyệt yêu cầu",newRequest:"Tạo yêu cầu",
+    myRequests:"Yêu cầu của tôi",workQueue:"Xử lý yêu cầu",leaderQueue:"Phê duyệt yêu cầu",newRequest:"Tạo yêu cầu",newKpi:"Yêu cầu mới",revisingKpi:"Đang điều chỉnh",
     calendar:"Lịch họp",settings:"Quản trị",preview:"Giao diện thử nghiệm",previewSub:"Dữ liệu minh họa, chưa kết nối hệ thống thật",
     search:"Tìm mã, nội dung, người đăng ký...",allStatuses:"Tất cả trạng thái",
     all:"Tất cả",today:"Hôm nay",tomorrow:"Ngày mai",week:"Tuần này",month:"Tháng này",
@@ -77,7 +77,7 @@ const COPY = {
     signIn:"Continue with an EIU account",loginNote:"UI-only preview. No live Google Workspace authentication or data submission.",
     enterDemo:"Explore the demo",user:"Demo account",workspace:"YOUR WORKSPACE",nav:"NAVIGATION",
     REQUESTER:"Requester",ASSISTANT:"Executive Assistant",LEADER:"Leader",ADMIN:"Administrator",
-    myRequests:"My requests",workQueue:"Process requests",leaderQueue:"Review requests",newRequest:"New request",
+    myRequests:"My requests",workQueue:"Process requests",leaderQueue:"Review requests",newRequest:"New request",newKpi:"New requests",revisingKpi:"Under revision",
     calendar:"Meeting calendar",settings:"Administration",preview:"Interface preview",previewSub:"Illustrative data, not connected to production",
     search:"Search reference, agenda, requester...",allStatuses:"All statuses",
     all:"All",today:"Today",tomorrow:"Tomorrow",week:"This week",month:"This month",
@@ -121,6 +121,8 @@ const COPY = {
     return:"Back",legend:"Approved meetings",revisionHint:"Changes requested by the Assistant"
   }
 } as const;
+// Set NEXT_PUBLIC_DEMO_MODE=false only when production services/auth have been implemented.
+const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE !== "false";
 type TextKey = keyof typeof COPY.vi;
 function t(locale:Locale,key:TextKey):string{return COPY[locale][key];}
 const ROLES: Role[]=["REQUESTER","ASSISTANT","LEADER","ADMIN"];
@@ -266,21 +268,23 @@ function RequestsView({role,locale,requests,open,newRequest}:{role:Role;locale:L
   return true;
  });
  const shown=searched.slice((page-1)*6,page*6);
- const counts={total:list.length,waiting:list.filter(r=>["PROCESSING","PENDING_APPROVAL","ADJUSTED","REVISED","REVISED_PROCESSING"].includes(r.status)).length,approved:list.filter(r=>r.status==="APPROVED").length};
- const title=role==="REQUESTER"?t(locale,"myRequests"):role==="ASSISTANT"?t(locale,"workQueue"):role==="LEADER"?t(locale,"leaderQueue"):t(locale,"requestList");
- const subtitle=role==="REQUESTER"?t(locale,"ownSub"):role==="ASSISTANT"?t(locale,"assistantSub"):role==="LEADER"?t(locale,"leaderSub"):t(locale,"pageDescription");
+ const counts={
+  new:list.filter(r=>role==="LEADER"?r.status==="PENDING_APPROVAL":role==="ASSISTANT"?r.status==="PROCESSING":r.status==="PROCESSING"||r.status==="PENDING_APPROVAL").length,
+  revising:list.filter(r=>r.status==="ADJUSTED"||r.status==="REVISED").length,
+  approved:list.filter(r=>r.status==="APPROVED").length
+ };
  const statuses=role==="REQUESTER"?[["all",t(locale,"allStatuses")],["processing",locale==="vi"?"Đang xử lý":"Processing"],["revision",locale==="vi"?"Điều chỉnh":"Revision needed"],["APPROVED",t(locale,"approved")],["COMPLETED",statusLabel("COMPLETED",role,locale)],["CANCELLED",statusLabel("CANCELLED",role,locale)]]:[[ "all",t(locale,"allStatuses")],...(["PROCESSING","PENDING_APPROVAL","ADJUSTED","REVISED","REVISED_PROCESSING","APPROVED","CANCELLED","COMPLETED"] as Status[]).map(s=>[s,statusLabel(s,role,locale)])];
- // Fix requester-specific group text without exposing the technical status.
-
- return <div className="page-shell">
-   <div className="page-title-row"><div><SectionEyebrow>{t(locale,"overview")}</SectionEyebrow><h1 className="page-title">{title}</h1><p className="page-subtitle">{subtitle}</p></div>{role==="REQUESTER"&&<button type="button" className="button button-primary create-button" onClick={newRequest}><PlusIcon className="icon-sm"/>{t(locale,"newRequest")}</button>}</div>
+ return <div className="page-shell requests-page">
    <div className="stats-row">
-    <div className="stat-card"><div className="stat-label"><span>{t(locale,"allRequests")}</span><ClipboardDocumentListIcon/></div><strong>{counts.total.toString().padStart(2,"0")}</strong><small>{t(locale,"mock")}</small></div>
-    <div className="stat-card"><div className="stat-label"><span>{t(locale,"waiting")}</span><ClockIcon/></div><strong>{counts.waiting.toString().padStart(2,"0")}</strong><small>{t(locale,"requestList")}</small></div>
-    <div className="stat-card"><div className="stat-label"><span>{t(locale,"approved")}</span><CheckCircleIcon/></div><strong>{counts.approved.toString().padStart(2,"0")}</strong><small>{t(locale,"calendar")}</small></div>
+    <div className="stat-card"><div className="stat-label"><span>{t(locale,"newKpi")}</span><ClipboardDocumentListIcon/></div><strong>{counts.new.toString().padStart(2,"0")}</strong></div>
+    <div className="stat-card"><div className="stat-label"><span>{t(locale,"revisingKpi")}</span><ClockIcon/></div><strong>{counts.revising.toString().padStart(2,"0")}</strong></div>
+    <div className="stat-card"><div className="stat-label"><span>{t(locale,"approved")}</span><CheckCircleIcon/></div><strong>{counts.approved.toString().padStart(2,"0")}</strong></div>
    </div>
    <div className="list-card">
-    <div className="table-card-heading"><div><h2>{t(locale,"requestList")}</h2><p>{t(locale,"pageDescription")}</p></div><span className="result-counter">{searched.length} {locale==="vi"?"yêu cầu":"requests"}</span></div>
+    <div className="table-card-heading">
+      <div><h2>{t(locale,"requestList")}</h2><p className="table-result-count">{searched.length} {locale==="vi"?"yêu cầu":"requests"}</p></div>
+      {(role==="REQUESTER"||role==="ASSISTANT")&&<button type="button" className="button button-primary create-button" onClick={newRequest}><PlusIcon className="icon-sm"/>{t(locale,"newRequest")}</button>}
+    </div>
     <div className="filter-area">
       <div className="filter-row"><div className="search-shell"><MagnifyingGlassIcon/><input type="search" value={query} placeholder={t(locale,"search")} onChange={e=>{setQuery(e.target.value);setPage(1);}} aria-label={t(locale,"search")}/></div><div className="select-shell"><FunnelIcon/><select value={status} aria-label={t(locale,"status")} onChange={e=>{setStatus(e.target.value);setPage(1);}}>{statuses.map(([value,label])=><option key={value} value={value}>{label}</option>)}</select><ChevronDownIcon/></div></div>
       <div className="preset-row">{([["all","all"],["today","today"],["tomorrow","tomorrow"],["week","week"],["month","month"]] as const).map(([value,key])=><button key={value} type="button" onClick={()=>{setDateFilter(value);setPage(1);}} className={"preset "+(dateFilter===value?"preset-active":"")}>{t(locale,key)}</button>)}{(status!=="all"||query||dateFilter!=="all")&&<button type="button" className="clear-filters" onClick={()=>{setQuery("");setDateFilter("all");setStatus("all");setPage(1);}}><ArrowPathIcon/>{t(locale,"reset")}</button>}</div>
@@ -416,10 +420,11 @@ export default function PreviewApp(){
  function createRequest(r:MeetingRequest,isEdit:boolean){setRequests(prev=>isEdit?prev.map(x=>x.id===r.id?r:x):[r,...prev]);navigate("/requests");setToast(t(locale,"formSaved"));}
  if(path==="/login")return <SignIn locale={locale} onLocaleChange={setLocale} enter={()=>navigate("/requests")}/>;
  const navItems=role==="REQUESTER"?[
-  {href:"/requests",name:t(locale,"myRequests"),icon:ClipboardDocumentListIcon},
   {href:"/requests/new",name:t(locale,"newRequest"),icon:PlusIcon},
+  {href:"/requests",name:t(locale,"myRequests"),icon:ClipboardDocumentListIcon},
   {href:"/calendar",name:t(locale,"calendar"),icon:CalendarDaysIcon}
  ]:role==="ASSISTANT"?[
+  {href:"/requests/new",name:t(locale,"newRequest"),icon:PlusIcon},
   {href:"/requests",name:t(locale,"workQueue"),icon:ClipboardDocumentListIcon},
   {href:"/calendar",name:t(locale,"calendar"),icon:CalendarDaysIcon}
  ]:role==="LEADER"?[
@@ -435,22 +440,22 @@ export default function PreviewApp(){
   {sidebarOpen&&<button type="button" className="sidebar-screen" aria-label={t(locale,"close")} onClick={()=>setSidebarOpen(false)}/>}
   <aside className={"sidebar "+(sidebarOpen?"sidebar-open":"")}>
     <div className="side-logo"><Logo/></div>
-    <div className="side-product"><span className="side-product-title">UniCouncil <em>Scheduler</em></span><span className="side-product-sub">EIU · MEETING MANAGEMENT</span></div>
-    <div className="workspace-wrap"><span className="side-heading">{t(locale,"workspace")}</span>
-      <button type="button" className="workspace-trigger" aria-expanded={workspaceOpen} onClick={()=>setWorkspaceOpen(v=>!v)}><span className="workspace-icon"><UserCircleIcon/></span><span><strong>{t(locale,role)}</strong><small>{t(locale,"preview")}</small></span><ChevronDownIcon className="icon-sm"/></button>
+    <div className="side-product"><span className="side-product-title">UniCouncil <em>Scheduler</em></span></div>
+    <div className="workspace-wrap">{DEMO_MODE&&<span className="side-heading">{t(locale,"workspace")}</span>}
+      <button type="button" className="workspace-trigger" aria-expanded={workspaceOpen} onClick={()=>setWorkspaceOpen(v=>!v)}><span className="workspace-icon"><UserCircleIcon/></span><span><strong>{t(locale,role)}</strong>{DEMO_MODE&&<small>{t(locale,"preview")}</small>}</span><ChevronDownIcon className="icon-sm"/></button>
       {workspaceOpen&&<div className="workspace-dropdown">{ROLES.map(r=><button type="button" key={r} className={r===role?"selected-workspace":""} onClick={()=>switchRole(r)}>{t(locale,r)}{r===role&&<CheckIcon className="icon-sm"/>}</button>)}</div>}
     </div>
     <nav className="side-nav" aria-label={t(locale,"nav")}><span className="side-heading">{t(locale,"nav")}</span>{navItems.map(({href,name,icon:Icon})=><button type="button" key={href} onClick={()=>navigate(href)} className={"nav-link "+(path===href||(href==="/requests"&&path.startsWith("/requests/")&&!isForm)?"nav-active":"")}><Icon/><span>{name}</span>{path===href&&<span className="nav-active-marker"/>}</button>)}</nav>
-    <div className="side-bottom"><div className="side-help"><InformationCircleIcon/><div><strong>{t(locale,"demo")}</strong><p>{t(locale,"previewSub")}</p></div></div><button type="button" className="side-user" onClick={()=>navigate("/login")}><span className="avatar">MA</span><span><strong>{MOCK_USER}</strong><small>{MOCK_EMAIL}</small></span><ArrowRightOnRectangleIcon className="icon-sm"/></button></div>
+    <div className="side-bottom">{DEMO_MODE&&<div className="side-help"><InformationCircleIcon/><div><strong>{t(locale,"demo")}</strong><p>{t(locale,"previewSub")}</p></div></div>}<button type="button" className="side-user" onClick={()=>navigate("/login")}><span className="avatar">MA</span><span><strong>{MOCK_USER}</strong><small>{MOCK_EMAIL}</small></span><ArrowRightOnRectangleIcon className="icon-sm"/></button></div>
   </aside>
-  <div className="main-area"><header className="topbar"><div className="topbar-left"><button className="icon-button mobile-nav-toggle" type="button" onClick={()=>setSidebarOpen(true)} aria-label={t(locale,"nav")}><Bars3Icon/></button><span className="topbar-location">{t(locale,role)} <ChevronRightIcon/> <strong>{pageLabel}</strong></span></div><div className="topbar-right"><DemoNotice locale={locale}/><LanguageSwitch locale={locale} change={setLocale}/><button type="button" className="icon-button notification-button" aria-label={t(locale,"preview")} onClick={()=>setToast(t(locale,"loginNote"))}><BellIcon/></button><span className="topbar-avatar">MA</span></div></header>
+  <div className="main-area"><header className="topbar"><div className="topbar-left"><button className="icon-button mobile-nav-toggle" type="button" onClick={()=>setSidebarOpen(true)} aria-label={t(locale,"nav")}><Bars3Icon/></button><h1 className="topbar-page-title">{pageLabel}</h1></div><div className="topbar-right">{DEMO_MODE&&<DemoNotice locale={locale}/>}<LanguageSwitch locale={locale} change={setLocale}/><button type="button" className="icon-button notification-button" aria-label={t(locale,"preview")} onClick={()=>setToast(t(locale,"loginNote"))}><BellIcon/></button><span className="topbar-avatar">MA</span></div></header>
    <main id="main-content" tabIndex={-1}>
     {isForm?<NewRequestView key={path} locale={locale} requests={requests} editId={path.split("/")[3]} onCreate={createRequest} back={()=>navigate("/requests")}/>:
       path==="/calendar"?<CalendarView locale={locale} requests={requests} open={setSelected}/>:
       path==="/settings"?<AdminView locale={locale}/>:
       <RequestsView role={role} locale={locale} requests={requests} open={setSelected} newRequest={()=>navigate("/requests/new")}/>}
    </main>
-   <footer className="app-footer">© EIU · UniCouncil Scheduler <span>{t(locale,"demo")}</span></footer>
+   <footer className="app-footer">© EIU · UniCouncil Scheduler {DEMO_MODE&&<span>{t(locale,"demo")}</span>}</footer>
   </div>
   {selectedRecord&&<DetailDrawer request={selectedRecord} role={role} locale={locale} onClose={()=>setSelected(null)} onAction={(kind,request)=>setAction({kind,request})} onEdit={r=>navigate("/requests/new/"+r.id)}/>}
   {action&&<ActionModal key={action.kind+action.request.id} kind={action.kind} request={action.request} locale={locale} close={()=>setAction(null)} confirm={applyAction}/>}
