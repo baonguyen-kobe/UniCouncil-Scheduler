@@ -1,6 +1,6 @@
 # Part C — UI/UX Guidelines V1 — UniCouncil Scheduler
 
-> Status: **EIU branding, sidebar, logo assets, typography roles approved in principle by user (2026-10-08)**. Remaining open: exact Crimson family variant; EIU Cream value in the supplied palette image; role workspace navigation choice.
+> Status: **EIU branding, MedLabs-inspired sidebar, logo assets and Crimson Pro / Be Vietnam Pro approved by user (2026-10-08)**. User requested soft/pastel badges referencing EIU Schedule; concrete status-tone mapping below is a UX proposal awaiting review. Remaining open: normalizing EIU Cream / Gray color values, role workspace navigation choice.
 >
 > Scope: design/implementation baseline, **not** a deployed UI. Business permissions, status logic, and data workflow remain authoritative in `workflow-and-roles.md`, `pages.md`, and `schema.md`.
 
@@ -9,9 +9,10 @@
 Brand source of truth for UniCouncil:
 
 1. User-supplied EIU **Primary Colour** and **Secondary Colour** images (2026-10-08) — primary authority for brand palette.
-2. User's explicit overrides: sidebar resembles MedLabs, EIU Full Logo on white, EIU Corner Logo on login, **Crimson main / Be Vietnam Pro secondary**.
+2. User's explicit overrides: sidebar resembles MedLabs, EIU Full Logo on white, EIU Corner Logo on login, **Crimson Pro main / Be Vietnam Pro secondary**; pastel status badges inspired by EIU Schedule.
 3. Source UI baseline: [EIU MedLabs UI Design System V2 Master](https://github.com/baonguyen-kobe/eiu-medlabs/blob/main/docs/UI_DESIGN_SYSTEM_V2_MASTER.md) (approved master), then MedLabs production implementation when compatible with that master.
-4. UniCouncil-specific page/workflow/permission rules take priority over copied MedLabs components.
+4. Pastel badges, filter/async/table patterns reference [EIU Schedule design tokens](https://github.com/nhutbao1314-hub/eiu-schedule/blob/main/docs/design-system/TOKENS.md), [Badge component](https://github.com/nhutbao1314-hub/eiu-schedule/blob/main/components/ui/badge.tsx) and [SOURCE_FACTS](https://github.com/nhutbao1314-hub/eiu-schedule/blob/main/docs/design-system/SOURCE_FACTS.md).
+5. UniCouncil-specific page/workflow/permission rules take priority over copied design components from either repo.
 
 Do not copy MedLabs business logic, navigation items, database/auth stack, branding text "MedLabs Calendar", or domain-specific pages. In case MedLabs' old `app/globals.css` disagrees with its approved V2 Master, use **the V2 Master**, not legacy styling.
 
@@ -23,8 +24,8 @@ These are **brand colors**, not arbitrary semantic colors; design tokens should 
 |---|---|---|
 | EIU Blue | `#144069` | Main brand; sidebar/nav, headings and primary actions |
 | EIU Gold | `#A78656` | Premium/accent; active menu marker, restrained emphasis |
-| EIU Gray | `#4E4F50` | Gray as stated in HEX line of user-supplied palette |
-| EIU Cream | **Pending confirmation**; temporary `#F6F1E8` | Neutral warm surface (temporary value taken from MedLabs master) |
+| EIU Gray | `#4E4F50` printed HEX; **recommended normalized** `#58595B` (pending confirmation) | EIU Schedule's documented normalization matches the screenshot RGB `88/89/91` |
+| EIU Cream | **Pending confirmation**; suggested normalized `#EAE2D6` (previous temporary `#F6F1E8`) | Reference EIU Schedule documented extraction from the light cream swatch |
 | EIU Red | `#B44425` | Error/danger accent |
 | EIU Orange | `#D88327` | Warning accent |
 | EIU Yellow | `#EFB31D` | Secondary accent (avoid as text against white) |
@@ -38,22 +39,23 @@ Additional neutral UI values from approved MedLabs baseline (not EIU signature c
 - Ink Primary `#303033`
 
 **Palette input discrepancy to resolve before final implementation:**
-- EIU Cream entry in the screenshot reuses EIU Gold's printed numbers and HEX `#A78656`, although its color swatch is distinctly light cream. Do **not** render Cream as Gold. Use `#F6F1E8` provisionally from MedLabs master until corrected EIU hex is supplied.
-- EIU Gray printed RGB values do not match its printed HEX. For current spec prefer the user's printed HEX `#4E4F50`; confirm when exporting final design tokens.
+- EIU Cream entry in the user screenshot reuses EIU Gold's printed numbers and HEX `#A78656`, although the swatch is distinctly cream. The independent EIU Schedule [SOURCE_FACTS](https://github.com/nhutbao1314-hub/eiu-schedule/blob/main/docs/design-system/SOURCE_FACTS.md) records **`#EAE2D6`** as the swatch-normalized Cream. **Recommend this**, not Gold and not the earlier MedLabs UI neutral `#F6F1E8`, **but ask user before finalizing the institutional token**.
+- EIU Gray screenshot's RGB `88/89/91` converts to **`#58595B`** and is also the value in EIU Schedule; its printed HEX `#4E4F50` conflicts. **Recommend `#58595B`**, pending user approval; do not silently pretend the screenshot entries agree.
+- Neutral surfaces such as Canvas/Surface are application tokens, not necessarily exact institutional brand colors.
 
 Use CSS semantic tokens (`--brand-primary`, `--brand-accent`, `--surface`, `--text`, `--success`, `--danger`, etc.). Do not hardcode literal HEX repeatedly in per-page CSS. Status meaning must be conveyed by text/icons as well as color. Check visual contrast for functional states.
 
 ## 3. Typography — user override
 
-- **Primary brand/display family: Crimson** (exact family still to confirm: e.g. `Crimson Pro` versus `Crimson Text`; do **not** assume the correct package/font file).
+- **Primary brand/display family: Crimson Pro — CONFIRMED by user (2026-10-08)**. Do not substitute `Crimson Text` used in the EIU Schedule reference.
 - **Secondary UI family: Be Vietnam Pro**.
-- Proposed application: Crimson as brand name, page titles, section/hero headings and restrained editorial emphasis; Be Vietnam Pro for UI labels, menu, table/data rows, forms, buttons, validation, long text, dates/numbers and bilingual content.
-- This mapping is a **UX implementation proposal**, subject to reviewer feedback; the user-approved requirement is Crimson primary / Be Vietnam Pro secondary.
-- Validate Vietnamese diacritics, glyph metrics, line height and `font-display` once exact Crimson family is confirmed. Both VI and EN must render correctly; do not replace fonts with font files copied from another repo without reviewing source/license.
+- Proposed application: **Crimson Pro** for brand name, page titles, section/hero headings and restrained editorial emphasis; **Be Vietnam Pro** for UI labels, menu, table/data rows, forms, buttons, validation, long text, dates/numbers and bilingual content.
+- This placement is an **implementation recommendation**; the agreed font families themselves are fixed: Crimson Pro primary / Be Vietnam Pro secondary.
+- Validate Crimson Pro Vietnamese diacritics, glyph metrics, line height and `font-display` during UI implementation. Both VI and EN must render correctly; choose properly licensed package/hosting, do not transfer font binaries from another repository.
 
 MedLabs V2 uses Be Vietnam Pro alone; UniCouncil's typography overrides that MedLabs rule explicitly.
 
-Baseline type scale for functional UI can inherit MedLabs V2 until page-level review: body 14px, table header 13px, table text 14px, field label 13px, button 14px, metadata 13px. Title scale must be visually verified with Crimson's metrics rather than mechanically copying Be Vietnam Pro weights.
+Baseline type scale for functional UI can inherit MedLabs V2 until page-level review: body 14px, table header 13px, table text 14px, field label 13px, button 14px, metadata 13px. Title scale must be visually verified with Crimson Pro metrics rather than mechanically copying Be Vietnam Pro weights.
 
 ## 4. Sidebar — inherit MedLabs V2 approved visual
 
@@ -77,7 +79,7 @@ Desktop shell from MedLabs V2 Master:
 
 - **EIU Full Logo**: `public/eiu-full-logo.jpg` from the MedLabs repository.
 - White logo panel: `height: 62px`, `background: #FFFFFF`, `border-radius: 12px`, `padding: 8px 10px`, subtle raised shadow per MedLabs V2 Master. Logo must use `object-fit: contain` (no cropping).
-- Below logo: product title **UniCouncil Scheduler**, not MedLabs Calendar. Title/brand font = Crimson after selecting exact family.
+- Below logo: product title **UniCouncil Scheduler**, not MedLabs Calendar. Title/brand font = **Crimson Pro**.
 - Group headings: 14px, bold, uppercase, gold-tinted `#D9C49E` inherited from approved MedLabs V2.
 - Menu items: 12px; active height 42px, radius 11px, white background, EIU Blue text, `inset 4px 0 0 #A78656` left accent and restrained shadow.
 - Preserve three distinct vertical regions for logo, title, first nav group. No absolute positioning/negative margins that create overlap.
@@ -90,7 +92,7 @@ Do not copy old CSS from MedLabs blindly: `docs/UI_DESIGN_SYSTEM_V2_MASTER.md` i
 
 - Use **EIU Corner Logo**, source `eiu-medlabs/public/eiu-corner-logo.png`, on UniCouncil's `/login`.
 - Layout is *not* copied 1:1 from MedLabs; will be designed for a centered Google Workspace login flow, bilingual VI/EN copy and responsive screens.
-- Use Crimson for the distinctive brand/title portion and Be Vietnam Pro for sign-in instructions, labels, warnings and actionable controls.
+- Use **Crimson Pro** for the distinctive brand/title portion and Be Vietnam Pro for sign-in instructions, labels, warnings and actionable controls.
 - Avoid non-EIU decorative logos or brand colors.
 
 ## 6. Shared UI foundation inherited from MedLabs V2
@@ -104,6 +106,53 @@ Do not copy old CSS from MedLabs blindly: `docs/UI_DESIGN_SYSTEM_V2_MASTER.md` i
 - Accessibility: one visible focus boundary per composite control, keyboard operation, form labels, meaningful validation in selected language, no color-only statuses, respect reduced motion.
 - Already-approved UniCouncil responsive UX: desktop table + detail drawer; mobile compact cards + full-page/card detail.
 - Upload file UX: per-file feedback with Retry/Replace/Remove, supporting VI/EN; 4 MB per file, at most 10 attachments.
+
+## 6A. Soft pastel status badges — adapted from EIU Schedule (2026-10-08)
+
+**Direction requested by user**: light/pastel background + dark, legible text + delicate tonal border instead of bright solid-color badges. The **exact mapping from status to tone is a UniCouncil proposal** for review, not a new workflow/status definition.
+
+**Reference implementation**:
+- [EIU Schedule Badge](https://github.com/nhutbao1314-hub/eiu-schedule/blob/main/components/ui/badge.tsx): `neutral`, `success`, `warning`, `danger`, `info`; full pill, soft fills, semantic foreground, subtle inset ring.
+- [EIU Schedule TOKENS](https://github.com/nhutbao1314-hub/eiu-schedule/blob/main/docs/design-system/TOKENS.md): the five foreground/background pairs below.
+
+| Tone | Text / foreground | Pastel background | UniCouncil example |
+|---|---|---|---|
+| `info` | `#144069` | `#F0F4F8` | Đang xử lý / Processing |
+| `warning` | `#765A0D` | `#FFF8E8` | Điều chỉnh / Revision; Chờ duyệt / Awaiting approval |
+| `success` | `#3D642B` | `#F2F6EE` | Đã duyệt / Approved |
+| `danger` | `#8C301B` | `#FFF1ED` | Đã hủy / Cancelled |
+| `neutral` | `#58595B` | `#F7F3ED` | Hoàn thành / Completed |
+
+These exact **foreground/background** pairs come from the EIU Schedule repo. The thin border can be a low-opacity tint of the corresponding brand color; tune its final alpha/contrast in visual QA. A badge never relies on background alone.
+
+**System status → proposed tone** (presentation only; role-specific label mapping remains in workflow docs):
+
+| System status | Suggested tone | Note |
+|---|---|---|
+| `PROCESSING` | info | Assistant is processing; Requester displays “Đang xử lý” |
+| `PENDING_APPROVAL` | warning | Awaiting Leader approval, not an error; Leader may display “Mới” |
+| `ADJUSTED` | warning | Requester needs to revise |
+| `REVISED` | warning | Leader requested revision; may be Assistant- or Requester-owned based on `revision_target` |
+| `REVISED_PROCESSING` | info | Requester resubmitted after Leader revision; Assistant processing |
+| `APPROVED` | success | Approved |
+| `CANCELLED` | danger | Cancelled |
+| `COMPLETED` | neutral | Completed, historical |
+
+Rules:
+- **Keep eight canonical statuses and role-specific labels exactly as previously approved.** Tone is decorative semantic presentation; do not use it as backend state or filtering key.
+- Compact badge with readable text, pill radius, subtle border. Don't repeat status with multiple badges in one row; don't decorate headings with status-badge styling.
+- VI/EN text is localized, developer status codes never shown as UI labels. For identical displayed labels (e.g. Requester PROCESSING and PENDING_APPROVAL), prefer consistent tone unless there is a clear user-visible distinction and justification; the table above is a **starting point for review**.
+- Compare text/background contrast: token pairs were checked to exceed 4.5:1 for ordinary status text. In final UI verify real font weight/size and the border/focus semantics.
+- Palette hue communicates semantics; status text/icon and accessible labels still carry the meaning. A badge that is read-only must not look like a button.
+
+## 6B. Other EIU Schedule patterns worth adapting
+
+1. **Filter presets + visible reset**: dates/statuses can be quick presets; show active filters with removable chips and one clear reset. Scope filters only to the relevant UniCouncil page (Requester/Assistant/Leader queue). Avoid invisible filters.
+2. **Latest-response-wins** for fast search/filters: don't allow an older async result to overwrite a newer choice; preserve loading/empty/no-match/error states and keep layout stable.
+3. **Honest data states**: show “Chưa phân công / Not assigned” or “Chưa có lịch chính thức / Not scheduled” instead of fake leader, room or meeting time. Keep “ngày đề xuất” distinct from “ngày chính thức”.
+4. **Readable tables**: semantic headers, sticky opaque header on long lists, table-local horizontal scrolling and width by column intent. Already-approved UniCouncil mobile compact cards stay in force (do not import EIU Schedule's wide-table-on-mobile choice).
+5. **Accessible feedback**: 44px touch targets, visible keyboard focus, predictable dialog focus, no color-only status, reduced motion, inline failures next to the affected field/file.
+6. **Avoid copying** Schedule analytics charts, student KPIs, cloud sync freshness semantics, EduHub integrations, public-dashboard shell or its default Montserrat/Crimson Text font pairing. UniCouncil is a private request-approval application, not a student schedule analytics dashboard.
 
 ## 7. Logo asset plan (for implementation)
 
@@ -119,10 +168,11 @@ From [MedLabs / public](https://github.com/baonguyen-kobe/eiu-medlabs/tree/main/
 
 ## 8. Remaining Part C decisions
 
-1. Exact font family: which "Crimson" variant and where to use it in dense pages (test Vietnamese).
-2. Confirm the EIU Cream hex and the Gray HEX/RGB discrepancy in the supplied image.
-3. Role-based navigation: one workspace switcher per active role vs one permission-aware shared navigation.
-4. Login page information hierarchy and VI/EN toggle placement.
-5. Form states, feedback patterns and final table/filter layout per UniCouncil business requirements.
+1. **Crimson Pro is confirmed**; verify display sizing/diacritics during implementation, not an open font-family decision.
+2. Confirm normalized **EIU Cream `#EAE2D6`** and **Gray `#58595B`** before treating them as final institutional colors.
+3. Review the proposed pastel badge **status → tone** table and role-specific consistency.
+4. Role-based navigation: one workspace switcher per active role vs one permission-aware shared navigation.
+5. Login page information hierarchy and VI/EN toggle placement.
+6. Apply the relevant filter/table/error patterns to UniCouncil pages.
 
 After remaining decisions, move into implementation; avoid redesigning previously approved EIU branding.
