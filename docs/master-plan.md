@@ -379,11 +379,11 @@ ADMIN và ASSISTANT mới được sửa thủ công request COMPLETED sang stat
 - Không có Save Draft/local autosave/server draft.
 - Submit thành công tạo request PROCESSING.
 - Validation đã chốt: Units >= 1; agenda và participants bắt buộc, tối đa 3.000 ký tự; preferred date >= today; server validation authoritative.
-- Attachment đã chốt: optional, tối đa 10 file, 20 MB/file; PDF/Office/ảnh phổ biến.
+- Attachment đã chốt: optional, tối đa 10 file, **4 MB/file**; PDF/Office/ảnh phổ biến.
 - Submit flow đã chốt: client submission_id; backend validate và chống gửi trùng; folder Drive `root/YYYY/request_id/`; upload file xong mới commit Requests + Attachments + AuditLog atomically trong Sheets; trả success sau commit.
 - Nếu upload/Sheet gặp lỗi: rollback bù trừ Drive và đối soát khi cleanup hoặc kết quả commit không chắc chắn.
-- Upload 20 MB/file phải vượt qua giới hạn body 4.5 MB của Vercel bằng kiến trúc resumable/direct-to-Drive hoặc tương đương; cần kiểm chứng trước implementation.
-- Đang đề xuất bổ sung link Drive ở Requests/Attachments thay vì tạo một sheet mapping thứ ba; chưa chốt lựa chọn này.
+- Upload mỗi file tối đa **4 MB** trong một HTTP request riêng qua Vercel backend sang Google Drive, đảm bảo tổng payload dưới giới hạn 4.5 MB; không dùng Vercel làm nơi lưu file.
+- **Đã chốt không tạo Drive mapping sheet riêng**. Requests lưu drive_folder_id/drive_folder_url và Attachments lưu drive_file_id/drive_file_url; link để bấm mở trong Google Sheets, IDs là khóa chuẩn.
 - Còn requester edit/resubmit UX khi ADJUSTED/REVISED.
 
 ### Phase 4 — Assistant workflow
@@ -473,7 +473,7 @@ Chỉ cân nhắc sau khi V1 chạy ổn:
 Đang chốt Part B:
 - Field baseline, validation và attachment constraints của /requests/new đã chốt.
 - Submit flow, folder convention và failure handling đã chốt ở mức requirement (cần triển khai/kiểm chứng).
-- Còn requester edit/resubmit UX và quyết định lưu link Drive trong cùng sheet hay sheet mapping riêng.
+- Còn requester edit/resubmit UX khi ADJUSTED/REVISED.
 
 Reviewer checkpoint hiện tại:
 **Review toàn bộ baseline + đặc biệt kiểm tra workflow/status/visibility trước khi tiếp tục chốt Part B.**
