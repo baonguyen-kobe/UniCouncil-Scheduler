@@ -47,7 +47,8 @@ Checkpoint hiện tại:
 - Link Drive lưu ở hai sheet hiện có (Requests/Attachments), không tạo Drive map sheet riêng.
 - **Part B đã chốt về mặt yêu cầu**: Requester chỉ sửa khi được Assistant giao (`revision_target=REQUESTER`); Assistant bắt buộc có `revision_instruction`; Leader có `leader_decision_note` tùy chọn, được để trống khi yêu cầu chỉnh.
 - **Part C đang chốt**: bộ màu EIU theo ảnh branding người dùng; sidebar kế thừa MedLabs V2 Master; Full Logo nền trắng ở Sidebar, Corner Logo ở Login; Crimson Pro là font chính đã chốt, Be Vietnam Pro là font phụ. Badge trạng thái dùng phong cách pastel tham khảo EIU Schedule; bảng mapping nhãn/role đang ở mức đề xuất. Mã EIU Cream `#EAE2D6` và EIU Gray `#58595B` đã chốt. **Toàn bộ icon dùng Heroicons v2**, không trộn bộ icon khác.
-- Sau Part C: triển khai và QA workflow, upload, optimistic locking và role permissions; xem docs/ui-ux-guidelines.md, docs/master-plan.md và docs/handoff.md.
+- **Đã chốt Workspace Switcher (A)**: menu thay đổi theo workspace Requester/Assistant/Leader/Admin, không thay quyền thực; bố cục có thể chỉnh sau khi xem UI preview.
+- Bước tiếp theo là dựng giao diện/preview rồi triển khai backend, kiểm thử workflow, upload, optimistic locking và quyền; xem docs/ui-ux-guidelines.md, docs/master-plan.md và docs/handoff.md.
 
 ## Quy tắc review
 
