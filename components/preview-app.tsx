@@ -4,11 +4,11 @@ import { useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent,
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  AcademicCapIcon, ArrowLeftIcon, ArrowPathIcon, ArrowRightIcon, ArrowRightOnRectangleIcon,
+  AcademicCapIcon, ArrowPathIcon, ArrowRightIcon, ArrowRightOnRectangleIcon,
   Bars3Icon, BellIcon, CalendarDaysIcon, CheckCircleIcon, CheckIcon,
   ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, ClipboardDocumentListIcon,
   ClockIcon, Cog6ToothIcon, DocumentTextIcon, ExclamationCircleIcon,
-  FunnelIcon, InformationCircleIcon, MagnifyingGlassIcon, MapPinIcon,
+  FunnelIcon, InformationCircleIcon, MagnifyingGlassIcon,
   PaperClipIcon, PencilSquareIcon, PlusIcon, ShieldCheckIcon,
   TrashIcon, UserCircleIcon, UserGroupIcon, XMarkIcon
 } from "@heroicons/react/24/outline";
@@ -345,8 +345,6 @@ function NewRequestView({locale,requests,onCreate,editId,back}:{locale:Locale;re
   onCreate(request,Boolean(record));
  }
  return <div className="page-shell form-page">
-  <button type="button" onClick={back} className="back-link"><ArrowLeftIcon/>{t(locale,"return")}</button>
-  <div className="page-title-row"><div><SectionEyebrow>{record?t(locale,"edit"):t(locale,"newRequest")}</SectionEyebrow><h1 className="page-title">{record?t(locale,"edit"):t(locale,"formTitle")}</h1><p className="page-subtitle">{t(locale,"formSub")}</p></div></div>
   {record?.instruction&&<div className="form-revision"><ExclamationCircleIcon/><div><strong>{t(locale,"revisionHint")}</strong><p>{record.instruction}</p></div></div>}
   <form onSubmit={submit} noValidate className="request-form">
     <div className="form-section"><div className="form-section-header"><span className="number-tag">01</span><div><h2>{t(locale,"section1")}</h2><p>{t(locale,"infoNote")}</p></div></div><div className="field-grid">
@@ -388,7 +386,7 @@ function CalendarView({locale,requests,open}:{locale:Locale;requests:MeetingRequ
 }
 function AdminView({locale}:{locale:Locale}){
  const items=[{icon:UserGroupIcon,title:t(locale,"staff"),description:locale==="vi"?"Tài khoản, vai trò và đơn vị":"Accounts, roles and units"},{icon:Cog6ToothIcon,title:t(locale,"catalogs"),description:locale==="vi"?"Loại cuộc họp, đơn vị, địa điểm":"Meeting types, units and locations"},{icon:ShieldCheckIcon,title:t(locale,"logs"),description:locale==="vi"?"Theo dõi các thay đổi hệ thống":"Trace important system changes"}];
- return <div className="page-shell"><div className="page-title-row"><div><SectionEyebrow>{t(locale,"settings")}</SectionEyebrow><h1 className="page-title">{t(locale,"adminTitle")}</h1><p className="page-subtitle">{t(locale,"adminSub")}</p></div></div><div className="admin-grid">{items.map(({icon:Icon,title,description})=><div className="admin-card" key={title}><span className="admin-icon"><Icon/></span><h2>{title}</h2><p>{description}</p><span className="admin-preview-tag">{t(locale,"preview")}</span></div>)}</div><div className="admin-message"><InformationCircleIcon/>{t(locale,"adminNote")}</div></div>;
+ return <div className="page-shell admin-page"><div className="admin-grid">{items.map(({icon:Icon,title,description})=><div className="admin-card" key={title}><span className="admin-icon"><Icon/></span><h2>{title}</h2><p>{description}</p><span className="admin-preview-tag">{t(locale,"preview")}</span></div>)}</div><div className="admin-message"><InformationCircleIcon/>{t(locale,"adminNote")}</div></div>;
 }
 
 export default function PreviewApp(){
@@ -435,7 +433,7 @@ export default function PreviewApp(){
   {href:"/requests",name:t(locale,"requestList"),icon:ClipboardDocumentListIcon},
   {href:"/calendar",name:t(locale,"calendar"),icon:CalendarDaysIcon}
  ];
- const pageLabel=isForm?t(locale,"newRequest"):path==="/calendar"?t(locale,"calendar"):path==="/settings"?t(locale,"settings"):role==="REQUESTER"?t(locale,"myRequests"):role==="ASSISTANT"?t(locale,"workQueue"):role==="LEADER"?t(locale,"leaderQueue"):t(locale,"requestList");
+ const pageLabel=isForm?(path.split("/")[3]?t(locale,"edit"):t(locale,"formTitle")):path==="/calendar"?t(locale,"calendarTitle"):path==="/settings"?t(locale,"adminTitle"):role==="REQUESTER"?t(locale,"myRequests"):role==="ASSISTANT"?t(locale,"workQueue"):role==="LEADER"?t(locale,"leaderQueue"):t(locale,"requestList");
  return <div className="app-shell">
   {sidebarOpen&&<button type="button" className="sidebar-screen" aria-label={t(locale,"close")} onClick={()=>setSidebarOpen(false)}/>}
   <aside className={"sidebar "+(sidebarOpen?"sidebar-open":"")}>
@@ -451,7 +449,7 @@ export default function PreviewApp(){
   <div className="main-area"><header className="topbar"><div className="topbar-left"><button className="icon-button mobile-nav-toggle" type="button" onClick={()=>setSidebarOpen(true)} aria-label={t(locale,"nav")}><Bars3Icon/></button><h1 className="topbar-page-title">{pageLabel}</h1></div><div className="topbar-right">{DEMO_MODE&&<DemoNotice locale={locale}/>}<LanguageSwitch locale={locale} change={setLocale}/><button type="button" className="icon-button notification-button" aria-label={t(locale,"preview")} onClick={()=>setToast(t(locale,"loginNote"))}><BellIcon/></button><span className="topbar-avatar">MA</span></div></header>
    <main id="main-content" tabIndex={-1}>
     {isForm?<NewRequestView key={path} locale={locale} requests={requests} editId={path.split("/")[3]} onCreate={createRequest} back={()=>navigate("/requests")}/>:
-      path==="/calendar"?<CalendarView locale={locale} requests={requests} open={setSelected}/>:
+      path==="/calendar"?<CalendarView key={role} role={role} locale={locale} requests={requests} open={setSelected}/>:
       path==="/settings"?<AdminView locale={locale}/>:
       <RequestsView role={role} locale={locale} requests={requests} open={setSelected} newRequest={()=>navigate("/requests/new")}/>}
    </main>
