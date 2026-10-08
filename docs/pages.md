@@ -104,9 +104,9 @@ Assistant được xem và thay đổi Meeting Type. Mọi thay đổi Meeting T
 Ý nghĩa REVISED:
 - Request đã từng được trình lãnh đạo.
 - Leader đã yêu cầu chỉnh sửa.
-- Assistant kiểm tra ở REVISED.
+- Sau khi Leader yêu cầu chỉnh (textarea góp ý **không bắt buộc**), request vào REVISED với `revision_target=ASSISTANT`; Assistant xem xét trước.
 - Assistant có thể tự xử lý và trình lại → PENDING_APPROVAL.
-- Hoặc Assistant gửi requester chỉnh; trong thời gian requester chỉnh vẫn là REVISED.
+- Hoặc Assistant nhập hướng dẫn cần chỉnh **bắt buộc** rồi chuyển `revision_target=REQUESTER`; trong thời gian requester chỉnh vẫn là REVISED.
 - Requester gửi lại → REVISED_PROCESSING.
 - Không chuyển REVISED về ADJUSTED.
 
@@ -152,7 +152,9 @@ Default:
 - APPROVED và COMPLETED có thể xem qua list/filter để tra cứu.
 
 Actions:
-- PENDING_APPROVAL: **Duyệt / Approve** / **Yêu cầu chỉnh sửa / Request revision**
+- PENDING_APPROVAL: **Duyệt / Approve** / **Yêu cầu chỉnh sửa / Request revision**.
+- Khi chọn **Yêu cầu chỉnh sửa**, hiển thị textarea **Góp ý của lãnh đạo / Leader comments (optional)**. Có thể bỏ trống và vẫn xác nhận. Server không đòi nhập góp ý.
+- Lưu góp ý vào `leader_decision_note` (nếu không nhập thì rỗng) và AuditLog; `revision_target` chuyển thành `ASSISTANT` để Assistant kiểm tra.
 - REVISED/REVISED_PROCESSING: theo dõi; leader không thao tác duyệt cho đến khi request được trình lại thành PENDING_APPROVAL.
 - Không có thao tác **Từ chối / Reject** trong V1.
 
@@ -177,13 +179,15 @@ Chi tiết nên thể hiện theo quyền:
 - Địa điểm chính thức nếu đã có
 - Thành phần đề xuất/chính thức
 - File đính kèm
-- Ghi chú phù hợp với role
+- Ghi chú phù hợp với role: `revision_instruction` là hướng dẫn Requester được xem khi được giao sửa; `leader_decision_note` là góp ý tùy chọn cho Leader/Assistant, không tự động chia sẻ nguyên văn cho Requester.
+- Hiển thị ai đang cần hành động theo `revision_target`, không chỉ theo status.
 - Timeline/audit summary khi cần
 - Meeting Type: Assistant xem/sửa; Leader chỉ xem; Requester không thấy
 
 Banner ngữ cảnh:
-- ADJUSTED: requester thấy **Điều chỉnh**; assistant thấy **Chờ bổ sung**.
-- REVISED: requester/assistant thấy **Điều chỉnh**; leader thấy **Điều chỉnh** và biết request đang trong vòng chỉnh sửa sau ý kiến lãnh đạo.
+- ADJUSTED (`revision_target=REQUESTER`): requester thấy **Điều chỉnh** cùng hướng dẫn và nút Edit; assistant thấy **Chờ bổ sung**.
+- REVISED (`revision_target=ASSISTANT`): requester thấy **Điều chỉnh** nhưng **không có nút Edit**; assistant thấy yêu cầu đang chờ mình xử lý.
+- REVISED (`revision_target=REQUESTER`): requester thấy **Điều chỉnh**, hướng dẫn bắt buộc và nút Edit/Resubmit; leader vẫn thấy **Điều chỉnh**.
 - REVISED_PROCESSING: requester/assistant thấy **Đang xử lý**; leader vẫn thấy **Điều chỉnh**.
 
 ## REQUESTER — nghiệp vụ
@@ -191,7 +195,8 @@ Banner ngữ cảnh:
 - Tạo đăng ký họp.
 - Xem yêu cầu của mình.
 - Theo dõi trạng thái theo cách hiển thị dành cho requester.
-- Chỉnh/hủy khi workflow còn cho phép.
+- Chỉ có nút **Chỉnh sửa / Edit** ở ADJUSTED hoặc REVISED khi `revision_target=REQUESTER` và request thuộc chính user; trạng thái khác chỉ xem.
+- Gửi lại sau khi chỉnh: ADJUSTED → PROCESSING; REVISED (REQUESTER) → REVISED_PROCESSING; reset `revision_target`.
 - Không được truy cập request của requester khác; backend phải enforce quyền này.
 - Không xem/chỉnh Meeting Type.
 
@@ -200,13 +205,13 @@ Banner ngữ cảnh:
 - Tiếp nhận request PROCESSING.
 - Chuẩn hóa/chỉnh thông tin.
 - Gắn Meeting Type, lãnh đạo, ngày giờ chính thức, địa điểm, thành phần.
-- Yêu cầu requester bổ sung → ADJUSTED.
+- Yêu cầu requester bổ sung → ADJUSTED, **bắt buộc ghi hướng dẫn `revision_instruction`**.
 - Khi requester gửi lại → PROCESSING.
 - Trình lãnh đạo → PENDING_APPROVAL.
 - Khi leader yêu cầu chỉnh sửa → REVISED.
-- Ở REVISED, Assistant tự xử lý + trình lại → PENDING_APPROVAL, hoặc gửi requester chỉnh.
+- Ở REVISED (`revision_target=ASSISTANT`), Assistant tự xử lý + trình lại → PENDING_APPROVAL, hoặc bắt buộc ghi `revision_instruction` rồi chuyển `revision_target=REQUESTER` cho Requester chỉnh.
 - Requester gửi lại sau yêu cầu chỉnh → REVISED_PROCESSING.
-- Xử lý REVISED_PROCESSING và trình lại → PENDING_APPROVAL; nếu cần requester chỉnh tiếp → REVISED.
+- Xử lý REVISED_PROCESSING và trình lại → PENDING_APPROVAL; nếu cần requester chỉnh tiếp → REVISED (`revision_target=REQUESTER`) với `revision_instruction` bắt buộc.
 - Có thể chỉnh request trực tiếp trong phạm vi quyền.
 - Không tạo request mới cho một vòng chỉnh sửa.
 
@@ -217,10 +222,30 @@ Banner ngữ cảnh:
 - Theo dõi toàn bộ REVISED và REVISED_PROCESSING.
 - Xem APPROVED và COMPLETED để tra cứu.
 - Xem chi tiết, file và Meeting Type.
-- Với PENDING_APPROVAL: **Duyệt / Yêu cầu chỉnh sửa**.
+- Với PENDING_APPROVAL: **Duyệt / Yêu cầu chỉnh sửa**. Ô góp ý `leader_decision_note` khi yêu cầu chỉnh là tùy chọn; có thể để trống.
 - Không có **Từ chối** trong V1.
 - Không thấy request đang ADJUSTED trước vòng lãnh đạo.
 - Không chỉnh Meeting Type.
+
+## 2C. Requester Edit & Resubmit — Part B đã chốt
+
+### Điều kiện mở quyền chỉnh sửa
+
+- **Chỉ** requester sở hữu request được chỉnh khi: `(status=ADJUSTED AND revision_target=REQUESTER)` hoặc `(status=REVISED AND revision_target=REQUESTER)`. Role guard + ownership + `status` + `revision_target` bắt buộc kiểm tra trên backend ở cả bước đọc form lẫn commit.
+- Request mới bị Leader yêu cầu chỉnh: `REVISED` + `revision_target=ASSISTANT`; requester thấy **Điều chỉnh / Revised** nhưng không có nút Edit. Assistant có thể tự sửa hoặc chuyển quyền cho requester kèm hướng dẫn.
+- Assistant chuyển cho Requester trong các trường hợp PROCESSING → ADJUSTED, REVISED (ASSISTANT) → REVISED (REQUESTER), REVISED_PROCESSING → REVISED (REQUESTER): textarea **Nội dung cần chỉnh / Revision instructions** là **required** (trim không được rỗng). Nội dung lưu ở `revision_instruction`, hiển thị cho requester.
+- Leader bấm **Yêu cầu chỉnh sửa / Request revision** từ PENDING_APPROVAL: textarea **Góp ý của lãnh đạo / Leader comments (optional)** là **optional**. Không nhập vẫn chuyển sang REVISED, `revision_target=ASSISTANT`. Góp ý dành cho Assistant/Leader; không tự động chia sẻ nguyên văn cho requester.
+
+### Form edit và quy tắc gửi lại
+
+- Requester sửa được: các Unit đã chọn, agenda, participants, preferred meeting date; có thể thêm/thay/xóa attachment theo quyền. Tên và email đăng nhập read-only; không chỉnh Meeting Type, leader_ids, lịch chính thức hoặc ghi chú nội bộ.
+- Hiển thị `revision_instruction` trên đầu form edit, giữ nguyên các nội dung đã gửi để chỉnh tại chỗ; không tạo request mới.
+- Quy tắc validation và giới hạn upload V1 vẫn có hiệu lực (tối đa 10 file/request; 4 MB/file); hiển thị lỗi và Retry riêng từng file. File đã có không bị xóa vật lý ngay khi đánh dấu Remove/Replace: đánh dấu thay đổi và chỉ thực hiện sau commit phù hợp, tránh mất tài liệu nếu gửi lại lỗi. Audit attachment changes.
+- **ADJUSTED → PROCESSING** khi requester Resubmit thành công.
+- **REVISED (`revision_target=REQUESTER`) → REVISED_PROCESSING** khi requester Resubmit thành công, không đi thẳng PENDING_APPROVAL.
+- Cả hai nhánh đều reset `revision_target=null`, giữ nguyên `request_id`, tăng `version`, ghi AuditLog cho thay đổi field, status và action owner. Backend dùng optimistic locking; nếu version cũ, chặn overwrite và yêu cầu reload/đối chiếu thay đổi.
+- Submit/Resubmit phải có idempotency/retry an toàn, không nhân đôi file hoặc status transition nếu timeout. Không có Save Draft hay DRAFT status.
+- Gửi lại thành công chuyển về request detail/list với nhãn theo role; nếu lỗi giữ nguyên nội dung đang chỉnh trong tab hiện tại để sửa/retry.
 
 ## 3. Request form /requests/new — Part B baseline
 
