@@ -52,6 +52,10 @@ notifications
 - V1 giới hạn **4 MB/file**, tối đa 10 file/request. Vì Vercel Function giới hạn request body **4.5 MB**, upload từng file qua một HTTP request riêng (bao gồm multipart overhead dưới ngưỡng), không gộp file, không dùng base64. Backend gửi file sang Drive và không lưu bản sao lâu dài trên Vercel.
 - Không đưa service account credentials, refresh/access tokens hoặc secrets cho browser; backend xác thực/validate từng file trước khi chuyển sang Drive.
 - Với Drive và Sheets, không có transaction chung; dùng cleanup bù trừ và reconciliation cho file/folder rác hoặc kết quả commit không rõ.
+- Khi submit có nhiều file, backend tạo staging Drive folder theo submission; **không xóa các file đã upload thành công** nếu file khác lỗi. UI theo dõi từng `upload_item_id`: Pending/Uploading/Uploaded/Failed; requester retry, thay thế hoặc loại bỏ đúng file lỗi.
+- Backend chống upload trùng theo `submission_id + upload_item_id`, tra cứu trạng thái upload trước khi retry sau timeout. Dữ liệu trạng thái staging phải có thể khôi phục từ lưu trữ đáng tin cậy/Drive metadata; không phụ thuộc RAM hay filesystem tạm của Vercel Functions.
+- Staging folders/files chưa commit được kiểm tra và cleanup theo timeout/reconciliation; chỉ cleanup toàn folder khi user bỏ dở, staging quá hạn hoặc commit bị hủy có xác nhận. Quy tắc cleanup tuyệt đối không xóa request/file đã commit.
+
 
 ### Calendar
 - V1 chưa tích hợp Google Calendar.
