@@ -397,6 +397,14 @@ Reviewer nên tập trung kiểm tra:
 - V1 có đang bị kéo thêm Google Calendar/DB/reporting quá sớm không?
 - Có giữ nguyên nguyên tắc Google Sheets + Drive + Zalo cho V1 không?
 
+## 7A. Part C UI/UX — branding mới nhận
+
+- User đã gửi ảnh chính thức Primary/Secondary Colour (2026-10-08). Xem [ui-ux-guidelines.md](ui-ux-guidelines.md) cho từng HEX và ghi chú sự khác biệt giữa metadata RGB/HEX (đặc biệt Cream).
+- Sidebar **giống baseline được duyệt của EIU MedLabs V2 Master**, giữ gradient xanh, logo nền trắng, active menu vạch vàng; menu nghiệp vụ của UniCouncil vẫn là riêng.
+- Dùng **EIU Full Logo** trong Sidebar và **EIU Corner Logo** trên trang Login (source assets trong `baonguyen-kobe/eiu-medlabs/public`).
+- Font chính **Crimson**, font phụ **Be Vietnam Pro**, thay thế quyết định font của MedLabs. Cần hỏi lại biến thể Crimson chính xác trước khi cài package.
+- Part C vẫn đang thiết kế: cần chốt navigation workspace theo role, bố cục login và một vài chi tiết UI; chưa có UI production.
+
 ## 8. Quy tắc làm việc sau handoff
 
 - Reviewer chỉ cần phản hồi các điểm cần sửa/chốt.
