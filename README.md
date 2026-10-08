@@ -31,6 +31,7 @@ Hệ thống quản lý đăng ký, xử lý, phê duyệt và hiển thị lị
 - [Pages](docs/pages.md)
 - [Google Sheets Schema](docs/schema.md)
 - [Technical Decisions](docs/technical-decisions.md)
+- [Part C — UI/UX & EIU Branding](docs/ui-ux-guidelines.md)
 
 ## Trạng thái
 
@@ -45,7 +46,8 @@ Checkpoint hiện tại:
 - Submit flow/idempotency và folder Drive đã chốt ở mức thiết kế. **4 MB/file, tối đa 10 file/request**, upload từng file qua Vercel backend rồi lưu lâu dài trên Google Drive; Vercel không phải file storage.
 - Link Drive lưu ở hai sheet hiện có (Requests/Attachments), không tạo Drive map sheet riêng.
 - **Part B đã chốt về mặt yêu cầu**: Requester chỉ sửa khi được Assistant giao (`revision_target=REQUESTER`); Assistant bắt buộc có `revision_instruction`; Leader có `leader_decision_note` tùy chọn, được để trống khi yêu cầu chỉnh.
-- Tiếp theo: triển khai và QA workflow, upload, optimistic locking và role permissions; xem docs/master-plan.md và docs/handoff.md.
+- **Part C đang chốt**: bộ màu EIU theo ảnh branding người dùng; sidebar kế thừa MedLabs V2 Master; Full Logo nền trắng ở Sidebar, Corner Logo ở Login; Crimson là font chính, Be Vietnam Pro là font phụ. Cần xác nhận chính xác phiên bản Crimson và mã EIU Cream.
+- Sau Part C: triển khai và QA workflow, upload, optimistic locking và role permissions; xem docs/ui-ux-guidelines.md, docs/master-plan.md và docs/handoff.md.
 
 ## Quy tắc review
 
