@@ -59,6 +59,13 @@
 55. Vercel Functions có giới hạn request body 4.5 MB (bao gồm multipart overhead), nên V1 chốt **4 MB/file** và upload từng file qua một HTTP request riêng tới backend Vercel, backend chuyển vào Google Drive. Không base64 encode hoặc gộp nhiều file trong một request; không lộ Google credentials ở browser.
 56. **Chốt không tạo sheet Drive map riêng**. Requests lưu `drive_folder_id` và `drive_folder_url`; Attachments lưu `drive_file_id` và `drive_file_url`. Link lấy từ Drive API khi có; ID là khóa ổn định; quyền truy cập được enforce qua backend/Drive permissions.
 57. Vercel là nơi chạy web app/backend, **không là nơi lưu trữ file**. File lưu lâu dài duy nhất tại Google Drive; Sheets chỉ lưu request và metadata/link.
+58. Upload từng file phải hiển thị trạng thái riêng (Pending/Uploading/Uploaded/Failed), tên file và nguyên nhân lỗi theo VI/EN; file lỗi có Retry/Replace/Remove.
+59. Nếu một file upload lỗi, giữ nguyên file khác đã upload thành công trong staging folder Drive, không rollback toàn bộ ngay. Chỉ retry đúng file lỗi hoặc cho requester bỏ file lỗi rồi tiếp tục nếu danh sách còn lại hợp lệ.
+60. Không finalize `Requests`/`Attachments`/`AuditLog` chừng nào file còn trong danh sách chưa upload thành công. Không tạo request PROCESSING từ bộ file còn lỗi.
+61. Mỗi file của một submission có `upload_item_id` ổn định; backend idempotent theo cặp `submission_id + upload_item_id`, kiểm tra kết quả khi timeout thay vì upload lại ngay để tránh file trùng.
+62. Upload thành công là staging (chưa phải request commit). Xóa file khỏi danh sách thì cleanup đúng file đó; khi bỏ form/phiên staging hết hạn cần reconciliation cleanup các Drive file/folder chưa commit, không tạo Save Draft.
+63. Lỗi ghi Sheets sau tất cả upload được xử lý riêng với lỗi từng file: kiểm tra `submission_id` đã commit hay chưa; không ép requester upload lại file đã thành công.
+
 
 ## Status display đã chốt
 
