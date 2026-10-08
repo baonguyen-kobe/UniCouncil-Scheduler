@@ -9,11 +9,24 @@
 - Dữ liệu free-text do người dùng nhập không tự dịch.
 - Danh mục hiển thị cho người dùng như Units, MeetingTypes và Locations dùng nhãn theo locale hiện tại; nếu thiếu nhãn ở locale đang chọn thì fallback sang nhãn còn lại.
 
+## 0A. Workspace navigation / sidebar — Part C đã chốt
+
+- **Phương án A: Workspace Switcher**, user đã đồng ý cho V1 và sẽ review/chỉnh khi thấy giao diện chạy.
+- Vị trí mặc định: bên trong sidebar, dưới EIU Full Logo / tên UniCouncil Scheduler, trên các nhóm menu; sidebar kế thừa visual MedLabs V2.
+- Tài khoản có nhiều role chỉ thấy các workspace đúng quyền: Requester / Assistant / Leader / Admin (nếu có); tài khoản có một workspace thì ẩn switcher dư thừa.
+- Đổi workspace chỉ thay đổi ngữ cảnh UI, navigation, label/filter theo role và landing page; **không thay đổi role thực trong Staff hay nâng quyền backend**.
+- Requester workspace chỉ xem request do mình tạo; Assistant workspace theo queue Assistant; mọi Leader dùng chung leader queue như Part B.
+- Default preview: workspace hợp lệ gần nhất của cùng user/session nếu có; nếu chưa có thì Requester (nếu được quyền), nếu không thì workspace hợp lệ còn lại.
+- Vào trực tiếp URL hoặc chọn workspace đã hết quyền phải kiểm tra lại server role guard; không tin preference từ client.
+- Topbar hỗ trợ VI/EN, tài khoản; mobile menu dạng drawer chứa workspace switcher.
+- Khi form có nội dung chưa gửi, chuyển workspace/điều hướng phải cảnh báo nguy cơ mất dữ liệu; không tạo Save Draft.
+- Heroicons v2 cho navigation. Chi tiết theo `ui-ux-guidelines.md`.
+
 ## 1. Login /login
 
 - Logo trang login: **EIU Corner Logo** (`eiu-corner-logo.png` từ repo MedLabs), trong bố cục login riêng của UniCouncil.
 - Sidebar sau đăng nhập: **EIU Full Logo** (`eiu-full-logo.jpg` từ repo MedLabs) trong panel nền trắng; sidebar visual kế thừa MedLabs V2 Master.
-- Font branding chính Crimson; font phụ Be Vietnam Pro; vị trí và kích thước UI chi tiết theo Part C.
+- Font branding chính Crimson Pro; font phụ Be Vietnam Pro; vị trí và kích thước UI chi tiết theo Part C.
 - Logo trường.
 - Tên hệ thống theo VI/EN.
 - Nút đăng nhập Google theo locale hiện tại.
