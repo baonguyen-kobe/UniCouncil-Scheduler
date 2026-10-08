@@ -25,8 +25,8 @@ export type MeetingRequest = {
 };
 
 export const EIU_ASSETS = {
-  fullLogo: "https://raw.githubusercontent.com/baonguyen-kobe/eiu-medlabs/main/public/eiu-full-logo.jpg",
-  cornerLogo: "https://raw.githubusercontent.com/baonguyen-kobe/eiu-medlabs/main/public/eiu-corner-logo.png"
+  fullLogo: "/eiu-full-logo.jpg",
+  cornerLogo: "/eiu-corner-logo.png"
 } as const;
 
 export const MOCK_USER = "Nguyễn Minh Anh";
