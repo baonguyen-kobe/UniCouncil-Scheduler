@@ -19,7 +19,7 @@ test("captures EIU preview screens for design comparison", async ({ page }) => {
   await page.getByRole("dialog", { name: "Chi tiết yêu cầu" }).getByRole("button", { name: "Đóng" }).click();
 
   await page.locator(".workspace-trigger").click();
-  await page.locator(".workspace-dropdown").getByRole("button", { name: "Lãnh đạo" }).click();
+  await page.locator(".workspace-dropdown").getByRole("button", { name: "Lãnh đạo", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Phê duyệt yêu cầu" })).toBeVisible();
   await page.screenshot({ path: output + "/04-leader-desktop.png", fullPage: true });
 
