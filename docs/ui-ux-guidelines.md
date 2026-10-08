@@ -1,6 +1,6 @@
 # Part C — UI/UX Guidelines V1 — UniCouncil Scheduler
 
-> Status: **EIU branding, sidebar, logos, Crimson Pro / Be Vietnam Pro, EIU Cream `#EAE2D6`, EIU Gray `#58595B`, and Lucide-only iconography approved by user (2026-10-08)**. Soft/pastel status badges requested based on EIU Schedule; the exact role/status tone mapping remains a UX proposal awaiting review. Remaining open: role workspace navigation and detailed layout choices.
+> Status: **EIU branding, sidebar, logos, Crimson Pro / Be Vietnam Pro, EIU Cream `#EAE2D6`, EIU Gray `#58595B`, and Heroicons-only iconography approved by user (2026-10-08)**. Soft/pastel status badges requested based on EIU Schedule; the exact role/status tone mapping remains a UX proposal awaiting review. Remaining open: role workspace navigation and detailed layout choices.
 >
 > Scope: design/implementation baseline, **not** a deployed UI. Business permissions, status logic, and data workflow remain authoritative in `workflow-and-roles.md`, `pages.md`, and `schema.md`.
 
@@ -9,7 +9,7 @@
 Brand source of truth for UniCouncil:
 
 1. User-supplied EIU **Primary Colour** and **Secondary Colour** images (2026-10-08) — primary authority for brand palette.
-2. User's explicit overrides: sidebar resembles MedLabs, EIU Full Logo on white, EIU Corner Logo on login, **Crimson Pro main / Be Vietnam Pro secondary**, **all UI icons from Lucide**, and pastel status badges inspired by EIU Schedule.
+2. User's explicit overrides: sidebar resembles MedLabs, EIU Full Logo on white, EIU Corner Logo on login, **Crimson Pro main / Be Vietnam Pro secondary**, **all UI icons from Heroicons**, and pastel status badges inspired by EIU Schedule.
 3. Source UI baseline: [EIU MedLabs UI Design System V2 Master](https://github.com/baonguyen-kobe/eiu-medlabs/blob/main/docs/UI_DESIGN_SYSTEM_V2_MASTER.md) (approved master), then MedLabs production implementation when compatible with that master.
 4. Pastel badges, filter/async/table patterns reference [EIU Schedule design tokens](https://github.com/nhutbao1314-hub/eiu-schedule/blob/main/docs/design-system/TOKENS.md), [Badge component](https://github.com/nhutbao1314-hub/eiu-schedule/blob/main/components/ui/badge.tsx) and [SOURCE_FACTS](https://github.com/nhutbao1314-hub/eiu-schedule/blob/main/docs/design-system/SOURCE_FACTS.md).
 5. UniCouncil-specific page/workflow/permission rules take priority over copied design components from either repo.
@@ -57,18 +57,18 @@ MedLabs V2 uses Be Vietnam Pro alone; UniCouncil's typography overrides that Med
 
 Baseline type scale for functional UI can inherit MedLabs V2 until page-level review: body 14px, table header 13px, table text 14px, field label 13px, button 14px, metadata 13px. Title scale must be visually verified with Crimson Pro metrics rather than mechanically copying Be Vietnam Pro weights.
 
-## 3A. Iconography — Lucide-only (CONFIRMED)
+## 3A. Iconography — Heroicons-only (CONFIRMED)
 
-The user explicitly approved **Lucide** as the one icon family for the entire UniCouncil web app; this instruction **overrides Heroicons** used by EIU MedLabs and EIU Schedule reference repositories.
+The user explicitly corrected their earlier icon choice: **use Heroicons throughout the UniCouncil web app** (2026-10-08). The earlier Lucide instruction is superseded and should not be followed. Both EIU MedLabs and EIU Schedule references already use Heroicons.
 
-- Implementation baseline: use `lucide-react` for all application icons across sidebar, topbar, request lists, tables, filters, calendar, attachment/upload states, dialogs, toasts, status cues, admin pages, and mobile navigation.
-- Icon names are selected consistently from Lucide; import from a single icon library package rather than mixing Heroicons, Material, Font Awesome, emoji iconography or page-specific hand-drawn SVG icons.
-- Canonical **outline** icon style: normal `strokeWidth=2` (optionally 1.75 for dense display, but standardized per component family); default sidebar/menu icons ~18–20px, action icons ~18px, inline status icons ~16px, section icons ~20–24px.
-- Keep icon sizing and stroke consistent inside the same action family; avoid mixing filled and outlined styles without a specific semantic reason.
-- Action semantics take priority: `CalendarDays` for meeting date, `FileText` for documents, `Upload` or `CloudUpload` for attachments, `CircleCheck` for success, `CircleAlert` for warning, `Clock3` for pending, etc. Exact Lucide exports should be confirmed in the installed version when coding.
-- Icons supplement, never replace, VI/EN text for key statuses and actions. Icon-only buttons require accessible names, visible focus and ~44×44px touch targets.
-- **Exception:** actual EIU logo images (Full Logo, Corner Logo) are *brand assets*, not UI iconography. Charts may use SVG for data visualization; this is not permission to introduce another general-purpose icon set.
-- Third-party widgets must be themed or replaced where practicable so that visible product icons still match Lucide.
+- Implementation baseline: use `@heroicons/react` (Heroicons v2) for UI icons across sidebar, topbar, request lists, tables, filters, calendar, attachment/upload states, dialogs, toasts, status cues, admin pages, and mobile navigation.
+- Use one canonical icon family for product UI. Do **not** mix Lucide, Material, Font Awesome, emoji iconography or ad-hoc page-specific SVG icon sets.
+- Default visual style: **24/outline** imports sized appropriately by shared components; use **24/solid** only for intentionally selected/active contexts where that state distinction is consistently defined.
+- Standardize rendered sizes per component family: ~18–20px menu/sidebar, ~18px actions, ~16px compact inline status, ~20–24px section icons. Keep icon weight/geometry consistent.
+- Choose semantic Heroicons that match actions (calendar, files, upload, success, warning, pending, etc.) and verify actual exports from the installed version.
+- Icons supplement, never replace, localized VI/EN labels for important states and actions. Icon-only controls require accessible names, visible focus and touch-friendly hit targets (~44×44px).
+- **Exception:** EIU Full Logo and Corner Logo are brand image assets, not application icons; diagrams/charts may render vector data visualization without introducing an additional general-purpose icon family.
+- For third-party widgets, theme or wrap visible action icons to maintain consistency where practical.
 
 ## 4. Sidebar — inherit MedLabs V2 approved visual
 
@@ -200,7 +200,7 @@ From [MedLabs / public](https://github.com/baonguyen-kobe/eiu-medlabs/tree/main/
 
 1. **Crimson Pro is confirmed**; verify display sizing/diacritics during implementation, not an open font-family decision.
 2. **EIU Cream `#EAE2D6`** and **Gray `#58595B`** are confirmed; use these final tokens in implementation.
-3. **Lucide-only icon set confirmed**; check icon consistency and accessibility in implementation. Review the proposed pastel badge **status → tone** table and role-specific consistency.
+3. **Heroicons-only icon set confirmed**; check icon consistency and accessibility in implementation. Review the proposed pastel badge **status → tone** table and role-specific consistency.
 4. Role-based navigation: one workspace switcher per active role vs one permission-aware shared navigation.
 5. Login page information hierarchy and VI/EN toggle placement.
 6. Apply the relevant filter/table/error patterns to UniCouncil pages.
