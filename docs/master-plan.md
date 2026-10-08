@@ -467,8 +467,10 @@ Chỉ cân nhắc sau khi V1 chạy ổn:
 - Tham chiếu [UniCouncil Part C UI/UX Guidelines](ui-ux-guidelines.md).
 - Bộ màu EIU nhận từ user (2026-10-08); EIU Blue `#144069`, EIU Gold `#A78656` và màu phụ theo ảnh. EIU Cream cần đối chiếu mã HEX vì ảnh lặp thông số của Gold; tạm dùng `#F6F1E8` từ MedLabs V2.
 - Sidebar kế thừa đúng **EIU MedLabs V2 Master** (gradient xanh, menu active nền trắng + vạch gold), Full Logo EIU trong nền trắng; Login dùng EIU Corner Logo.
-- Typography theo override của user: **Crimson chính**, **Be Vietnam Pro phụ** (khác MedLabs V2 vốn dùng Be Vietnam Pro).
-- Cần xác nhận Crimson Pro hay Crimson Text, đối chiếu EIU Cream/Gray, rồi chốt role-based workspace/navigation trước khi bắt đầu UI coding.
+- Typography theo override của user: **Crimson Pro chính (đã chốt)**, **Be Vietnam Pro phụ** (khác MedLabs V2 vốn dùng Be Vietnam Pro).
+- Người dùng muốn **badge trạng thái nền pastel nhạt**, tham khảo [EIU Schedule](https://github.com/nhutbao1314-hub/eiu-schedule): 5 tone Info/Warning/Success/Danger/Neutral. Chi tiết foreground/background và role-label mapping trong ui-ux-guidelines.md; mapping cụ thể là đề xuất chờ review.
+- Repo EIU Schedule ghi nhận normalizing Gray `#58595B` (trùng screenshot RGB) và Cream `#EAE2D6` từ ảnh branding; đề nghị xác nhận thay cho thông tin HEX/RGB bị lệch trong ảnh.
+- Cần chốt role-based workspace/navigation, palette normalization và badge mapping trước khi bắt đầu UI coding.
 - Quyền role/workflow/status theo Part B giữ nguyên; không copy business logic MedLabs.
 
 ## 15. Current checkpoint
