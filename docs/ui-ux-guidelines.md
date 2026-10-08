@@ -1,6 +1,6 @@
 # Part C — UI/UX Guidelines V1 — UniCouncil Scheduler
 
-> Status: **EIU branding, sidebar, logos, Crimson Pro / Be Vietnam Pro, EIU Cream `#EAE2D6`, EIU Gray `#58595B`, and Heroicons-only iconography approved by user (2026-10-08)**. Soft/pastel status badges requested based on EIU Schedule; the exact role/status tone mapping remains a UX proposal awaiting review. Remaining open: role workspace navigation and detailed layout choices.
+> Status: **EIU branding, sidebar, logos, Crimson Pro / Be Vietnam Pro, EIU Cream `#EAE2D6`, EIU Gray `#58595B`, Heroicons-only icons, and role-based Workspace Switcher (Option A) approved by user (2026-10-08)**. Soft/pastel status badges requested based on EIU Schedule. Layout details, exact badge-tone mapping and interaction polish are adjustable after user sees the first UI.
 >
 > Scope: design/implementation baseline, **not** a deployed UI. Business permissions, status logic, and data workflow remain authoritative in `workflow-and-roles.md`, `pages.md`, and `schema.md`.
 
@@ -100,6 +100,42 @@ Desktop shell from MedLabs V2 Master:
 - Mobile/sidebar-collapse behavior must be responsive and accessible; don't merely shrink desktop sidebar.
 
 Do not copy old CSS from MedLabs blindly: `docs/UI_DESIGN_SYSTEM_V2_MASTER.md` is explicitly higher precedence than legacy `app/globals.css`.
+
+## 4A. Navigation and role-based workspaces — Option A (APPROVED 2026-10-08)
+
+**User decision:** use a **Workspace Switcher** rather than one all-roles sidebar. The user explicitly permits changing layout/details after seeing the first rendered interface. This is the V1 default for the first preview, not a permanent pixel-perfect constraint.
+
+### Workspace model
+
+- If an account has multiple roles, show a switcher near the upper sidebar branding/navigation section with only the workspaces the authenticated user is authorized to use.
+- Workspaces: **Requester / Người đăng ký**, **Assistant / Trợ lý**, **Leader / Lãnh đạo**; show **Admin / Quản trị** as its own workspace only to users with role ADMIN. If a user has just one available workspace, hide the redundant switcher and directly show that workspace.
+- Active workspace changes the **menu**, default landing view, available UI actions and role-appropriate status labels/filters. It must **not** grant or change actual backend permissions, alter the Staff roles, or modify request visibility rules.
+- User with REQUESTER+ASSISTANT can switch to Requester and still see **only their own** requests in that workspace; Assistant workspace uses Assistant's queue/permissions. A multi-role user cannot bypass owner/status/revision_target checks simply by switching workspace.
+- All LEADER-role accounts continue to see the **same Leader queue** for V1; do not scope it by `leader_ids`.
+- The requested workspace or a saved preference is **untrusted UI state**. At every entry and server action, validate authenticated roles, action authorization and request ownership. If a saved workspace is no longer authorized, pick an allowed fallback.
+- Workspace choice is not a new Staff role or system status. Keep canonical 8 statuses, backend transitions and role-based labels from Part B.
+
+### Initial preview behavior (implementation defaults, changeable after UAT)
+
+1. Desktop: switcher placed within the MedLabs-inspired 244px sidebar, **below Full Logo + UniCouncil Scheduler product name and above navigation groups**. No visual overlap. Active selection shows clear context; styling stays inside EIU Blue/Gold/Cream and standard shared controls.
+2. Switching workspace navigates to that workspace's primary view, resetting filters that are specific to the previous workspace. It should not silently submit/cancel any request or change its state.
+3. One-workspace account enters its only workspace automatically. Multi-role account initially uses the last allowed workspace preference for that account/session if available; otherwise default to Requester if allowed, else another allowed workspace. Preference is only a UI convenience; avoid placing tokens or sensitive data in client storage.
+4. Topbar retains VI/EN language switch, current account context and page title; language switch must not change selected workspace or reset a form inadvertently.
+5. Mobile: sidebar collapses to a navigable overlay/drawer; workspace switcher remains reachable in the menu/account area without consuming excessive viewport height.
+6. All icons for workspace options/sidebar actions use **Heroicons**. Menu groups and role-specific labels are bilingual VI/EN; font stacks: Crimson Pro for distinctive titles, Be Vietnam Pro for dense operational navigation.
+7. Switching workspaces with unsaved edits: give a non-destructive warning/confirmation before leaving the form; there is still **no Save Draft**. No fake permission states or inaccessible menu options.
+8. Preserve keyboard and screen-reader accessibility (active state indicated in text/semantics, focus placement after switch, visible focus ring).
+
+### Suggested navigation per workspace (subject to UI review)
+
+| Workspace | Primary items |
+|---|---|
+| Requester | Yêu cầu của tôi / My requests; Tạo yêu cầu / New request; Lịch họp / Calendar |
+| Assistant | Xử lý yêu cầu / Process requests; Lịch họp / Calendar |
+| Leader | Phê duyệt yêu cầu / Review requests; Lịch họp / Calendar |
+| Admin | Nhân sự / Staff; Danh mục & Cấu hình / Settings & catalogs; Nhật ký / Audit |
+
+This is navigation/IA, not an authorization list. Calendar and other shared pages can be reused rather than duplicated per role. Do not invent additional V1 modules solely to fill sidebar space.
 
 ## 5. Login branding
 
@@ -201,7 +237,7 @@ From [MedLabs / public](https://github.com/baonguyen-kobe/eiu-medlabs/tree/main/
 1. **Crimson Pro is confirmed**; verify display sizing/diacritics during implementation, not an open font-family decision.
 2. **EIU Cream `#EAE2D6`** and **Gray `#58595B`** are confirmed; use these final tokens in implementation.
 3. **Heroicons-only icon set confirmed**; check icon consistency and accessibility in implementation. Review the proposed pastel badge **status → tone** table and role-specific consistency.
-4. Role-based navigation: one workspace switcher per active role vs one permission-aware shared navigation.
+4. **Workspace Switcher (Option A) approved**: implement first preview, then refine placement/menus based on user's review.
 5. Login page information hierarchy and VI/EN toggle placement.
 6. Apply the relevant filter/table/error patterns to UniCouncil pages.
 
