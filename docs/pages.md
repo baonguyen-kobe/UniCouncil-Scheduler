@@ -277,6 +277,11 @@ Form được xây trực tiếp trên web, không dùng Google Form ở V1. For
 - Trước khi submit, requester có thể bỏ file khỏi danh sách upload.
 - File vật lý lưu Google Drive; metadata và link Drive lưu trong `Attachments`.
 - Upload **mỗi file trong một HTTP request riêng** từ browser qua backend Vercel tới Google Drive; không gộp 10 file trong một request và không lưu file lâu dài trên Vercel.
+- Hiển thị từng file thành một dòng với `file_name`, kích thước và trạng thái tạm thời: **Chờ tải / Pending**, **Đang tải / Uploading**, **Đã tải lên / Uploaded**, **Lỗi / Failed**. Các trạng thái upload chỉ là UI/staging state, **không phải system status của Request**.
+- Khi một file lỗi, hiển thị **đúng tên file và nguyên nhân phù hợp** (quá 4 MB, loại file không hỗ trợ, lỗi kết nối/timeout, lỗi Drive...). Mỗi file lỗi có **Tải lại / Retry**, **Thay file / Replace** và **Xóa / Remove**. Nếu người dùng bỏ file lỗi, các file còn lại vẫn có thể submit.
+- Upload đã thành công được giữ trong staging folder Drive; không xóa hoặc upload lại vì một file khác lỗi. Nếu người dùng xóa một file đã upload thành công trước commit, chỉ cleanup đúng file đó.
+- Retry **chỉ file lỗi**, không bắt upload lại toàn bộ. Nếu timeout và chưa rõ upload có thành công hay không, kiểm tra trạng thái qua `submission_id` + `upload_item_id` cố định cho mỗi file trước khi retry để tránh tạo file trùng.
+- Trong lúc có file còn Pending/Uploading/Failed, không finalize submit; hiển thị tiến độ và các lỗi ngay tại hàng file. Giữ nguyên form và các file đã chọn trong tab hiện tại.
 
 ### Meeting Type
 
@@ -307,7 +312,7 @@ Các thông tin lãnh đạo, giờ họp chính thức, thời lượng/end tim
 4. Tạo `request_id` duy nhất theo cơ chế an toàn với các submit đồng thời (không dùng số dòng Sheet + 1). Chuẩn bị folder Drive theo cấu trúc `root/YYYY/request_id/`; ghi nhận `drive_folder_id`.
 5. Upload lần lượt từng file (tối đa **4 MB/file**, **mỗi file một HTTP request** có tổng body dưới 4.5 MB) qua backend Vercel rồi chuyển sang Drive; không lưu file lâu dài trên Vercel. Tên vật lý là `attachment_id__<original_filename>`; `Attachments.file_name` giữ tên gốc. Backend kiểm tra payload size, file type và quyền; không gửi token/secret Google service account cho browser.
 6. Chỉ sau khi mọi upload thành công, ghi dữ liệu `Requests` (status `PROCESSING`, `version` khởi tạo, `submission_id`, `drive_folder_id`, `drive_folder_url`), `Attachments` (`drive_file_id`, `drive_file_url`) và `AuditLog` như một logical commit; ưu tiên `spreadsheets.batchUpdate` với các thao tác `UpdateCells/AppendCells` trong **một batch atomic**.
-7. Nếu upload lỗi: không commit request; cố gắng dọn folder/file tạm; giữ nguyên form và danh sách file đang chọn để requester retry.
+7. Nếu **một file** upload lỗi: không commit request và **không xóa các file đã upload thành công**. UI đánh dấu Failed đúng file, hiển thị thông báo lỗi VI/EN, cho Retry/Replace/Remove riêng file đó. Nếu Retry thành công hoặc người dùng Remove file lỗi, tiếp tục finalize với những file còn lại. Khi upload lỗi giữa chừng, cleanup chỉ bản upload hỏng/không hoàn chỉnh của file đó.
 8. Nếu ghi Sheets lỗi: không báo success; thực hiện cleanup Drive theo hướng compensating transaction, đồng thời ghi nhận tình huống cleanup không hoàn tất để đối soát sau.
 9. Nếu server/browser mất kết nối hoặc timeout sau khi đã ghi dữ liệu: **không mặc định coi là thất bại**. Retry với cùng `submission_id` phải kiểm tra đã commit hay chưa; tuyệt đối không tự tạo request thứ hai.
 10. Chỉ chuyển tới `/requests` và hiển thị success khi backend xác nhận request đã commit.
@@ -315,6 +320,9 @@ Các thông tin lãnh đạo, giờ họp chính thức, thời lượng/end tim
 Quy tắc:
 - Drive và Sheets **không có distributed transaction chung**, vì vậy cleanup là best-effort; cần cơ chế retry/reconciliation cho orphan folders/files và commit không rõ kết quả.
 - `submission_id` là idempotency key cho lệnh submit, **không phải Save Draft**.
+- Mỗi attachment trong submission có `upload_item_id` ổn định để server nhận diện Retry và tránh nhân đôi file khi response bị mất; mapping staging `submission_id + upload_item_id → drive_file_id` phải được backend kiểm tra/khôi phục an toàn, không dựa vào memory Vercel Function.
+- File uploaded chỉ được giữ tạm ở folder Drive trước commit. Nếu người dùng bỏ form/đóng tab/không hoàn tất trong thời hạn cấu hình, các staging files/folders mồ côi sẽ được tác vụ reconciliation cleanup sau khi xác minh chưa commit; không tạo Save Draft hay request mới.
+- Lỗi commit Google Sheets được phân biệt với lỗi từng file; không tự động retry upload file đã xác nhận thành công. Nếu commit fail/unknown, kiểm tra `submission_id` trước khi cleanup hoặc retry.
 - Google Drive là nơi lưu trữ file duy nhất; Vercel chỉ chạy frontend/backend và truyền file tạm thời khi upload.
 - **Không tạo sheet DriveMap/DriveIndex riêng**: link folder đặt ở `Requests.drive_folder_url`, link từng file ở `Attachments.drive_file_url`. Drive IDs là khóa chuẩn; link phải kiểm tra quyền khi mở qua web app.
 - Backend phải xử lý đồng thời/idempotency bằng cơ chế serialize hoặc khóa phù hợp; chỉ “check xem có submission_id chưa” không đủ chống race condition.
