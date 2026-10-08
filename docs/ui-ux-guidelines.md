@@ -1,6 +1,6 @@
 # Part C — UI/UX Guidelines V1 — UniCouncil Scheduler
 
-> Status: **EIU branding, MedLabs-inspired sidebar, logo assets and Crimson Pro / Be Vietnam Pro approved by user (2026-10-08)**. User requested soft/pastel badges referencing EIU Schedule; concrete status-tone mapping below is a UX proposal awaiting review. Remaining open: normalizing EIU Cream / Gray color values, role workspace navigation choice.
+> Status: **EIU branding, sidebar, logos, Crimson Pro / Be Vietnam Pro, EIU Cream `#EAE2D6`, EIU Gray `#58595B`, and Lucide-only iconography approved by user (2026-10-08)**. Soft/pastel status badges requested based on EIU Schedule; the exact role/status tone mapping remains a UX proposal awaiting review. Remaining open: role workspace navigation and detailed layout choices.
 >
 > Scope: design/implementation baseline, **not** a deployed UI. Business permissions, status logic, and data workflow remain authoritative in `workflow-and-roles.md`, `pages.md`, and `schema.md`.
 
@@ -9,7 +9,7 @@
 Brand source of truth for UniCouncil:
 
 1. User-supplied EIU **Primary Colour** and **Secondary Colour** images (2026-10-08) — primary authority for brand palette.
-2. User's explicit overrides: sidebar resembles MedLabs, EIU Full Logo on white, EIU Corner Logo on login, **Crimson Pro main / Be Vietnam Pro secondary**; pastel status badges inspired by EIU Schedule.
+2. User's explicit overrides: sidebar resembles MedLabs, EIU Full Logo on white, EIU Corner Logo on login, **Crimson Pro main / Be Vietnam Pro secondary**, **all UI icons from Lucide**, and pastel status badges inspired by EIU Schedule.
 3. Source UI baseline: [EIU MedLabs UI Design System V2 Master](https://github.com/baonguyen-kobe/eiu-medlabs/blob/main/docs/UI_DESIGN_SYSTEM_V2_MASTER.md) (approved master), then MedLabs production implementation when compatible with that master.
 4. Pastel badges, filter/async/table patterns reference [EIU Schedule design tokens](https://github.com/nhutbao1314-hub/eiu-schedule/blob/main/docs/design-system/TOKENS.md), [Badge component](https://github.com/nhutbao1314-hub/eiu-schedule/blob/main/components/ui/badge.tsx) and [SOURCE_FACTS](https://github.com/nhutbao1314-hub/eiu-schedule/blob/main/docs/design-system/SOURCE_FACTS.md).
 5. UniCouncil-specific page/workflow/permission rules take priority over copied design components from either repo.
@@ -24,8 +24,8 @@ These are **brand colors**, not arbitrary semantic colors; design tokens should 
 |---|---|---|
 | EIU Blue | `#144069` | Main brand; sidebar/nav, headings and primary actions |
 | EIU Gold | `#A78656` | Premium/accent; active menu marker, restrained emphasis |
-| EIU Gray | `#4E4F50` printed HEX; **recommended normalized** `#58595B` (pending confirmation) | EIU Schedule's documented normalization matches the screenshot RGB `88/89/91` |
-| EIU Cream | **Pending confirmation**; suggested normalized `#EAE2D6` (previous temporary `#F6F1E8`) | Reference EIU Schedule documented extraction from the light cream swatch |
+| EIU Gray | **`#58595B` — CONFIRMED** | Matches the supplied screenshot RGB `88/89/91`; replaces the inconsistent printed HEX |
+| EIU Cream | **`#EAE2D6` — CONFIRMED** | Normalized from EIU Cream swatch; do not confuse with the printed Gold HEX or MedLabs canvas |
 | EIU Red | `#B44425` | Error/danger accent |
 | EIU Orange | `#D88327` | Warning accent |
 | EIU Yellow | `#EFB31D` | Secondary accent (avoid as text against white) |
@@ -38,9 +38,9 @@ Additional neutral UI values from approved MedLabs baseline (not EIU signature c
 - Surface `#FFFFFF`
 - Ink Primary `#303033`
 
-**Palette input discrepancy to resolve before final implementation:**
-- EIU Cream entry in the user screenshot reuses EIU Gold's printed numbers and HEX `#A78656`, although the swatch is distinctly cream. The independent EIU Schedule [SOURCE_FACTS](https://github.com/nhutbao1314-hub/eiu-schedule/blob/main/docs/design-system/SOURCE_FACTS.md) records **`#EAE2D6`** as the swatch-normalized Cream. **Recommend this**, not Gold and not the earlier MedLabs UI neutral `#F6F1E8`, **but ask user before finalizing the institutional token**.
-- EIU Gray screenshot's RGB `88/89/91` converts to **`#58595B`** and is also the value in EIU Schedule; its printed HEX `#4E4F50` conflicts. **Recommend `#58595B`**, pending user approval; do not silently pretend the screenshot entries agree.
+**Confirmed palette clarification (user-approved 2026-10-08):**
+- The user accepted EIU Schedule's normalization: **EIU Cream = `#EAE2D6`** and **EIU Gray = `#58595B`** as final UniCouncil EIU branding values. The supplied screenshot contains mismatched/duplicated printed annotations; those printed values are not the final tokens.
+- The earlier temporary Cream UI neutral `#F6F1E8` is **not** the institutional EIU Cream token. It may only be used as a separately named neutral surface if explicitly intended; never alias it to `--eiu-cream`.
 - Neutral surfaces such as Canvas/Surface are application tokens, not necessarily exact institutional brand colors.
 
 Use CSS semantic tokens (`--brand-primary`, `--brand-accent`, `--surface`, `--text`, `--success`, `--danger`, etc.). Do not hardcode literal HEX repeatedly in per-page CSS. Status meaning must be conveyed by text/icons as well as color. Check visual contrast for functional states.
@@ -56,6 +56,19 @@ Use CSS semantic tokens (`--brand-primary`, `--brand-accent`, `--surface`, `--te
 MedLabs V2 uses Be Vietnam Pro alone; UniCouncil's typography overrides that MedLabs rule explicitly.
 
 Baseline type scale for functional UI can inherit MedLabs V2 until page-level review: body 14px, table header 13px, table text 14px, field label 13px, button 14px, metadata 13px. Title scale must be visually verified with Crimson Pro metrics rather than mechanically copying Be Vietnam Pro weights.
+
+## 3A. Iconography — Lucide-only (CONFIRMED)
+
+The user explicitly approved **Lucide** as the one icon family for the entire UniCouncil web app; this instruction **overrides Heroicons** used by EIU MedLabs and EIU Schedule reference repositories.
+
+- Implementation baseline: use `lucide-react` for all application icons across sidebar, topbar, request lists, tables, filters, calendar, attachment/upload states, dialogs, toasts, status cues, admin pages, and mobile navigation.
+- Icon names are selected consistently from Lucide; import from a single icon library package rather than mixing Heroicons, Material, Font Awesome, emoji iconography or page-specific hand-drawn SVG icons.
+- Canonical **outline** icon style: normal `strokeWidth=2` (optionally 1.75 for dense display, but standardized per component family); default sidebar/menu icons ~18–20px, action icons ~18px, inline status icons ~16px, section icons ~20–24px.
+- Keep icon sizing and stroke consistent inside the same action family; avoid mixing filled and outlined styles without a specific semantic reason.
+- Action semantics take priority: `CalendarDays` for meeting date, `FileText` for documents, `Upload` or `CloudUpload` for attachments, `CircleCheck` for success, `CircleAlert` for warning, `Clock3` for pending, etc. Exact Lucide exports should be confirmed in the installed version when coding.
+- Icons supplement, never replace, VI/EN text for key statuses and actions. Icon-only buttons require accessible names, visible focus and ~44×44px touch targets.
+- **Exception:** actual EIU logo images (Full Logo, Corner Logo) are *brand assets*, not UI iconography. Charts may use SVG for data visualization; this is not permission to introduce another general-purpose icon set.
+- Third-party widgets must be themed or replaced where practicable so that visible product icons still match Lucide.
 
 ## 4. Sidebar — inherit MedLabs V2 approved visual
 
@@ -186,8 +199,8 @@ From [MedLabs / public](https://github.com/baonguyen-kobe/eiu-medlabs/tree/main/
 ## 8. Remaining Part C decisions
 
 1. **Crimson Pro is confirmed**; verify display sizing/diacritics during implementation, not an open font-family decision.
-2. Confirm normalized **EIU Cream `#EAE2D6`** and **Gray `#58595B`** before treating them as final institutional colors.
-3. Review the proposed pastel badge **status → tone** table and role-specific consistency.
+2. **EIU Cream `#EAE2D6`** and **Gray `#58595B`** are confirmed; use these final tokens in implementation.
+3. **Lucide-only icon set confirmed**; check icon consistency and accessibility in implementation. Review the proposed pastel badge **status → tone** table and role-specific consistency.
 4. Role-based navigation: one workspace switcher per active role vs one permission-aware shared navigation.
 5. Login page information hierarchy and VI/EN toggle placement.
 6. Apply the relevant filter/table/error patterns to UniCouncil pages.
