@@ -241,7 +241,7 @@ Các tài liệu đã có:
 - Proposed meeting participants bắt buộc, tối đa 3.000 ký tự.
 - Preferred meeting date bắt buộc, default today theo timezone hệ thống, không cho ngày quá khứ.
 - Validation chạy cả client và server; server authoritative; message hỗ trợ VI/EN.
-- Attachment optional, tối đa 10 file/request, 20 MB/file.
+- Attachment optional, tối đa 10 file/request, **4 MB/file**.
 - Cho phép PDF, DOC/DOCX, XLS/XLSX, PPT/PPTX, JPG/JPEG, PNG, WEBP.
 - Requester có thể bỏ file khỏi upload list trước submit; backend kiểm tra lại type/MIME và size.
 
@@ -254,13 +254,21 @@ Các tài liệu đã có:
 - Upload hoàn tất tất cả file rồi mới commit Requests + Attachments + AuditLog bằng một `spreadsheets.batchUpdate` atomic.
 - Không có transaction chung giữa Drive/Sheets; lỗi thì cleanup bù trừ, đối soát orphan files/folders hoặc commit không rõ kết quả.
 - Request commit thành công mới chuyển /requests; nếu lỗi giữ nguyên dữ liệu/file selection trên browser (không phải Save Draft).
-- 20 MB/file không được truyền qua Vercel Function body 4.5 MB; cần test architecture upload resumable/direct-to-Drive hoặc tương đương, không lộ service credentials.
+- V1 upload **mỗi file 4 MB tối đa bằng một HTTP request riêng** qua Vercel backend tới Google Drive, đảm bảo cả request body (kể cả multipart overhead) dưới 4.5 MB; không lộ Google credentials, không lưu file lâu dài trên Vercel.
+
+### Drive mapping và nơi lưu trữ đã chốt
+
+- Không tạo sheet DriveMap riêng.
+- `Requests`: thêm `drive_folder_id`, `drive_folder_url` để theo dõi/mở folder Drive.
+- `Attachments`: thêm `drive_file_id`, `drive_file_url` để theo dõi/mở từng file Drive.
+- URL lấy từ Drive API khi có, ID là khóa ổn định. URL không tự cấp quyền truy cập; backend/Drive permissions kiểm soát quyền.
+- Vercel chỉ host web/backend, không dùng cho lưu file. Google Drive giữ toàn bộ file lâu dài, Google Sheets giữ metadata/link.
 
 ### Part B còn cần chốt chi tiết
 
 1. Requester edit/resubmit UX khi ADJUSTED/REVISED.
-2. Drive link index: đề xuất dùng Requests (`drive_folder_id`, có thể thêm `drive_folder_url`) và Attachments (`drive_file_id`, có thể thêm `drive_file_url`) thay vì thêm sheet mapping thứ ba; đang chờ chốt.
-3. Proof-of-concept upload 20 MB từ browser theo kiến trúc Drive an toàn trước khi code form.
+2. Xác nhận UX chi tiết của link Drive (cách hiển thị cho từng role và đối soát file), không cần quyết định thêm sheet mapping.
+3. Kiểm chứng tổng multipart payload từng file 4 MB vẫn dưới 4.5 MB và luồng upload tuần tự lên Drive trước khi code.
 
 ## 6. Những phần sắp triển khai
 
