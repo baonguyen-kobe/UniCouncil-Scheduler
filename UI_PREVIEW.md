@@ -6,7 +6,7 @@ This is the **ChatGPT design comparison** branch, not a production system.
 - Node.js 22.13+ and npm
 - npm install
 - npm run dev
-- Open http://localhost:3000
+- Open http://localhost:3333
 
 Routes use an optional catch-all UI preview page:
 - /login
