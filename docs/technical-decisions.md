@@ -46,7 +46,7 @@
 42. Request chỉ được tạo khi requester submit thành công; trạng thái khởi tạo là PROCESSING.
 43. Request form validation V1: Full name phải resolve từ session/Staff; Units chọn ít nhất 1; agenda bắt buộc tối đa 3.000 ký tự; participants bắt buộc tối đa 3.000 ký tự; preferred date bắt buộc, default today theo timezone hệ thống và không được ở quá khứ.
 44. Validation chạy cả client và server; server-side validation là authoritative. Validation message hỗ trợ VI/EN.
-45. Attachment V1 là optional, tối đa 10 file/request và 20 MB/file.
+45. Attachment V1 là optional, tối đa 10 file/request và **4 MB/file**; giới hạn an toàn dưới 4.5 MB HTTP request body của Vercel Functions.
 46. Attachment V1 cho phép PDF, DOC/DOCX, XLS/XLSX, PPT/PPTX, JPG/JPEG, PNG, WEBP; backend kiểm tra dung lượng và file type/MIME.
 47. Trước khi submit, requester có thể bỏ file đã chọn khỏi upload list.
 48. Submit có `submission_id` idempotency key: retry phải trả đúng request đã commit, tránh duplicate do timeout/double-click.
@@ -56,8 +56,9 @@
 52. Sheets commit ưu tiên một `spreadsheets.batchUpdate` atomic chứa thao tác ghi dữ liệu các tab liên quan; không hiểu nhầm API batch với transaction liên dịch vụ.
 53. Drive và Sheets không có distributed transaction chung. Khi lỗi, cleanup folder/file tạm theo cơ chế bù trừ (best effort); phải hỗ trợ reconciliation nếu cleanup thất bại hoặc không xác định được commit đã hoàn tất.
 54. Idempotency/unique request_id phải chống race condition của submit đồng thời; không cấp request_id bằng số dòng Sheet + 1, cũng không chỉ read-then-write để chống duplicate.
-55. Vercel Functions có payload limit 4.5 MB; upload 20 MB/file phải có verified resumable/direct-to-Drive upload path (hoặc giải pháp tương đương) mà không đưa token Google service account cho browser.
-56. Link Drive để truy cập trực tiếp trên Sheets nên dùng URL do Drive trả về khi có; quyền xem file vẫn enforce qua backend/Drive permissions. Chưa chốt có cần sheet mapping riêng hay chỉ bổ sung cột vào Requests + Attachments.
+55. Vercel Functions có giới hạn request body 4.5 MB (bao gồm multipart overhead), nên V1 chốt **4 MB/file** và upload từng file qua một HTTP request riêng tới backend Vercel, backend chuyển vào Google Drive. Không base64 encode hoặc gộp nhiều file trong một request; không lộ Google credentials ở browser.
+56. **Chốt không tạo sheet Drive map riêng**. Requests lưu `drive_folder_id` và `drive_folder_url`; Attachments lưu `drive_file_id` và `drive_file_url`. Link lấy từ Drive API khi có; ID là khóa ổn định; quyền truy cập được enforce qua backend/Drive permissions.
+57. Vercel là nơi chạy web app/backend, **không là nơi lưu trữ file**. File lưu lâu dài duy nhất tại Google Drive; Sheets chỉ lưu request và metadata/link.
 
 ## Status display đã chốt
 
