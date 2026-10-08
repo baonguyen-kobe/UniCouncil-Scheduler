@@ -470,7 +470,9 @@ Chỉ cân nhắc sau khi V1 chạy ổn:
 - Typography theo override của user: **Crimson Pro chính (đã chốt)**, **Be Vietnam Pro phụ** (khác MedLabs V2 vốn dùng Be Vietnam Pro).
 - Người dùng muốn **badge trạng thái nền pastel nhạt**, tham khảo [EIU Schedule](https://github.com/nhutbao1314-hub/eiu-schedule): 5 tone Info/Warning/Success/Danger/Neutral. Chi tiết foreground/background và role-label mapping trong ui-ux-guidelines.md; mapping cụ thể là đề xuất chờ review.
 - Người dùng **đã xác nhận** EIU Gray `#58595B` và EIU Cream `#EAE2D6` sau khi đối chiếu sai lệch HEX/RGB trong ảnh branding.
-- **Tất cả icon dùng Heroicons v2 (`@heroicons/react`)**, theo đính chính mới nhất của người dùng; không trộn các bộ icon. Còn chốt role-based workspace/navigation và mapping badge pastel trước UI coding.
+- **Tất cả icon dùng Heroicons v2 (`@heroicons/react`)**, theo đính chính mới nhất của người dùng; không trộn các bộ icon.
+- **Workspace Switcher (A) đã chốt**: chuyển giữa Requester/Assistant/Leader/Admin khi có nhiều role; sidebar/menu tương ứng workspace nhưng quyền thực luôn enforce backend. User sẽ review và chỉnh visual sau khi thấy bản preview.
+- Bảng tone badge pastel hiện là đề xuất theo nhãn role; tiếp tục UI implementation/preview và QA.
 - Quyền role/workflow/status theo Part B giữ nguyên; không copy business logic MedLabs.
 
 ## 15. Current checkpoint
