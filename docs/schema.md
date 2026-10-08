@@ -9,6 +9,7 @@ Một Google Spreadsheet vận hành gồm các sheet sau.
 | request_id | ID nghiệp vụ, ví dụ `REQ-2026-000001` |
 | submission_id | Idempotency key do client tạo mỗi lần submit; dùng lại khi retry để không tạo request trùng |
 | drive_folder_id | Folder Google Drive chứa file của request; ID chuẩn để backend truy xuất/đối soát |
+| drive_folder_url | Link mở folder trong Google Drive (lấy từ Drive API nếu có; không dùng làm business key) |
 | version | Optimistic locking |
 | status | `PROCESSING` / `PENDING_APPROVAL` / `ADJUSTED` / `REVISED` / `REVISED_PROCESSING` / `APPROVED` / `CANCELLED` / `COMPLETED` |
 | requester_id | Staff ID người đăng ký |
@@ -109,6 +110,7 @@ Quy tắc:
 | attachment_id | ID attachment |
 | request_id | Request sở hữu |
 | drive_file_id | Google Drive file ID |
+| drive_file_url | Link mở file trên Google Drive (lấy từ Drive API nếu có; không dùng làm business key) |
 | file_name | Tên gốc của file (tên lưu trên Drive có thể được thêm attachment_id để tránh trùng) |
 | mime_type | MIME type |
 | file_size | Dung lượng |
@@ -118,7 +120,7 @@ Quy tắc:
 
 File vật lý nằm trong Google Drive; web app lưu metadata ở sheet Attachments và kiểm soát quyền truy cập qua backend.
 
-Drive folder convention: `drive_root_folder_id/YYYY/request_id/`. Một request có một folder riêng. Link thư mục/file để người quản trị bấm mở trực tiếp đang được đề xuất trong Part B; chưa quyết định tạo thêm sheet mapping riêng.
+Drive folder convention: `drive_root_folder_id/YYYY/request_id/`. Một request có một folder riêng. Đã chốt: **không tạo sheet Drive map riêng**. `Requests.drive_folder_url` và `Attachments.drive_file_url` là link tiện mở khi xem Google Sheets. ID Drive mới là khóa ổn định; lấy URL từ Drive API khi có. Link không tự cấp quyền truy cập file.
 
 ## AuditLog
 
@@ -160,9 +162,11 @@ Dạng key/value:
 - app_name_en
 - timezone
 - drive_root_folder_id
-- max_upload_mb = 20
+- max_upload_mb = 4
 - max_upload_files = 10
 - allowed_upload_extensions = pdf,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png,webp
+
+Giới hạn **4 MB/file** là cap V1 an toàn khi gửi từng file qua Vercel Function, thấp hơn giới hạn request body 4.5 MB. Không gộp 10 file vào cùng một HTTP request; không base64 encode file để truyền. Phải kiểm tra tổng kích thước request và overhead multipart ở backend.
 - default_meeting_duration
 - request_edit_until_status
 - default_locale
