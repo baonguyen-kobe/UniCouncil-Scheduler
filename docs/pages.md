@@ -147,7 +147,7 @@ Leader được **xem Meeting Type** theo locale hiện tại nhưng không đư
 - Khi requester gửi lại sau yêu cầu chỉnh, request chuyển sang REVISED_PROCESSING và vẫn xuất hiện ở leader với nhãn **Điều chỉnh**.
 
 Default:
-- Ưu tiên PENDING_APPROVAL liên quan đến leader để xử lý.
+- Ưu tiên toàn bộ PENDING_APPROVAL trong leader queue chung để xử lý; V1 chưa phân luồng theo từng leader.
 - REVISED và REVISED_PROCESSING vẫn nằm trong tập theo dõi.
 - APPROVED và COMPLETED có thể xem qua list/filter để tra cứu.
 
