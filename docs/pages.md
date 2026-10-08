@@ -257,6 +257,26 @@ Form được xây trực tiếp trên web, không dùng Google Form ở V1. For
    - File vật lý lưu Google Drive; metadata lưu trong `Attachments`.
    - Attachment là optional trừ khi sau này có rule riêng.
 
+### Validation V1
+
+- **Full name**: bắt buộc phải resolve được từ session/Staff; read-only.
+- **School/Office/Unit**: bắt buộc chọn ít nhất 1 item active từ `Units`; cho phép multi-select.
+- **Proposed meeting agenda**: bắt buộc, trim whitespace, không được rỗng sau trim, tối đa **3.000 ký tự**.
+- **Proposed meeting participants**: bắt buộc, trim whitespace, không được rỗng sau trim, tối đa **3.000 ký tự**.
+- **Preferred meeting date**: bắt buộc; default = hôm nay theo timezone hệ thống; không cho chọn ngày trước hôm nay.
+- Validation phải chạy cả client và server; server là nguồn quyết định cuối cùng.
+- Error message hiển thị theo locale VI/EN hiện tại.
+
+### Attachment constraints V1
+
+- Attachment là optional.
+- Cho phép tối đa **10 file/request**.
+- Tối đa **20 MB/file**.
+- Loại file cho phép: PDF, Word (`.doc`, `.docx`), Excel (`.xls`, `.xlsx`), PowerPoint (`.ppt`, `.pptx`) và ảnh phổ biến (`.jpg`, `.jpeg`, `.png`, `.webp`).
+- Backend phải kiểm tra lại extension/MIME type và dung lượng; không chỉ tin validation phía browser.
+- Trước khi submit, requester có thể bỏ file khỏi danh sách upload.
+- File vật lý lưu Google Drive; metadata lưu trong `Attachments`.
+
 ### Meeting Type
 
 - Có Meeting Type nhưng **không hiển thị cho Requester** trên form hoặc requester detail.
