@@ -298,6 +298,25 @@ Form được xây trực tiếp trên web, không dùng Google Form ở V1. For
 
 Các thông tin lãnh đạo, giờ họp chính thức, thời lượng/end time, địa điểm và các metadata nghiệp vụ sẽ do Assistant hoàn thiện sau khi tiếp nhận.
 
+### Submit flow — Part B đã chốt
+
+1. Requester bấm **Submit / Gửi yêu cầu**. Nút chuyển sang **Submitting / Đang gửi** và bị disable để ngăn double-click.
+2. Backend kiểm tra session Google Workspace, Staff, quyền REQUESTER; validate lại toàn bộ fields/attachment (VI/EN là UI only).
+3. Client tạo `submission_id` duy nhất cho một lần submit; retry phải dùng lại ID này. Backend tra cứu `submission_id` đã commit; nếu có, trả về `request_id` cũ.
+4. Tạo `request_id` duy nhất theo cơ chế an toàn với các submit đồng thời (không dùng số dòng Sheet + 1). Chuẩn bị folder Drive theo cấu trúc `root/YYYY/request_id/`; ghi nhận `drive_folder_id`.
+5. Upload toàn bộ file lên folder trên Drive. Tên vật lý file là `attachment_id__<original_filename>`; `Attachments.file_name` giữ tên gốc. Dùng upload session/resumable hoặc kiến trúc upload được xác minh không vượt giới hạn body của Vercel Function. Không gửi trực tiếp token/secret Google service account cho browser.
+6. Chỉ sau khi mọi upload thành công, ghi dữ liệu `Requests` (status `PROCESSING`, `version` khởi tạo, `submission_id`, `drive_folder_id`), `Attachments` và `AuditLog` như một logical commit; ưu tiên `spreadsheets.batchUpdate` với các thao tác `UpdateCells/AppendCells` trong **một batch atomic**.
+7. Nếu upload lỗi: không commit request; cố gắng dọn folder/file tạm; giữ nguyên form và danh sách file đang chọn để requester retry.
+8. Nếu ghi Sheets lỗi: không báo success; thực hiện cleanup Drive theo hướng compensating transaction, đồng thời ghi nhận tình huống cleanup không hoàn tất để đối soát sau.
+9. Nếu server/browser mất kết nối hoặc timeout sau khi đã ghi dữ liệu: **không mặc định coi là thất bại**. Retry với cùng `submission_id` phải kiểm tra đã commit hay chưa; tuyệt đối không tự tạo request thứ hai.
+10. Chỉ chuyển tới `/requests` và hiển thị success khi backend xác nhận request đã commit.
+
+Quy tắc:
+- Drive và Sheets **không có distributed transaction chung**, vì vậy cleanup là best-effort; cần cơ chế retry/reconciliation cho orphan folders/files và commit không rõ kết quả.
+- `submission_id` là idempotency key cho lệnh submit, **không phải Save Draft**.
+- Backend phải xử lý đồng thời/idempotency bằng cơ chế serialize hoặc khóa phù hợp; chỉ “check xem có submission_id chưa” không đủ chống race condition.
+- V1 giữ giới hạn tối đa 10 file / 20 MB mỗi file; trước implementation phải kiểm chứng upload path thật sự hỗ trợ 20 MB trên Vercel.
+
 ### Save Draft
 
 - V1 **không có Save Draft**.
