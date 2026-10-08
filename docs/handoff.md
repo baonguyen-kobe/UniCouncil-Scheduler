@@ -103,7 +103,8 @@ Không có REJECTED.
 - Leader không thấy request.
 - Assistant hiển thị: **Adjusted / Chờ bổ sung**.
 - Requester hiển thị: **Revised / Điều chỉnh**.
-- Requester gửi lại → PROCESSING.
+- Assistant chuyển sang ADJUSTED phải có `revision_instruction` bắt buộc, `revision_target=REQUESTER`.
+- Requester gửi lại → PROCESSING, reset `revision_target=null`.
 
 **REVISED**
 - Request đã từng được trình leader.
@@ -112,9 +113,10 @@ Không có REJECTED.
 - Leader hiển thị: **Revising / Điều chỉnh**.
 - Assistant hiển thị: **Revised / Điều chỉnh**.
 - Requester hiển thị: **Revised / Điều chỉnh**.
+- Khi Leader yêu cầu chỉnh `PENDING_APPROVAL → REVISED`, `revision_target=ASSISTANT`; ô `leader_decision_note` tùy chọn, có thể để trống. Ý kiến này phục vụ Leader/Assistant.
 - Assistant có thể tự xử lý và trình lại → PENDING_APPROVAL.
-- Hoặc Assistant gửi requester chỉnh; khi requester đang chỉnh status vẫn là REVISED.
-- Requester gửi lại → REVISED_PROCESSING.
+- Hoặc Assistant **bắt buộc nhập revision_instruction** rồi giao Requester, `revision_target=REQUESTER`, trong khi status vẫn REVISED.
+- Requester chỉ có quyền Edit khi `revision_target=REQUESTER`; gửi lại → REVISED_PROCESSING (`revision_target=null`).
 
 **REVISED_PROCESSING**
 - Chỉ dùng cho request đã qua vòng leader.
@@ -124,7 +126,7 @@ Không có REJECTED.
 - Assistant hiển thị: **Processing / Đang xử lý**.
 - Leader vẫn hiển thị: **Revising / Điều chỉnh**.
 - Assistant trình lại → PENDING_APPROVAL.
-- Nếu cần requester chỉnh tiếp → REVISED.
+- Nếu cần requester chỉnh tiếp → REVISED với `revision_target=REQUESTER` và `revision_instruction` bắt buộc.
 
 **Rule bắt buộc**
 - Không ADJUSTED → REVISED.
@@ -232,6 +234,7 @@ Các tài liệu đã có:
 - Không có Save Draft, DRAFT, server-side draft hoặc local autosave/persistence.
 - Submit thành công mới tạo request PROCESSING.
 - Mọi user có role LEADER thấy cùng một leader queue ở V1; không scope visibility theo leader_ids.
+- Quyền Edit Requester không quyết định chỉ bằng status: kiểm tra status + revision_target + request owner ở backend.
 
 ### Validation và attachment đã chốt
 
@@ -268,11 +271,22 @@ Các tài liệu đã có:
 - URL lấy từ Drive API khi có, ID là khóa ổn định. URL không tự cấp quyền truy cập; backend/Drive permissions kiểm soát quyền.
 - Vercel chỉ host web/backend, không dùng cho lưu file. Google Drive giữ toàn bộ file lâu dài, Google Sheets giữ metadata/link.
 
-### Part B còn cần chốt chi tiết
+### Edit & Resubmit đã chốt
 
-1. Requester edit/resubmit UX khi ADJUSTED/REVISED.
-2. Xác nhận UX chi tiết của link Drive (cách hiển thị cho từng role và đối soát file), không cần quyết định thêm sheet mapping.
-3. Kiểm chứng tổng multipart payload từng file 4 MB vẫn dưới 4.5 MB và luồng upload tuần tự lên Drive trước khi code.
+- Có thêm `revision_target` nullable với giá trị `ASSISTANT`/`REQUESTER`; không thêm system status.
+- Requester chỉ được edit/resubmit khi thuộc chính user và ADJUSTED+REQUESTER hoặc REVISED+REQUESTER; backend phải kiểm tra.
+- Leader bấm **Yêu cầu chỉnh sửa** từ PENDING_APPROVAL: textarea **Góp ý của lãnh đạo / Leader comments** là **optional**. Không nhập vẫn chuyển REVISED + ASSISTANT.
+- Assistant giao Requester chỉnh (pre/post Leader) **phải nhập** textarea **Nội dung cần chỉnh / Revision instructions**, lưu `revision_instruction`. Không dùng `assistant_note` nội bộ để hiển thị cho Requester.
+- Chỉ sau khi Assistant giao lại và set `revision_target=REQUESTER` thì Requester ở REVISED mới được thấy nút Edit.
+- Requester sửa Unit(s), agenda, participants, preferred date và attachments; Full name/email read-only, Meeting Type/leader_ids/lịch chính thức không chỉnh.
+- Gửi lại ADJUSTED → PROCESSING; gửi lại REVISED+REQUESTER → REVISED_PROCESSING. Reset revision_target, giữ request_id, version++ và AuditLog. Không Save Draft.
+- Leader comments dành cho Assistant/Leader, không mặc định phơi bày cho Requester. AuditLog giữ lại ghi chú từng vòng.
+
+### Part B baseline đã chốt; còn triển khai/kiểm chứng
+
+1. UX chi tiết của link Drive (phạm vi role và kiểm tra quyền), không cần sheet mapping mới.
+2. Test HTTP body từng file 4 MB dưới giới hạn 4.5 MB, retry/upload và cleanup staging.
+3. QA quyền sửa theo revision_target, Leader optional note, Assistant required instruction, optimistic locking, audit và file replacement.
 
 ## 6. Những phần sắp triển khai
 
@@ -283,7 +297,7 @@ Các tài liệu đã có:
 - Validation đã chốt.
 - Attachment constraints đã chốt.
 - Submit flow đã chốt ở mức requirement.
-- Chốt requester edit/resubmit behavior.
+- Requester edit/resubmit và ghi chú Assistant/Leader đã chốt.
 
 ### Sau Part B
 
@@ -355,6 +369,9 @@ Reviewer nên tập trung kiểm tra:
 ### Visibility
 - Leader có chắc chắn không thấy ADJUSTED không?
 - Leader có vẫn thấy REVISED và REVISED_PROCESSING không?
+- Leader yêu cầu chỉnh từ PENDING_APPROVAL có hoạt động khi `leader_decision_note` để trống, đồng thời gán revision_target=ASSISTANT không?
+- Assistant có bị chặn chuyển request cho Requester nếu `revision_instruction` rỗng không?
+- Requester có bị chặn Edit khi REVISED+ASSISTANT và được Edit khi REVISED+REQUESTER không?
 - Backend có enforce visibility thay vì chỉ hide UI không?
 - Requester có bị chặn truy cập request của người khác không?
 
@@ -372,6 +389,7 @@ Reviewer nên tập trung kiểm tra:
 ### Data
 - Một request_id xuyên suốt có đáp ứng audit không?
 - version có đủ cho optimistic locking không?
+- Cần audit cả revision_target, revision_instruction và leader_decision_note (kể cả trường hợp optional trống) không?
 - AuditLog có đủ để truy vết status change không?
 - Attachments có đủ metadata không?
 
