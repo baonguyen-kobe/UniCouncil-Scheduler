@@ -65,6 +65,15 @@
 61. Mỗi file của một submission có `upload_item_id` ổn định; backend idempotent theo cặp `submission_id + upload_item_id`, kiểm tra kết quả khi timeout thay vì upload lại ngay để tránh file trùng.
 62. Upload thành công là staging (chưa phải request commit). Xóa file khỏi danh sách thì cleanup đúng file đó; khi bỏ form/phiên staging hết hạn cần reconciliation cleanup các Drive file/folder chưa commit, không tạo Save Draft.
 63. Lỗi ghi Sheets sau tất cả upload được xử lý riêng với lỗi từng file: kiểm tra `submission_id` đã commit hay chưa; không ép requester upload lại file đã thành công.
+64. Thêm `revision_target` nullable (`ASSISTANT` / `REQUESTER`) vào Requests để phân biệt action owner trong REVISED, không thêm system status thứ 9.
+65. Leader chọn Yêu cầu chỉnh sửa từ PENDING_APPROVAL: có textarea `leader_decision_note` optional, có thể để trống; status chuyển REVISED và revision_target=ASSISTANT.
+66. Góp ý Leader là cho Assistant/Leader; không tự động công khai nguyên văn cho Requester. Mọi quyết định REVISED và nội dung ghi chú (kể cả rỗng) được audit để theo dõi từng vòng.
+67. Assistant chuyển request cho Requester chỉnh phải nhập nội dung hướng dẫn `revision_instruction` bắt buộc, không được chỉ ghi vào `assistant_note` nội bộ. Áp dụng PROCESSING→ADJUSTED, REVISED (ASSISTANT)→REVISED (REQUESTER), REVISED_PROCESSING→REVISED (REQUESTER).
+68. Requester được Edit/Resubmit chỉ nếu sở hữu request và `revision_target=REQUESTER`, status là ADJUSTED hoặc REVISED. Backend enforce cả role, ownership, status và revision_target.
+69. Resubmit ADJUSTED→PROCESSING; REVISED (REQUESTER)→REVISED_PROCESSING. Reset revision_target=null, giữ nguyên request_id, kiểm tra/tăng version và ghi AuditLog.
+70. Requester có thể chỉnh requested_unit_ids, meeting_content, requested_participants, requested_date và attachments; full name/email read-only, Meeting Type và thông tin Assistant/Leader chính thức không được chỉnh. Tài liệu có sẵn không bị xóa vật lý trước khi resubmit commit thành công.
+71. Khi Assistant tự xử lý rồi trình lại từ REVISED (ASSISTANT), hoặc từ REVISED_PROCESSING, sang PENDING_APPROVAL thì revision_target=null. Không có Save Draft cho edit/resubmit.
+
 
 
 ## Status display đã chốt
