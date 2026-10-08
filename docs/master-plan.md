@@ -462,6 +462,15 @@ Chỉ cân nhắc sau khi V1 chạy ổn:
 - Workflow nhiều cấp duyệt.
 - Advanced notification rules.
 
+## 14A. Part C — EIU branding và UI/UX trước implementation
+
+- Tham chiếu [UniCouncil Part C UI/UX Guidelines](ui-ux-guidelines.md).
+- Bộ màu EIU nhận từ user (2026-10-08); EIU Blue `#144069`, EIU Gold `#A78656` và màu phụ theo ảnh. EIU Cream cần đối chiếu mã HEX vì ảnh lặp thông số của Gold; tạm dùng `#F6F1E8` từ MedLabs V2.
+- Sidebar kế thừa đúng **EIU MedLabs V2 Master** (gradient xanh, menu active nền trắng + vạch gold), Full Logo EIU trong nền trắng; Login dùng EIU Corner Logo.
+- Typography theo override của user: **Crimson chính**, **Be Vietnam Pro phụ** (khác MedLabs V2 vốn dùng Be Vietnam Pro).
+- Cần xác nhận Crimson Pro hay Crimson Text, đối chiếu EIU Cream/Gray, rồi chốt role-based workspace/navigation trước khi bắt đầu UI coding.
+- Quyền role/workflow/status theo Part B giữ nguyên; không copy business logic MedLabs.
+
 ## 15. Current checkpoint
 
 Đã chốt:
