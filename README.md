@@ -42,7 +42,8 @@ Checkpoint hiện tại:
 - Baseline workflow đã qua reviewer checkpoint.
 - Đang thực hiện Part B: field baseline, validation và attachment constraints của /requests/new đã chốt.
 - Form hỗ trợ VI/EN, tối giản, Meeting Type nội bộ, không có Save Draft; attachment optional tối đa 10 file và 20 MB/file.
-- Còn chốt submit transaction/error handling và requester edit/resubmit UX; xem docs/master-plan.md và docs/handoff.md.
+- Submit flow/idempotency, cấu trúc folder Drive và xử lý lỗi đã chốt ở mức design; cần kiểm chứng đường upload 20 MB vì giới hạn payload của Vercel.
+- Còn chốt requester edit/resubmit UX và phương án hiển thị link Drive trong Google Sheets; xem docs/master-plan.md và docs/handoff.md.
 
 ## Quy tắc review
 
