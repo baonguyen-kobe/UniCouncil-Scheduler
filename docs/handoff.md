@@ -245,11 +245,22 @@ Các tài liệu đã có:
 - Cho phép PDF, DOC/DOCX, XLS/XLSX, PPT/PPTX, JPG/JPEG, PNG, WEBP.
 - Requester có thể bỏ file khỏi upload list trước submit; backend kiểm tra lại type/MIME và size.
 
+### Submit flow đã chốt
+
+- Click Submit -> disable button / “Submitting” (VI/EN); backend xác thực + validate.
+- Một submit tạo `submission_id` để retry không tạo request trùng.
+- Cấp `request_id` an toàn với concurrent submits (không dùng sheet row count + 1).
+- Folder Drive `root/YYYY/request_id/`; file vật lý `attachment_id__original_filename`, metadata lưu trong Attachments.
+- Upload hoàn tất tất cả file rồi mới commit Requests + Attachments + AuditLog bằng một `spreadsheets.batchUpdate` atomic.
+- Không có transaction chung giữa Drive/Sheets; lỗi thì cleanup bù trừ, đối soát orphan files/folders hoặc commit không rõ kết quả.
+- Request commit thành công mới chuyển /requests; nếu lỗi giữ nguyên dữ liệu/file selection trên browser (không phải Save Draft).
+- 20 MB/file không được truyền qua Vercel Function body 4.5 MB; cần test architecture upload resumable/direct-to-Drive hoặc tương đương, không lộ service credentials.
+
 ### Part B còn cần chốt chi tiết
 
-1. Submit transaction và behavior khi Drive/Sheets/Audit gặp lỗi.
-2. Cấu trúc folder Drive và naming convention.
-3. Requester edit/resubmit UX khi ADJUSTED/REVISED.
+1. Requester edit/resubmit UX khi ADJUSTED/REVISED.
+2. Drive link index: đề xuất dùng Requests (`drive_folder_id`, có thể thêm `drive_folder_url`) và Attachments (`drive_file_id`, có thể thêm `drive_file_url`) thay vì thêm sheet mapping thứ ba; đang chờ chốt.
+3. Proof-of-concept upload 20 MB từ browser theo kiến trúc Drive an toàn trước khi code form.
 
 ## 6. Những phần sắp triển khai
 
@@ -259,7 +270,7 @@ Các tài liệu đã có:
 - Field baseline đã chốt.
 - Validation đã chốt.
 - Attachment constraints đã chốt.
-- Chốt submit flow.
+- Submit flow đã chốt ở mức requirement.
 - Chốt requester edit/resubmit behavior.
 
 ### Sau Part B
