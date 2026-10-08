@@ -44,7 +44,8 @@ Checkpoint hiện tại:
 - Form hỗ trợ VI/EN, tối giản, Meeting Type nội bộ, không có Save Draft; attachment optional tối đa 10 file và **4 MB/file**.
 - Submit flow/idempotency và folder Drive đã chốt ở mức thiết kế. **4 MB/file, tối đa 10 file/request**, upload từng file qua Vercel backend rồi lưu lâu dài trên Google Drive; Vercel không phải file storage.
 - Link Drive lưu ở hai sheet hiện có (Requests/Attachments), không tạo Drive map sheet riêng.
-- Còn chốt requester edit/resubmit UX; xem docs/master-plan.md và docs/handoff.md.
+- **Part B đã chốt về mặt yêu cầu**: Requester chỉ sửa khi được Assistant giao (`revision_target=REQUESTER`); Assistant bắt buộc có `revision_instruction`; Leader có `leader_decision_note` tùy chọn, được để trống khi yêu cầu chỉnh.
+- Tiếp theo: triển khai và QA workflow, upload, optimistic locking và role permissions; xem docs/master-plan.md và docs/handoff.md.
 
 ## Quy tắc review
 
