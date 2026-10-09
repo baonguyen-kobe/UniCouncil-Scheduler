@@ -7,9 +7,19 @@ test("captures EIU preview screens for design comparison", async ({ page }) => {
 
   await page.goto("/login");
   await expect(page.getByRole("heading", { name: "UniCouncil Scheduler" })).toBeVisible();
+  await expect(page.locator(".med-login-brand-image")).toBeVisible();
+  await expect(page.locator(".med-login-card")).toContainText("ĐẠI HỌC QUỐC TẾ MIỀN ĐÔNG");
+  await expect(page.getByRole("button", { name: "Đăng nhập bằng Google" })).toHaveCount(1);
+  await expect(page.locator('.med-login-card input')).toHaveCount(0);
+  await expect(page.locator(".med-login-card button")).toHaveCount(1);
+  await expect(page.getByRole("button", { name: "Vào giao diện demo" })).toHaveCount(0);
   await page.screenshot({ path: output + "/01-login-desktop.png", fullPage: true });
+  await page.setViewportSize({width:390,height:844});
+  await expect(page.locator(".med-login-corner-logo")).toBeVisible();
+  await page.screenshot({ path: output + "/01b-login-mobile.png", fullPage: true });
+  await page.setViewportSize({width:1440,height:900});
 
-  await page.getByRole("button", { name: "Vào giao diện demo" }).click();
+  await page.getByRole("button", { name: "Đăng nhập bằng Google" }).click();
   await expect(page.getByRole("heading", { name: "Yêu cầu của tôi" })).toBeVisible();
   await expect(page.locator(".requests-page .page-title-row")).toHaveCount(0);
   await expect(page.locator(".stats-row .stat-card")).toHaveCount(3);
