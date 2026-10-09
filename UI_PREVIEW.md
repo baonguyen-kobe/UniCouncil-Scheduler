@@ -72,6 +72,12 @@ The Login layout must be visually very close to the **production login of EIU Me
 - **Asset update pending:** the original high-resolution Desktop/Mobile images and wide logo were uploaded in chat, not yet committed as binaries to this branch. The UI currently retains the lower-resolution Figma-export asset paths; local replacement assets have been prepared under those same filenames. Do not claim that original-resolution files are already on GitHub until the asset commit is verified.
 - This is still only a UI preview. The Google CTA navigates to a demo and is not a real OAuth sign-in; production must implement Google Workspace OIDC and enforce real sessions.
 
+## Login language parity — latest Figma review (2026-10-09)
+
+- The user-approved **VI/EN selector** is the latest Desktop group `26:58`, located at **x1333 y24, 90×35px** on the 1440×900 Login frame. On the 390×844 Phone frame, the `15:28` selector is **x288 y27, 90×35px**. Both are white rounded controls with a 37×27 light-blue selected language pill; VI/EN text is **11px Be Vietnam Pro**, not a pipe-separated text string.
+- **English and Vietnamese have identical computed font sizes across the login card**, including school name, UniCouncil title, subtitle, Google CTA and Workspace note. Previous separate `data-locale=en` font shrink rules were removed; allow text wrapping if translated English copy needs more room instead of reducing its type scale.
+- Selection remains interactive in both directions. Browser regression tests compare actual VI/EN computed font sizes and exact selector dimensions and positions at Desktop and Mobile.
+
 ## Review checklist
 1. View /login; demo enters role workspace.
 2. Switch Requester -> Assistant -> Leader.
