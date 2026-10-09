@@ -11,7 +11,7 @@ test("captures EIU preview screens for design comparison", async ({ page }) => {
   // Exact wording is read from the final user-edited Figma frames 15:4 / 15:25.
   await expect(page.locator(".med-login-university")).toHaveText("TRƯỜNG ĐẠI HỌC QUỐC TẾ MIỀN ĐÔNG");
   await expect(page.locator(".med-login-heading h2")).toHaveText("UniCouncil Scheduler");
-  await expect(page.locator(".med-login-subtitle")).toHaveText("Hệ thống đăng lịch họp Hội đồng trường");
+  await expect(page.locator(".med-login-subtitle")).toHaveText("Hệ thống đăng ký lịch họp Hội đồng trường");
   await expect(page.locator(".med-login-policy")).toHaveText("Vui lòng dùng tài khoản Google Workspace EIU để truy cập");
   await expect(page.locator(".med-login-demo-notice")).toHaveCount(0);
   await expect(page.getByRole("button",{name:"Đăng nhập bằng Google"})).toHaveCount(1);
@@ -38,7 +38,7 @@ test("captures EIU preview screens for design comparison", async ({ page }) => {
     expect(await photo.evaluate(el=>getComputedStyle(el).objectFit)).toBe("cover");
     await expect(page.getByRole("button",{name:"Đăng nhập bằng Google"})).toBeVisible();
     if(width===1440){
-      expect(dims!.width).toBe(861);
+      expect(dims!.width).toBe(695);
       await page.screenshot({path:output+"/01-login-desktop.png",fullPage:true});
     }
     if(width===1024){
@@ -150,10 +150,10 @@ test("Login is hydration-safe after clean reload at both approved layout sizes",
  for(const [width,height] of [[1440,900],[390,844],[1366,768],[1024,768]] as const){
    await page.setViewportSize({width,height});
    await page.goto("/login", {waitUntil:"networkidle"});
-   await expect(page.locator(".med-login-subtitle")).toHaveText("Hệ thống đăng lịch họp Hội đồng trường");
+   await expect(page.locator(".med-login-subtitle")).toHaveText("Hệ thống đăng ký lịch họp Hội đồng trường");
    await expect(page.getByRole("button",{name:"Đăng nhập bằng Google"})).toHaveCount(1);
    await page.reload({waitUntil:"networkidle"});
-   await expect(page.locator(".med-login-subtitle")).toHaveText("Hệ thống đăng lịch họp Hội đồng trường");
+   await expect(page.locator(".med-login-subtitle")).toHaveText("Hệ thống đăng ký lịch họp Hội đồng trường");
    // Allow effects and hydration logging to settle before the next navigation.
    await expect(page.locator(".med-login-page")).toBeVisible();
  }
