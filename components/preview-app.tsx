@@ -155,7 +155,7 @@ function SignIn({locale,onLocaleChange,enter}:{locale:Locale;onLocaleChange:(v:L
     window.addEventListener("resize",syncLayout,{passive:true});
     return ()=>window.removeEventListener("resize",syncLayout);
   },[]);
-  return <main id="main-content" className={"med-login-page"+(responsive?" is-responsive":"")}>
+  return <main id="main-content" data-locale={locale} className={"med-login-page"+(responsive?" is-responsive":"")}>
     <section className="med-login-brand" aria-label={vi?"Khuôn viên Trường Đại học Quốc tế Miền Đông":"Eastern International University campus"}>
       <Image
         className="med-login-brand-image"
