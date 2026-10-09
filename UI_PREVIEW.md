@@ -60,6 +60,17 @@ The Login layout must be visually very close to the **production login of EIU Me
 - **UI-only preview behavior**: The Google CTA clearly says Google but navigates into an explicitly identified local demo (no Google OAuth/session). Under `NEXT_PUBLIC_DEMO_MODE=false`, the inert CTA is disabled until real Workspace OIDC is implemented. Do not import Supabase auth from MedLabs or misrepresent demo navigation as authentication.
 - Automated browser test verifies the original local campus asset, a single Google sign-in button with zero account/password inputs, visible Corner Logo on mobile and unchanged downstream workspace navigation.
 
+## Signed-off Page 01 — Login Figma exact two-layout behavior (2026-10-09)
+
+**Source of truth:** user-modified [Login comparison page in Figma](https://www.figma.com/design/UNDek7yMuyZMQukeHROhle?node-id=1-2); specifically **ChatGPT Desktop node 15:4** and **ChatGPT Mobile node 15:25**, not the other branch's Login frames.
+
+- Final Vietnamese copy from user-edited Figma: **ĐẠI HỌC QUỐC TẾ MIỀN ĐÔNG**; **UniCouncil Scheduler**; **Hệ thống đăng lịch họp Hội đồng trường**; sole **Đăng nhập bằng Google** CTA; footer **Vui lòng dùng tài khoản Google Workspace EIU để truy cập.**
+- Desktop canonical 1440×900: source photograph fully visible in a 900×900 square at left, CSS image `object-fit: contain`. Right cream panel must begin **at/after the image boundary** (no overlap). A 444×351 white card (Figma x=938,y=200), university title 26px, product 40px Crimson Pro, description 16px, Google button 350×50.
+- Mobile canonical 390×844: photo is background `object-fit: cover`, EIU Corner Logo top-left (108×108), card x=14 y=142 size 362×309 with 38px radius and cream fill, university title 20px, product title 32px, description 14px, Google button 318×50.
+- **Only two layout modes**. Do not invent an intermediate tablet design. Determine the mode from *remaining horizontal space*: the uncropped desktop photo occupies `100dvh` width, the cream/right region needs **at least 500px**, so use Desktop while `window.innerWidth - window.innerHeight >= 500`; otherwise switch straight to the signed-off Responsive layout. Example: a short-height 1366×768 laptop can keep Desktop, while a tall/narrow 1280×800 viewport uses Responsive.
+- At Desktop widths, cream may narrow toward 500px but may not overlay/crop the image. Responsive uses the entire viewport photograph as `cover` (intentional zoom/crop) and maintains the mobile-style card.
+- This phase remains UI-only: the sole Google sign-in button enters a demo without authenticating. No real OAuth has been connected; production requires Workspace OIDC.
+
 ## Review checklist
 1. View /login; demo enters role workspace.
 2. Switch Requester -> Assistant -> Leader.
