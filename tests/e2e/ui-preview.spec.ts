@@ -161,6 +161,7 @@ test("Login is hydration-safe after clean reload at both approved layout sizes",
 });
 
 test("Login VI/EN language selector matches approved Figma and preserves typography",async ({page})=>{
+  mkdirSync(output,{recursive:true});
   const selectors=[
     ".med-login-university",".med-login-heading h2",
     ".med-login-subtitle",".med-login-google",".med-login-policy"
