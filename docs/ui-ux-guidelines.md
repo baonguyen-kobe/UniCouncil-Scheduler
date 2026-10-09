@@ -137,6 +137,18 @@ Do not copy old CSS from MedLabs blindly: `docs/UI_DESIGN_SYSTEM_V2_MASTER.md` i
 
 This is navigation/IA, not an authorization list. Calendar and other shared pages can be reused rather than duplicated per role. Do not invent additional V1 modules solely to fill sidebar space.
 
+## 4B. Page 01 Login — FINAL layout decision (2026-10-09)
+
+**User-approved layout:** use the actual production Login structure from `baonguyen-kobe/eiu-medlabs`, rather than just its brand assets. Reference `app/login/page.tsx`, `app/login/login-form.tsx` and matching login CSS.
+
+- Desktop: EIU campus cover photo from `public/login-cover-campus-2.jpg` at left; warm cream-gradient right region centered with the MedLabs-style white login card. Preserve reference proportions, spacing, shadows and card geometry.
+- Tablet/mobile: campus cover becomes full-screen background; **EIU Corner Logo** appears in upper-left; responsive warm, translucent login card floats above it.
+- In card, replace old faculty/lab copy with **ĐẠI HỌC QUỐC TẾ MIỀN ĐÔNG**, **UniCouncil Scheduler**, **Hệ thống đăng ký và điều phối lịch họp lãnh đạo**, **Dành cho nhân sự Trường Đại học Quốc tế Miền Đông**, plus VI/EN strings.
+- Exactly **one sign-in method: Google Workspace**. The sole CTA says **Đăng nhập bằng Google / Sign in with Google**. Remove account/password fields, remember-me, forgot-password, standard login button, alternative login, `or` divider and separate demo-entry CTA.
+- In UI-only preview, clearly disclose that the Google-looking CTA takes the reviewer to a demo without performing OAuth. In production, do not enable any fake authentication: replace with actual Google Workspace OIDC using UniCouncil authorization and session requirements. No Supabase auth copied from MedLabs.
+- Keep UniCouncil typography override (**Crimson Pro + Be Vietnam Pro**) and Heroicons-only product UI icon set. The multicolor Google G inside a Google button is a provider brand mark, not an alternate product icon set.
+- Scope of this sign-off is only **Page 01 Login**; other screens still await page-level review. The design is reviewable/refinable if owner later requests changes.
+
 ## 5. Login branding
 
 - Use **EIU Corner Logo**, source `eiu-medlabs/public/eiu-corner-logo.png`, on UniCouncil's `/login`.
