@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "dev:clean": "node -e \"require('node:fs').rmSync('.next',{recursive:true,force:true})\" && next dev -p 3333"
   },
   "dependencies": {
     "@fontsource/be-vietnam-pro": "^5.2.8",
