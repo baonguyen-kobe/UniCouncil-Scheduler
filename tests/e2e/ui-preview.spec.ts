@@ -159,3 +159,38 @@ test("Login is hydration-safe after clean reload at both approved layout sizes",
  }
  expect(hydrationErrors,hydrationErrors.join("\n\n")).toEqual([]);
 });
+
+test("Login VI/EN language selector matches approved Figma and preserves typography",async ({page})=>{
+  const selectors=[
+    ".med-login-university",".med-login-heading h2",
+    ".med-login-subtitle",".med-login-google",".med-login-policy"
+  ];
+  for(const [width,height,x,y] of [[1440,900,1333,24],[390,844,288,27]] as const){
+    await page.setViewportSize({width,height});
+    await page.goto("/login",{waitUntil:"networkidle"});
+    await page.evaluate(()=>document.fonts.ready);
+    const toggle=page.locator(".med-login-locale .language-switch");
+    const position=await toggle.boundingBox();
+    expect(position).not.toBeNull();
+    expect(position!.x).toBe(x);
+    expect(position!.y).toBe(y);
+    expect(position!.width).toBe(90);
+    expect(position!.height).toBe(35);
+    await expect(page.getByRole("button",{name:"VI",exact:true})).toHaveAttribute("aria-pressed","true");
+
+    const readSizes=async ()=>await page.evaluate((list)=>list.map(s=>{
+      const element=document.querySelector(s);
+      if(!element)throw Error("Missing login selector "+s);
+      return getComputedStyle(element).fontSize;
+    }),selectors);
+    const vietnamese=await readSizes();
+    await page.getByRole("button",{name:"EN",exact:true}).click();
+    await expect(page.locator(".med-login-subtitle")).toHaveText("University Council meeting scheduling system");
+    await expect(page.getByRole("button",{name:"EN",exact:true})).toHaveAttribute("aria-pressed","true");
+    const english=await readSizes();
+    expect(english,selectors.map((s,i)=>s+": VI "+vietnamese[i]+", EN "+english[i]).join("; ")).toEqual(vietnamese);
+    await page.screenshot({path:output+(width===1440?"/01d-login-desktop-en.png":"/01e-login-mobile-en.png"),fullPage:true});
+    await page.getByRole("button",{name:"VI",exact:true}).click();
+    await expect(page.locator(".med-login-subtitle")).toHaveText("Hệ thống đăng ký lịch họp Hội đồng trường");
+  }
+});
