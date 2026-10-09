@@ -13,11 +13,62 @@ test("captures EIU preview screens for design comparison", async ({ page }) => {
   await expect(page.locator('.med-login-card input')).toHaveCount(0);
   await expect(page.locator(".med-login-card button")).toHaveCount(1);
   await expect(page.getByRole("button", { name: "Vào giao diện demo" })).toHaveCount(0);
+  const loginPage=page.locator(".med-login-page");
+  const photo=page.locator(".med-login-brand");
+  const cream=page.locator(".med-login-form-wrap");
+  const card=page.locator(".med-login-card");
+  const cornerLogo=page.locator(".med-login-corner-logo");
+
+  // The approved Figma desktop design at 1440×900 never overlays the source photo.
+  await expect(loginPage).not.toHaveClass(/is-responsive/);
+  await expect(cornerLogo).toBeHidden();
+  const desktopLayout=await page.evaluate(()=>{
+    const img=document.querySelector(".med-login-brand")!.getBoundingClientRect();
+    const panel=document.querySelector(".med-login-form-wrap")!.getBoundingClientRect();
+    const card=document.querySelector(".med-login-card")!.getBoundingClientRect();
+    return {photoEnd:img.right,creamStart:panel.left,cardWidth:card.width,cardHeight:card.height,fit:getComputedStyle(document.querySelector(".med-login-brand-image")!).objectFit};
+  });
+  expect(desktopLayout.creamStart).toBeGreaterThanOrEqual(desktopLayout.photoEnd-1);
+  expect(desktopLayout.fit).toBe("contain");
+  expect(desktopLayout.cardWidth).toBe(444);
+  expect(desktopLayout.cardHeight).toBe(351);
   await page.screenshot({ path: output + "/01-login-desktop.png", fullPage: true });
-  await page.setViewportSize({width:390,height:844});
-  await expect(page.locator(".med-login-corner-logo")).toBeVisible();
+
+  // Responsive switching depends on remaining image+card space, not device category.
+  for(const [width,height,expectedResponsive] of [
+    [1400,900,false], // exactly 500px left for the cream panel
+    [1399,900,true],  // 499px: switch before hiding any photo
+    [1366,768,false], // smaller laptop: still enough space
+    [1280,720,false], // compact PC: still enough space
+    [1280,800,true],  // narrow window at greater height
+    [1024,768,true],  // tablet
+    [390,844,true]    // mobile
+  ] as const){
+    await page.setViewportSize({width,height});
+    if(expectedResponsive){
+      await expect(loginPage).toHaveClass(/is-responsive/);
+      await expect(cornerLogo).toBeVisible();
+      expect(await page.locator(".med-login-brand-image").evaluate(el=>getComputedStyle(el).objectFit)).toBe("cover");
+    }else{
+      await expect(loginPage).not.toHaveClass(/is-responsive/);
+      await expect(cornerLogo).toBeHidden();
+      const positions=await page.evaluate(()=>{
+        return {photoRight:document.querySelector(".med-login-brand")!.getBoundingClientRect().right,
+                panelLeft:document.querySelector(".med-login-form-wrap")!.getBoundingClientRect().left};
+      });
+      expect(positions.panelLeft).toBeGreaterThanOrEqual(positions.photoRight-1);
+    }
+    await expect(page.getByRole("button",{name:"Đăng nhập bằng Google"})).toBeVisible();
+  }
+
+  const mobileBox=await card.boundingBox();
+  expect(mobileBox).toBeTruthy();
+  expect(mobileBox!.width).toBe(362);
+  expect(mobileBox!.height).toBe(309);
+  expect(Math.abs(mobileBox!.x-14)).toBeLessThanOrEqual(1);
   await page.screenshot({ path: output + "/01b-login-mobile.png", fullPage: true });
   await page.setViewportSize({width:1440,height:900});
+  await expect(loginPage).not.toHaveClass(/is-responsive/);
 
   await page.getByRole("button", { name: "Đăng nhập bằng Google" }).click();
   await expect(page.getByRole("heading", { name: "Yêu cầu của tôi" })).toBeVisible();
