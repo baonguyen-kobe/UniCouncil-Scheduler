@@ -149,7 +149,7 @@ function SignIn({locale,onLocaleChange,enter}:{locale:Locale;onLocaleChange:(v:L
   // Both layouts share exact content; viewport switching is CSS-only to keep SSR hydration stable.
   const loginText=vi?{
     university:"TRƯỜNG ĐẠI HỌC QUỐC TẾ MIỀN ĐÔNG",
-    description:"Hệ thống đăng lịch họp Hội đồng trường",
+    description:"Hệ thống đăng ký lịch họp Hội đồng trường",
     signIn:"Đăng nhập bằng Google",
     instruction:"Vui lòng dùng tài khoản Google Workspace EIU để truy cập"
   }:{
