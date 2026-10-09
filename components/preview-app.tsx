@@ -145,44 +145,37 @@ function Logo({corner=false}:{corner?:boolean}) {
 
 function SignIn({locale,onLocaleChange,enter}:{locale:Locale;onLocaleChange:(v:Locale)=>void;enter:()=>void}) {
   const vi=locale==="vi";
-  // Approved source: Figma ChatGPT Login frames 15:4 and 15:25 (2026-10-09).
-  // Identical content is used for desktop/responsive; viewport changes only CSS.
+  // Page 01 approved Figma: desktop 15:4 and phone 15:25, updated 2026-10-09.
+  // Both layouts share exact content; viewport switching is CSS-only to keep SSR hydration stable.
   const loginText=vi?{
-    university:"ĐẠI HỌC QUỐC TẾ MIỀN ĐÔNG",
+    university:"TRƯỜNG ĐẠI HỌC QUỐC TẾ MIỀN ĐÔNG",
     description:"Hệ thống đăng lịch họp Hội đồng trường",
     signIn:"Đăng nhập bằng Google",
-    instruction:"Vui lòng dùng tài khoản Google Workspace EIU để truy cập."
+    instruction:"Vui lòng dùng tài khoản Google Workspace EIU để truy cập"
   }:{
     university:"EASTERN INTERNATIONAL UNIVERSITY",
     description:"University Council meeting scheduling system",
     signIn:"Sign in with Google",
-    instruction:"Please use your EIU Google Workspace account to sign in."
+    instruction:"Please use your EIU Google Workspace account to sign in"
   };
-  const [responsive,setResponsive]=useState(false);
-  useEffect(()=>{
-    // The original desktop image occupies a square viewport-height column.
-    // Switch designs only when less than 500px would remain for the cream panel.
-    // This works for a short laptop screen as well as a narrow/tall iPad.
-    function syncLayout(){setResponsive(window.innerWidth-window.innerHeight<500);}
-    syncLayout();
-    window.addEventListener("resize",syncLayout,{passive:true});
-    return ()=>window.removeEventListener("resize",syncLayout);
-  },[]);
-  return <main id="main-content" data-locale={locale} className={"med-login-page"+(responsive?" is-responsive":"")}>
+  return <main id="main-content" data-locale={locale} className="med-login-page">
     <section className="med-login-brand" aria-label={vi?"Khuôn viên Trường Đại học Quốc tế Miền Đông":"Eastern International University campus"}>
-      <Image
-        className="med-login-brand-image"
-        src="/login-cover-campus-2.jpg"
-        alt={vi?"Khuôn viên Trường Đại học Quốc tế Miền Đông":"Eastern International University campus"}
-        fill priority sizes="100vw"
-      />
+      <picture className="med-login-picture">
+        <source media="(max-width: 640px)" srcSet="/login-campus-mobile-figma.jpg"/>
+        <Image
+          className="med-login-brand-image"
+          src="/login-campus-desktop-figma.jpg"
+          alt={vi?"Khuôn viên Trường Đại học Quốc tế Miền Đông":"Eastern International University campus"}
+          fill priority sizes="100vw"
+        />
+      </picture>
     </section>
-    <Image
-      className="med-login-corner-logo"
-      src="/eiu-corner-logo.png"
-      alt="Eastern International University"
-      width={190} height={190}
-    />
+    <Image className="med-login-desktop-logo"
+      src="/login-eiu-horizontal.png" alt="Eastern International University"
+      width={449} height={71} priority/>
+    <Image className="med-login-corner-logo"
+      src="/eiu-corner-logo.png" alt="Eastern International University"
+      width={108} height={108}/>
     <section className="med-login-form-wrap" aria-label={vi?"Đăng nhập UniCouncil Scheduler":"UniCouncil Scheduler sign in"}>
       <div className="med-login-locale"><LanguageSwitch locale={locale} change={onLocaleChange}/></div>
       <div className="med-login-card">
