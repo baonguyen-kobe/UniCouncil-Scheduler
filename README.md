@@ -11,7 +11,7 @@ npm ci
 npm run dev
 ```
 
-Open **http://localhost:3000/login**, choose VI or EN, and enter the demo. Start from the login page when reviewing branding; opening a workspace route directly also enters the local preview.
+Open **http://localhost:3000/login**, choose VI or EN, and select the single **Sign in with Google / Đăng nhập bằng Google** button. The visible Demo Mode notice explains that this only opens the sample UI: no Google authentication occurs and no authenticated session is created. Opening a workspace route directly also enters the local preview.
 
 Production preview:
 
@@ -24,9 +24,18 @@ npm run start
 
 The default port is 3000. To use a different port: `npm run start -- --port 3001`.
 
+Login browser checks (after building):
+
+```bash
+npx playwright install chromium
+npm run test:e2e
+```
+
+Playwright starts the production build on port 3104. It checks Google-only login, VI/EN, readable/reachable controls at 1440 × 900, 820 × 1180 and 390 × 844, keyboard entry to the disclosed demo, and the absence of authentication cookies/storage or external OAuth requests.
+
 ## What to review
 
-- **Login:** institutional EIU layout, Corner Logo and VI/EN switch.
+- **Login:** MedLabs production-style campus cover, cream panel, responsive floating card, original Corner Logo and VI/EN switch. Google is the only sign-in action; the visible Demo Mode disclaimer states that authentication is not connected.
 - **App shell:** 244px MedLabs-inspired blue sidebar, white Full Logo panel, gold-accented active navigation and a mobile navigation drawer.
 - **Requests:** desktop table/mobile cards, localized role-specific status badges, search, date presets, status and operational filters, sorting, pagination and selectable loading/error/empty preview states. On mobile, Assistant/Admin catalog filters sit behind **More filters** so the queue remains prominent.
 - **Details:** desktop right-side drawer/mobile full-screen detail, proposed information, separate official schedule and attendees, documents, processing timeline and role-specific mock actions.
@@ -75,7 +84,7 @@ Select up to **10 files**, **4 MB/file**, using the approved document/image type
 
 ## Screenshots
 
-Captures use desktop **1440 × 1000** and mobile **390 × 844** CSS-pixel viewports. Full-page files include content below the viewport.
+Login captures use desktop **1440 × 900**, tablet **820 × 1180** and mobile **390 × 844** CSS-pixel viewports. The earlier workspace captures remain at **1440 × 1000** desktop / **390 × 844** mobile. Full-page files include content below the viewport.
 
 | View      | Desktop                                           | Mobile                                          |
 | --------- | ------------------------------------------------- | ----------------------------------------------- |
@@ -83,6 +92,18 @@ Captures use desktop **1440 × 1000** and mobile **390 × 844** CSS-pixel viewpo
 | Requester | [Desktop](docs/screenshots/requester-desktop.png) | [Mobile](docs/screenshots/requester-mobile.png) |
 | Assistant | [Desktop](docs/screenshots/assistant-desktop.png) | [Mobile](docs/screenshots/assistant-mobile.png) |
 | Leader    | [Desktop](docs/screenshots/leader-desktop.png)    | [Mobile](docs/screenshots/leader-mobile.png)    |
+
+### Page 01 — Login reference comparison
+
+Login now follows MedLabs `app/login/page.tsx`, `app/login/login-form.tsx`, the Login selectors and responsive overrides in `app/globals.css`, and section 34 **Login Override** of `docs/UI_DESIGN_SYSTEM_V2_MASTER.md`. Source baseline: MedLabs main commit `1e75e4e7325dd0a34a2f3c0700b41593a740e7ec`. The campus cover and Corner Logo are the original assets, verified byte-for-byte. No MedLabs Supabase authentication is included. Production authentication remains future Google Workspace OIDC work.
+
+The reference screenshots below are local static renders of the fetched MedLabs Login source/CSS with its original form content, not captures of a live authenticated deployment. Auth hooks are inert in that throwaway render; Mail/Lock glyphs use local Heroicons adapters. UniCouncil intentionally removes the reference email/password/secondary actions, so its card is shorter. It retains the campus framing, cream panel, card padding, corner radii and responsive placement; system-heading typography uses the approved Crimson Pro.
+
+| Viewport   | MedLabs source reference                                          | UniCouncil                                  |
+| ---------- | ----------------------------------------------------------------- | ------------------------------------------- |
+| 1440 × 900 | [Reference](docs/screenshots/medlabs-login-reference-desktop.png) | [Login](docs/screenshots/login-desktop.png) |
+| 820 × 1180 | [Reference](docs/screenshots/medlabs-login-reference-tablet.png)  | [Login](docs/screenshots/login-tablet.png)  |
+| 390 × 844  | [Reference](docs/screenshots/medlabs-login-reference-mobile.png)  | [Login](docs/screenshots/login-mobile.png)  |
 
 ## Approved baseline and future production scope
 

@@ -1,133 +1,104 @@
 "use client";
+
 import Image from "next/image";
-import {
-  ArrowRightIcon,
-  CalendarDaysIcon,
-  DocumentTextIcon,
-  CheckBadgeIcon,
-  AcademicCapIcon,
-  ShieldCheckIcon,
-} from "@heroicons/react/24/outline";
+import { ArrowRightEndOnRectangleIcon } from "@heroicons/react/24/outline";
 import { useDemo } from "@/components/demo-provider";
 import { LanguageSwitch } from "@/components/app-shell";
-import { Button } from "@/components/ui";
+
 export default function Login() {
-  const { t, navigate } = useDemo();
+  const { t, navigate, notify } = useDemo();
+
+  function enterPreview() {
+    notify(
+      "Demo Mode: Chỉ mở giao diện mẫu; chưa xác thực Google Workspace.",
+      "Demo Mode: Opening sample UI only; Google Workspace authentication has not occurred.",
+    );
+    navigate("/requests");
+  }
+
   return (
     <main className="login-page">
-      <div className="login-top">
+      <section
+        className="login-brand"
+        aria-label="Eastern International University"
+      >
         <Image
-          src="/eiu-corner-logo.png"
-          alt="Eastern International University"
-          width={156}
-          height={94}
+          className="login-brand-image"
+          src="/login-cover-campus-2.jpg"
+          alt={t(
+            "Khuôn viên Trường Đại học Quốc tế Miền Đông",
+            "Eastern International University campus",
+          )}
+          fill
           priority
-          className="corner-logo"
+          sizes="(max-width: 900px) 100vw, 100vh"
         />
+      </section>
+      <Image
+        className="login-corner-logo"
+        src="/eiu-corner-logo.png"
+        alt="Eastern International University"
+        width={190}
+        height={190}
+        sizes="(max-width: 520px) 108px, (max-width: 900px) 158px, 1px"
+      />
+      <div className="login-language">
         <LanguageSwitch />
       </div>
-      <div className="login-layout">
-        <section className="login-editorial">
-          <div className="eyebrow">
-            <span className="gold-line" />
-            {t(
-              "KẾT NỐI · ĐIỀU PHỐI · ĐỒNG HÀNH",
-              "CONNECT · COORDINATE · COLLABORATE",
-            )}
-          </div>
-          <h1>
-            {t("Những cuộc họp tốt.", "Better meetings.")}
-            <br />
-            <em>{t("Những bước tiến mới.", "Meaningful progress.")}</em>
-          </h1>
-          <p className="login-intro">
-            {t(
-              "Một không gian chung để đăng ký, điều phối và phê duyệt các cuộc họp với lãnh đạo trường.",
-              "A shared space to request, coordinate and approve meetings with university leadership.",
-            )}
-          </p>
-          <div className="workflow-visual" aria-hidden="true">
-            <div>
-              <DocumentTextIcon />
-              <span>{t("Đăng ký", "Request")}</span>
-            </div>
-            <i />
-            <div>
-              <CalendarDaysIcon />
-              <span>{t("Điều phối", "Coordinate")}</span>
-            </div>
-            <i />
-            <div>
-              <CheckBadgeIcon />
-              <span>{t("Phê duyệt", "Approve")}</span>
-            </div>
-          </div>
-          <div className="editorial-foot">
-            <AcademicCapIcon />
-            <span>
-              EASTERN INTERNATIONAL UNIVERSITY
-              <br />
-              <small>
+      <section className="login-form-wrap" aria-labelledby="login-title">
+        <form
+          className="login-form"
+          onSubmit={(event) => {
+            event.preventDefault();
+            enterPreview();
+          }}
+        >
+          <header className="login-form-heading">
+            <p className="login-university-title">
+              {t(
+                "ĐẠI HỌC QUỐC TẾ MIỀN ĐÔNG",
+                "EASTERN INTERNATIONAL UNIVERSITY",
+              )}
+            </p>
+            <h1 id="login-title">UniCouncil Scheduler</h1>
+            <p className="login-subtitle">
+              <strong>
                 {t(
-                  "Tri thức hôm nay. Giá trị ngày mai.",
-                  "Knowledge today. Impact tomorrow.",
+                  "Hệ thống đăng ký và điều phối lịch họp lãnh đạo",
+                  "Leadership meeting registration and coordination system",
                 )}
-              </small>
-            </span>
-          </div>
-        </section>
-        <section className="login-card">
-          <div className="login-card-top">
-            <span className="badge gold">
-              {t("BẢN XEM TRƯỚC GIAO DIỆN", "UI PREVIEW")}
-            </span>
-            <span className="edition">EIU / 2026</span>
-          </div>
-          <div className="login-brand">
-            UniCouncil<span>Scheduler</span>
-          </div>
-          <div className="gold-rule" />
-          <h2>{t("Chào mừng bạn", "Welcome to your workspace")}</h2>
-          <p className="muted">
-            {t(
-              "Cùng phối hợp để mỗi cuộc họp diễn ra đúng lúc, đúng người.",
-              "Bring the right people together, at the right time.",
-            )}
-          </p>
-          <Button className="demo-entry" onClick={() => navigate("/requests")}>
-            {t("Khám phá bản demo", "Explore the demo")}
-            <ArrowRightIcon />
-          </Button>
-          <div className="demo-explanation">
-            <ShieldCheckIcon />
-            <div>
-              <strong>{t("Chế độ Demo", "Demo Mode")}</strong>
-              <p>
+              </strong>
+              <span>
                 {t(
-                  "Dữ liệu mẫu, không cần tài khoản. Thử vai trò Người đăng ký, Trợ lý và Lãnh đạo.",
-                  "Sample data, no account needed. Explore Requester, Assistant and Leader workspaces.",
+                  "Dành cho nhân sự Trường Đại học Quốc tế Miền Đông",
+                  "For staff of Eastern International University",
                 )}
-              </p>
-            </div>
-          </div>
-          <div className="login-divider" />
-          <p className="login-limit">
+              </span>
+            </p>
+          </header>
+          <button
+            className="login-google-button"
+            type="submit"
+            aria-describedby="login-google-guidance login-demo-note"
+          >
+            <ArrowRightEndOnRectangleIcon aria-hidden="true" />
+            {t("Đăng nhập bằng Google", "Sign in with Google")}
+          </button>
+          <small id="login-google-guidance" className="login-google-guidance">
             {t(
-              "Đăng nhập Google Workspace chưa được kết nối trong bản xem trước. Mọi thao tác chỉ có hiệu lực trong phiên demo.",
-              "Google Workspace sign-in is not connected in this preview. All actions apply only to the demo session.",
+              "Vui lòng sử dụng tài khoản Google Workspace EIU được cấp quyền.",
+              "Please use an authorized EIU Google Workspace account.",
             )}
-          </p>
-        </section>
-      </div>
-      <footer className="login-footer">
-        <span>© 2026 Eastern International University</span>
-        <span>
-          {t(
-            "Được thiết kế cho sự phối hợp hiệu quả.",
-            "Designed for thoughtful collaboration.",
-          )}
-        </span>
-      </footer>
+          </small>
+          <small id="login-demo-note" className="login-demo-note">
+            <strong>Demo Mode</strong>
+            {t(
+              "Bản xem trước chưa kết nối xác thực Google. Nút phía trên chỉ mở giao diện với dữ liệu mẫu.",
+              "Google authentication is not connected in this preview. The button above only opens the UI with sample data.",
+            )}
+          </small>
+        </form>
+      </section>
     </main>
   );
 }
