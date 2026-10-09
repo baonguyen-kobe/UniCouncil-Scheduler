@@ -609,11 +609,53 @@ h1,h2,h3{line-height:1.23}
   place-items:center;
   background:transparent;
 }
+/* Approved Figma desktop language control: node 26:58, 90×35 at x1333 y24. */
 .med-login-locale{
   position:absolute;
-  top:16px;
+  top:24px;
   right:17px;
   z-index:4;
+  width:90px;
+  height:35px;
+}
+.med-login-locale .language-switch{
+  width:90px;
+  height:35px;
+  box-sizing:border-box;
+  display:grid;
+  grid-template-columns:37px 37px;
+  align-items:center;
+  gap:6px;
+  padding:4px;
+  background:#fff;
+  border:0;
+  border-radius:9px;
+  white-space:nowrap;
+}
+.med-login-locale .language-switch .language-rule{display:none}
+.med-login-locale .language-switch button{
+  display:grid;
+  place-items:center;
+  width:37px;
+  height:27px;
+  padding:0;
+  border:0;
+  border-radius:7px;
+  background:transparent;
+  color:#7c8488;
+  font-family:var(--font-ui);
+  font-size:11px;
+  line-height:1;
+  font-weight:600;
+}
+.med-login-locale .language-switch button.language-active{
+  background:#f0f4f8;
+  color:#144069;
+  font-weight:700;
+}
+.med-login-locale .language-switch button:focus-visible{
+  outline:2px solid #144069;
+  outline-offset:2px;
 }
 .med-login-card{
   position:relative;
@@ -706,8 +748,8 @@ h1,h2,h3{line-height:1.23}
   text-align:center;
   white-space:nowrap;
 }
-.med-login-page[data-locale="en"] .med-login-university{font-size:clamp(17px,4.2cqw,36px)}
-.med-login-page[data-locale="en"] .med-login-subtitle{font-size:clamp(13px,2.2cqw,19px)}
+/* Same VI/EN type scale: university 32px and description 18px on full-size desktop.
+   EN is allowed to wrap when needed, never arbitrarily reduced in font size. */
 
 /* The only alternate composition is the approved Phone frame. */
 @media(max-width:640px){
@@ -736,7 +778,8 @@ h1,h2,h3{line-height:1.23}
     min-height:100dvh;
     background:transparent;
   }
-  .med-login-locale{top:14px;right:14px}
+  /* Approved mobile language control: node 15:28, 90×35 at x288 y27 (390px viewport). */
+  .med-login-locale{top:27px;right:12px}
   .med-login-card{
     position:absolute;
     top:158px;
@@ -788,9 +831,7 @@ h1,h2,h3{line-height:1.23}
     font-size:11px;
     line-height:1.3;
   }
-  .med-login-page[data-locale="en"] .med-login-university{font-size:15px}
-  .med-login-page[data-locale="en"] .med-login-heading h2{font-size:30px}
-  .med-login-page[data-locale="en"] .med-login-subtitle{font-size:13px}
+  /* English inherits VI sizes: 16px university, 32px product and 14px subtitle. */
 }
 /* Scaling typography within the SAME mobile composition, not a third layout. */
 @media(max-width:375px){
