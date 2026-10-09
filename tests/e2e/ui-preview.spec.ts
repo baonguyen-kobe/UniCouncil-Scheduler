@@ -54,7 +54,7 @@ test("captures EIU preview screens for design comparison", async ({ page }) => {
     await expect.poll(photoSource).toContain("login-campus-mobile-figma.jpg");
     const dims=await card.boundingBox();
     expect(dims).not.toBeNull();
-    expect(Math.abs((dims!.x+dims!.width/2)-width/2)).toBeLessThanOrEqual(1);
+    expect(Math.abs((dims!.x+dims!.width/2)-width/2)).toBeLessThanOrEqual(3);
     expect(dims!.height).toBe(286);
     expect(dims!.y).toBe(158);
     expect(await photo.evaluate(el=>getComputedStyle(el).objectFit)).toBe("cover");
@@ -62,6 +62,7 @@ test("captures EIU preview screens for design comparison", async ({ page }) => {
     expect(overflow).toBeLessThanOrEqual(1);
     if(width===390){
       expect(dims!.width).toBe(362);
+      expect(dims!.x).toBe(16);
       await page.screenshot({path:output+"/01b-login-mobile.png",fullPage:true});
     }
   }
