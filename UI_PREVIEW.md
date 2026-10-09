@@ -49,6 +49,17 @@ This branch uses port **3333** (`npm run dev`) and is independent of OMP's folde
 - Mobile week calendar scrolls *within the calendar panel*, not horizontally across the entire page.
 - Browser regression test now covers navigation, date-range toolbar, month/week/list modes, filters and duplicate-header prevention; screenshots for three calendar modes added.
 
+## Page 01 — Login FINAL UI direction (approved 2026-10-09)
+
+The Login layout must be visually very close to the **production login of EIU MedLabs**, not the previous custom ChatGPT/OMP login page:
+- Reference: `baonguyen-kobe/eiu-medlabs/app/login/page.tsx`, `app/login/login-form.tsx`, and the `.login-*` rules in `app/globals.css`.
+- Copy the original EIU campus cover photo `public/login-cover-campus-2.jpg` to this branch. On desktop it fills the left/behind region; a warm cream-gradient panel on the right centers the white login card. On tablet/mobile, campus image becomes the background and `eiu-corner-logo.png` appears at upper-left, with a softly translucent rounded login card.
+- Card copy: **ĐẠI HỌC QUỐC TẾ MIỀN ĐÔNG**; **UniCouncil Scheduler**; **Hệ thống đăng ký và điều phối lịch họp lãnh đạo**; **Dành cho nhân sự Trường Đại học Quốc tế Miền Đông**.
+- **Single visible sign-in CTA: Đăng nhập bằng Google / Sign in with Google.** Do not show ID/password fields, remember me, forgot password, normal login submit, `or` divider or extra demo sign-in CTA.
+- Existing EIU UI overrides still apply: Crimson Pro (brand/display), Be Vietnam Pro (operational text), primary colors and VI/EN.
+- **UI-only preview behavior**: The Google CTA clearly says Google but navigates into an explicitly identified local demo (no Google OAuth/session). Under `NEXT_PUBLIC_DEMO_MODE=false`, the inert CTA is disabled until real Workspace OIDC is implemented. Do not import Supabase auth from MedLabs or misrepresent demo navigation as authentication.
+- Automated browser test verifies the original local campus asset, a single Google sign-in button with zero account/password inputs, visible Corner Logo on mobile and unchanged downstream workspace navigation.
+
 ## Review checklist
 1. View /login; demo enters role workspace.
 2. Switch Requester -> Assistant -> Leader.
