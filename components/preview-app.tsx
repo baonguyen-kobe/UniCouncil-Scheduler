@@ -143,39 +143,51 @@ function Logo({corner=false}:{corner?:boolean}) {
   return <Image className={corner?"corner-logo":"eiu-full-logo"} src={corner?EIU_ASSETS.cornerLogo:EIU_ASSETS.fullLogo} width={corner?188:300} height={corner?188:92} alt="Eastern International University" unoptimized />;
 }
 
-function SignIn({locale,onLocaleChange,enter}:{locale:Locale;onLocaleChange:(v:Locale)=>void;enter:()=>void}){
-  return <div className="signin-layout">
-    <div className="signin-brand">
-      <div className="signin-corner"><Logo corner /></div>
-      <div className="signin-grid" aria-hidden="true"/>
-      <div className="signin-brand-content">
-        <span className="signin-kicker">EIU · UNICOUNCIL</span>
-        <h1>{t(locale,"loginTitle")}</h1>
-        <p>{t(locale,"loginIntro")}</p>
-        <div className="signin-art" aria-hidden="true"><div className="art-orbit art-orbit-one"/><div className="art-orbit art-orbit-two"/><div className="art-center"><CalendarDaysIcon/></div></div>
-      </div>
-      <p className="signin-footer">© Eastern International University · UniCouncil</p>
-    </div>
-    <div className="signin-entry">
-      <div className="signin-lang"><LanguageSwitch locale={locale} change={onLocaleChange}/></div>
-      <div className="signin-card">
-        <div className="login-brand-mini">EASTERN INTERNATIONAL UNIVERSITY</div>
-        <span className="login-icon"><AcademicCapIcon/></span>
-        <SectionEyebrow>{t(locale,"demo")}</SectionEyebrow>
-        <h2>{t(locale,"app")}</h2>
-        <p>{t(locale,"tagline")}</p>
-        <button type="button" onClick={enter} className="button button-primary button-full">
-          <span>{t(locale,"enterDemo")}</span><ArrowRightIcon className="icon-sm"/>
+function SignIn({locale,onLocaleChange,enter}:{locale:Locale;onLocaleChange:(v:Locale)=>void;enter:()=>void}) {
+  const vi=locale==="vi";
+  return <main id="main-content" className="med-login-page">
+    <section className="med-login-brand" aria-label={vi?"Khuôn viên Trường Đại học Quốc tế Miền Đông":"Eastern International University campus"}>
+      <Image
+        className="med-login-brand-image"
+        src="/login-cover-campus-2.jpg"
+        alt={vi?"Khuôn viên Trường Đại học Quốc tế Miền Đông":"Eastern International University campus"}
+        fill priority sizes="(max-width: 900px) 100vw, 100vh"
+      />
+    </section>
+    <Image
+      className="med-login-corner-logo"
+      src="/eiu-corner-logo.png"
+      alt="Eastern International University"
+      width={190} height={190}
+    />
+    <section className="med-login-form-wrap" aria-label={vi?"Đăng nhập UniCouncil Scheduler":"UniCouncil Scheduler sign in"}>
+      <div className="med-login-locale"><LanguageSwitch locale={locale} change={onLocaleChange}/></div>
+      <div className="med-login-card">
+        <header className="med-login-heading">
+          <p className="med-login-university">{vi?"ĐẠI HỌC QUỐC TẾ MIỀN ĐÔNG":"EASTERN INTERNATIONAL UNIVERSITY"}</p>
+          <h2>UniCouncil Scheduler</h2>
+          <p className="med-login-subtitle">
+            <strong>{vi?"Hệ thống đăng ký và điều phối lịch họp lãnh đạo":"Leadership meeting request and scheduling system"}</strong>
+            <span>{vi?"Dành cho nhân sự Trường Đại học Quốc tế Miền Đông":"For Eastern International University staff"}</span>
+          </p>
+        </header>
+        <button type="button" className="med-login-google" onClick={enter} disabled={!DEMO_MODE} aria-label={vi?"Đăng nhập bằng Google":"Sign in with Google"}>
+          <svg aria-hidden="true" viewBox="0 0 24 24" focusable="false">
+            <path fill="#4285F4" d="M21.6 12.2c0-.7-.1-1.4-.2-2H12v3.9h5.4a4.6 4.6 0 0 1-2 3v2.5h3.2c1.9-1.7 3-4.3 3-7.4Z"/>
+            <path fill="#34A853" d="M12 22c2.7 0 5-.9 6.6-2.4l-3.2-2.5c-.9.6-2 1-3.4 1-2.6 0-4.8-1.8-5.6-4.2H3.1v2.6A10 10 0 0 0 12 22Z"/>
+            <path fill="#FBBC05" d="M6.4 13.9A6 6 0 0 1 6.1 12c0-.7.1-1.3.3-1.9V7.5H3.1A10 10 0 0 0 2 12c0 1.6.4 3.1 1.1 4.5l3.3-2.6Z"/>
+            <path fill="#EA4335" d="M12 5.9c1.5 0 2.8.5 3.8 1.5l2.9-2.9A9.7 9.7 0 0 0 12 2a10 10 0 0 0-8.9 5.5l3.3 2.6c.8-2.4 3-4.2 5.6-4.2Z"/>
+          </svg>
+          {vi?"Đăng nhập bằng Google":"Sign in with Google"}
         </button>
-        <div className="login-hr"><span>{t(locale,"demoAction")}</span></div>
-        <button type="button" className="button button-outline button-full" onClick={enter}>
-          <span className="google-g">G</span>{t(locale,"signIn")}
-        </button>
-        <div className="signin-disclaimer"><InformationCircleIcon/>{t(locale,"loginNote")}</div>
+        <p className="med-login-policy">{vi?"Vui lòng sử dụng tài khoản Google Workspace EIU được cấp quyền.":"Use your authorized EIU Google Workspace account."}</p>
+        {DEMO_MODE&&<p className="med-login-demo-notice" role="note">
+          <InformationCircleIcon aria-hidden="true"/>
+          {vi?"Bản xem trước: nút Google chỉ mở giao diện demo, chưa xác thực tài khoản thật.":"UI preview: the Google button opens demo pages; no real authentication occurs."}
+        </p>}
       </div>
-      <p className="login-bottom">DESIGNED FOR EIU · 2026</p>
-    </div>
-  </div>;
+    </section>
+  </main>;
 }
 function LanguageSwitch({locale,change}:{locale:Locale;change:(v:Locale)=>void}){
   return <div className="language-switch" role="group" aria-label="Language / Ngôn ngữ">
