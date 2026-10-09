@@ -559,7 +559,7 @@ h1,h2,h3{line-height:1.23}
 
 
 /* Final Page 01, approved in user-edited Figma on 2026-10-09.
-   Desktop node 15:4: fullscreen campus background, wide EIU logo, centered 861×348 card.
+   Desktop node 15:4: fullscreen campus background, wide EIU logo, centered 695×348 card.
    Phone node 15:25: separate cropped campus image, corner EIU logo, 362×286 card.
    Desktop & iPad share ONE composition; at <=640px switch directly to Phone.
    Picture/source + CSS media (no viewport-dependent JS) prevents hydration mismatches. */
@@ -617,7 +617,7 @@ h1,h2,h3{line-height:1.23}
 }
 .med-login-card{
   position:relative;
-  width:min(861px,calc(100vw - 48px));
+  width:min(695px,calc(100vw - 48px));
   height:348px;
   flex-shrink:0;
   margin:0;
@@ -637,7 +637,7 @@ h1,h2,h3{line-height:1.23}
   margin:0;
   color:#144069;
   font-family:var(--font-ui);
-  font-size:clamp(20px,4.65cqw,40px);
+  font-size:clamp(19px,4.61cqw,32px);
   line-height:1.12;
   font-weight:700;
   text-align:center;
@@ -652,7 +652,7 @@ h1,h2,h3{line-height:1.23}
   margin:0;
   color:#144069;
   font-family:var(--font-display);
-  font-size:clamp(26px,4.65cqw,40px);
+  font-size:clamp(24px,4.61cqw,32px);
   line-height:1.12;
   letter-spacing:0;
   font-weight:600;
@@ -667,14 +667,14 @@ h1,h2,h3{line-height:1.23}
   margin:0;
   color:#303033;
   font-family:var(--font-ui);
-  font-size:clamp(13px,2.32cqw,20px);
+  font-size:clamp(12px,2.59cqw,18px);
   line-height:1.3;
   font-weight:600;
   text-align:center;
 }
 .med-login-google{
   position:absolute;
-  top:238px;
+  top:225px;
   left:50%;
   transform:translateX(-50%);
   display:flex;
@@ -696,13 +696,13 @@ h1,h2,h3{line-height:1.23}
 .med-login-google svg{width:20px;height:20px;flex-shrink:0}
 .med-login-policy{
   position:absolute;
-  top:310px;
+  top:302px;
   left:50%;
   transform:translateX(-50%);
-  width:min(370px,calc(100% - 24px));
+  width:min(350px,calc(100% - 24px));
   margin:0;
   color:#68686b;
-  font:400 11px/1.3 var(--font-ui);
+  font:400 12px/1.3 var(--font-ui);
   text-align:center;
   white-space:nowrap;
 }
