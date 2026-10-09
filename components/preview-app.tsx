@@ -145,13 +145,23 @@ function Logo({corner=false}:{corner?:boolean}) {
 
 function SignIn({locale,onLocaleChange,enter}:{locale:Locale;onLocaleChange:(v:Locale)=>void;enter:()=>void}) {
   const vi=locale==="vi";
-  return <main id="main-content" className="med-login-page">
+  const [responsive,setResponsive]=useState(false);
+  useEffect(()=>{
+    // The original desktop image occupies a square viewport-height column.
+    // Switch designs only when less than 500px would remain for the cream panel.
+    // This works for a short laptop screen as well as a narrow/tall iPad.
+    function syncLayout(){setResponsive(window.innerWidth-window.innerHeight<500);}
+    syncLayout();
+    window.addEventListener("resize",syncLayout,{passive:true});
+    return ()=>window.removeEventListener("resize",syncLayout);
+  },[]);
+  return <main id="main-content" className={"med-login-page"+(responsive?" is-responsive":"")}>
     <section className="med-login-brand" aria-label={vi?"Khuôn viên Trường Đại học Quốc tế Miền Đông":"Eastern International University campus"}>
       <Image
         className="med-login-brand-image"
         src="/login-cover-campus-2.jpg"
         alt={vi?"Khuôn viên Trường Đại học Quốc tế Miền Đông":"Eastern International University campus"}
-        fill priority sizes="(max-width: 900px) 100vw, 100vh"
+        fill priority sizes={responsive?"100vw":"100dvh"}
       />
     </section>
     <Image
@@ -166,10 +176,7 @@ function SignIn({locale,onLocaleChange,enter}:{locale:Locale;onLocaleChange:(v:L
         <header className="med-login-heading">
           <p className="med-login-university">{vi?"ĐẠI HỌC QUỐC TẾ MIỀN ĐÔNG":"EASTERN INTERNATIONAL UNIVERSITY"}</p>
           <h2>UniCouncil Scheduler</h2>
-          <p className="med-login-subtitle">
-            <strong>{vi?"Hệ thống đăng ký và điều phối lịch họp lãnh đạo":"Leadership meeting request and scheduling system"}</strong>
-            <span>{vi?"Dành cho nhân sự Trường Đại học Quốc tế Miền Đông":"For Eastern International University staff"}</span>
-          </p>
+          <p className="med-login-subtitle">{vi?"Hệ thống đăng lịch họp Hội đồng trường":"University Council meeting scheduling system"}</p>
         </header>
         <button type="button" className="med-login-google" onClick={enter} disabled={!DEMO_MODE} aria-label={vi?"Đăng nhập bằng Google":"Sign in with Google"}>
           <svg aria-hidden="true" viewBox="0 0 24 24" focusable="false">
@@ -180,11 +187,7 @@ function SignIn({locale,onLocaleChange,enter}:{locale:Locale;onLocaleChange:(v:L
           </svg>
           {vi?"Đăng nhập bằng Google":"Sign in with Google"}
         </button>
-        <p className="med-login-policy">{vi?"Vui lòng sử dụng tài khoản Google Workspace EIU được cấp quyền.":"Use your authorized EIU Google Workspace account."}</p>
-        {DEMO_MODE&&<p className="med-login-demo-notice" role="note">
-          <InformationCircleIcon aria-hidden="true"/>
-          {vi?"Bản xem trước: nút Google chỉ mở giao diện demo, chưa xác thực tài khoản thật.":"UI preview: the Google button opens demo pages; no real authentication occurs."}
-        </p>}
+        <p className="med-login-policy">{vi?"Vui lòng dùng tài khoản Google Workspace EIU để truy cập.":"Please use your EIU Google Workspace account to sign in."}</p>
       </div>
     </section>
   </main>;
