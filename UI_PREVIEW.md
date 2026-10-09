@@ -60,16 +60,16 @@ The Login layout must be visually very close to the **production login of EIU Me
 - **UI-only preview behavior**: The Google CTA clearly says Google but navigates into an explicitly identified local demo (no Google OAuth/session). Under `NEXT_PUBLIC_DEMO_MODE=false`, the inert CTA is disabled until real Workspace OIDC is implemented. Do not import Supabase auth from MedLabs or misrepresent demo navigation as authentication.
 - Automated browser test verifies the original local campus asset, a single Google sign-in button with zero account/password inputs, visible Corner Logo on mobile and unchanged downstream workspace navigation.
 
-## Signed-off Page 01 — Login Figma exact two-layout behavior (2026-10-09)
+## Signed-off Page 01 — Login, latest Figma revision (2026-10-09)
 
-**Source of truth:** user-modified [Login comparison page in Figma](https://www.figma.com/design/UNDek7yMuyZMQukeHROhle?node-id=1-2); specifically **ChatGPT Desktop node 15:4** and **ChatGPT Mobile node 15:25**, not the other branch's Login frames.
+**Source of truth:** owner's latest edits in [the comparison Figma](https://www.figma.com/design/UNDek7yMuyZMQukeHROhle?node-id=1-2): **ChatGPT Desktop `15:4`**, **ChatGPT Mobile `15:25`**. These replace the earlier split-image/cream-panel design.
 
-- Final Vietnamese copy from user-edited Figma: **ĐẠI HỌC QUỐC TẾ MIỀN ĐÔNG**; **UniCouncil Scheduler**; **Hệ thống đăng lịch họp Hội đồng trường**; sole **Đăng nhập bằng Google** CTA; footer **Vui lòng dùng tài khoản Google Workspace EIU để truy cập.**
-- Desktop canonical 1440×900: source photograph fully visible in a 900×900 square at left, CSS image `object-fit: contain`. Right cream panel must begin **at/after the image boundary** (no overlap). A 444×351 white card (Figma x=938,y=200), university title 26px, product 40px Crimson Pro, description 16px, Google button 350×50.
-- Mobile canonical 390×844: photo is background `object-fit: cover`, EIU Corner Logo top-left (108×108), card x=14 y=142 size 362×309 with 38px radius and cream fill, university title 20px, product title 32px, description 14px, Google button 318×50.
-- **Only two layout modes**. Do not invent an intermediate tablet design. Determine the mode from *remaining horizontal space*: the uncropped desktop photo occupies `100dvh` width, the cream/right region needs **at least 500px**, so use Desktop while `window.innerWidth - window.innerHeight >= 500`; otherwise switch straight to the signed-off Responsive layout. Example: a short-height 1366×768 laptop can keep Desktop, while a tall/narrow 1280×800 viewport uses Responsive.
-- At Desktop widths, cream may narrow toward 500px but may not overlay/crop the image. Responsive uses the entire viewport photograph as `cover` (intentional zoom/crop) and maintains the mobile-style card.
-- This phase remains UI-only: the sole Google sign-in button enters a demo without authenticating. No real OAuth has been connected; production requires Workspace OIDC.
+- Final Vietnamese text: **TRƯỜNG ĐẠI HỌC QUỐC TẾ MIỀN ĐÔNG**, **UniCouncil Scheduler**, **Hệ thống đăng lịch họp Hội đồng trường**, **Đăng nhập bằng Google**, **Vui lòng dùng tài khoản Google Workspace EIU để truy cập**. Do not add a second login method or a demo notice within the card.
+- Both campus photos and the desktop EIU horizontal logo were exported from the final Figma frames into `public/login-campus-desktop-figma.jpg`, `public/login-campus-mobile-figma.jpg`, `public/login-eiu-horizontal.png`. The phone retains `public/eiu-corner-logo.png`.
+- Desktop / laptop / iPad: **one layout** for viewport widths **over 640px**. The desktop campus photo covers the **entire viewport**, cropping as needed; the approved EIU wide logo is top-left. The cream card **861 × 348px** at 1440×900 uses 38px radius and must be centered **exactly horizontally and vertically** (owner explicitly requested center correction after Figma). Typography: university 40px Be Vietnam Pro bold, app title 40px Crimson Pro semi-bold, subtitle 20px; Google button 318 × 50px. Smaller desktop windows shrink the card and typography as needed without changing layout style.
+- Phone: **the only alternate layout** at **640px and below**, with the **different mobile campus photo** covering the viewport, EIU Corner Logo top-left, Figma-positioned cream card **362 × 286px** at 390×844 (x=16, y=158, radius 38); text 16px / 32px / 14px; Google button 318×50px. At narrower widths scale text/card to avoid horizontal overflow.
+- CSS media query + a `picture` media source handle the responsive switch; no viewport-based React conditional rendering, so server/client markup remains identical for hydration.
+- This is still only a UI preview. The Google CTA navigates to a demo and is not a real OAuth sign-in; production must implement Google Workspace OIDC and enforce real sessions.
 
 ## Review checklist
 1. View /login; demo enters role workspace.
