@@ -145,6 +145,19 @@ function Logo({corner=false}:{corner?:boolean}) {
 
 function SignIn({locale,onLocaleChange,enter}:{locale:Locale;onLocaleChange:(v:Locale)=>void;enter:()=>void}) {
   const vi=locale==="vi";
+  // Approved source: Figma ChatGPT Login frames 15:4 and 15:25 (2026-10-09).
+  // Identical content is used for desktop/responsive; viewport changes only CSS.
+  const loginText=vi?{
+    university:"ĐẠI HỌC QUỐC TẾ MIỀN ĐÔNG",
+    description:"Hệ thống đăng lịch họp Hội đồng trường",
+    signIn:"Đăng nhập bằng Google",
+    instruction:"Vui lòng dùng tài khoản Google Workspace EIU để truy cập."
+  }:{
+    university:"EASTERN INTERNATIONAL UNIVERSITY",
+    description:"University Council meeting scheduling system",
+    signIn:"Sign in with Google",
+    instruction:"Please use your EIU Google Workspace account to sign in."
+  };
   const [responsive,setResponsive]=useState(false);
   useEffect(()=>{
     // The original desktop image occupies a square viewport-height column.
@@ -161,7 +174,7 @@ function SignIn({locale,onLocaleChange,enter}:{locale:Locale;onLocaleChange:(v:L
         className="med-login-brand-image"
         src="/login-cover-campus-2.jpg"
         alt={vi?"Khuôn viên Trường Đại học Quốc tế Miền Đông":"Eastern International University campus"}
-        fill priority sizes={responsive?"100vw":"100dvh"}
+        fill priority sizes="100vw"
       />
     </section>
     <Image
@@ -174,20 +187,20 @@ function SignIn({locale,onLocaleChange,enter}:{locale:Locale;onLocaleChange:(v:L
       <div className="med-login-locale"><LanguageSwitch locale={locale} change={onLocaleChange}/></div>
       <div className="med-login-card">
         <header className="med-login-heading">
-          <p className="med-login-university">{vi?"ĐẠI HỌC QUỐC TẾ MIỀN ĐÔNG":"EASTERN INTERNATIONAL UNIVERSITY"}</p>
+          <p className="med-login-university">{loginText.university}</p>
           <h2>UniCouncil Scheduler</h2>
-          <p className="med-login-subtitle">{vi?"Hệ thống đăng lịch họp Hội đồng trường":"University Council meeting scheduling system"}</p>
+          <p className="med-login-subtitle">{loginText.description}</p>
         </header>
-        <button type="button" className="med-login-google" onClick={enter} disabled={!DEMO_MODE} aria-label={vi?"Đăng nhập bằng Google":"Sign in with Google"}>
+        <button type="button" className="med-login-google" onClick={enter} disabled={!DEMO_MODE} aria-label={loginText.signIn}>
           <svg aria-hidden="true" viewBox="0 0 24 24" focusable="false">
             <path fill="#4285F4" d="M21.6 12.2c0-.7-.1-1.4-.2-2H12v3.9h5.4a4.6 4.6 0 0 1-2 3v2.5h3.2c1.9-1.7 3-4.3 3-7.4Z"/>
             <path fill="#34A853" d="M12 22c2.7 0 5-.9 6.6-2.4l-3.2-2.5c-.9.6-2 1-3.4 1-2.6 0-4.8-1.8-5.6-4.2H3.1v2.6A10 10 0 0 0 12 22Z"/>
             <path fill="#FBBC05" d="M6.4 13.9A6 6 0 0 1 6.1 12c0-.7.1-1.3.3-1.9V7.5H3.1A10 10 0 0 0 2 12c0 1.6.4 3.1 1.1 4.5l3.3-2.6Z"/>
             <path fill="#EA4335" d="M12 5.9c1.5 0 2.8.5 3.8 1.5l2.9-2.9A9.7 9.7 0 0 0 12 2a10 10 0 0 0-8.9 5.5l3.3 2.6c.8-2.4 3-4.2 5.6-4.2Z"/>
           </svg>
-          {vi?"Đăng nhập bằng Google":"Sign in with Google"}
+          {loginText.signIn}
         </button>
-        <p className="med-login-policy">{vi?"Vui lòng dùng tài khoản Google Workspace EIU để truy cập.":"Please use your EIU Google Workspace account to sign in."}</p>
+        <p className="med-login-policy">{loginText.instruction}</p>
       </div>
     </section>
   </main>;
