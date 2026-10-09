@@ -9,6 +9,12 @@ test("captures EIU preview screens for design comparison", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "UniCouncil Scheduler" })).toBeVisible();
   await expect(page.locator(".med-login-brand-image")).toBeVisible();
   await expect(page.locator(".med-login-card")).toContainText("ĐẠI HỌC QUỐC TẾ MIỀN ĐÔNG");
+  // Exact final copy was read directly from Figma frames 15:4 and 15:25.
+  await expect(page.locator(".med-login-university")).toHaveText("ĐẠI HỌC QUỐC TẾ MIỀN ĐÔNG");
+  await expect(page.locator(".med-login-heading h2")).toHaveText("UniCouncil Scheduler");
+  await expect(page.locator(".med-login-subtitle")).toHaveText("Hệ thống đăng lịch họp Hội đồng trường");
+  await expect(page.locator(".med-login-policy")).toHaveText("Vui lòng dùng tài khoản Google Workspace EIU để truy cập.");
+  await expect(page.locator(".med-login-demo-notice")).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Đăng nhập bằng Google" })).toHaveCount(1);
   await expect(page.locator('.med-login-card input')).toHaveCount(0);
   await expect(page.locator(".med-login-card button")).toHaveCount(1);
@@ -138,4 +144,25 @@ test("captures EIU preview screens for design comparison", async ({ page }) => {
   await expect(page.locator(".topbar-page-title")).toHaveText("Đăng ký lịch họp");
   await expect(page.locator(".form-page .page-title-row")).toHaveCount(0);
   await expect(page.locator(".form-page .back-link")).toHaveCount(0);
+});
+
+test("Login is hydration-safe after clean reload at both approved layout sizes", async ({page})=>{
+ const hydrationErrors:string[]=[];
+ page.on("pageerror",error=>{
+   if(/hydration|server rendered HTML didn't match/i.test(error.message))hydrationErrors.push(error.message);
+ });
+ page.on("console",msg=>{
+   if(msg.type()==="error"&&/hydration|server rendered HTML didn't match/i.test(msg.text()))hydrationErrors.push(msg.text());
+ });
+ for(const [width,height] of [[1440,900],[390,844],[1366,768],[1024,768]] as const){
+   await page.setViewportSize({width,height});
+   await page.goto("/login", {waitUntil:"networkidle"});
+   await expect(page.locator(".med-login-subtitle")).toHaveText("Hệ thống đăng lịch họp Hội đồng trường");
+   await expect(page.getByRole("button",{name:"Đăng nhập bằng Google"})).toHaveCount(1);
+   await page.reload({waitUntil:"networkidle"});
+   await expect(page.locator(".med-login-subtitle")).toHaveText("Hệ thống đăng lịch họp Hội đồng trường");
+   // Allow effects and hydration logging to settle before the next navigation.
+   await expect(page.locator(".med-login-page")).toBeVisible();
+ }
+ expect(hydrationErrors,hydrationErrors.join("\n\n")).toEqual([]);
 });
