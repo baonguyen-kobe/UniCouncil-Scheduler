@@ -149,20 +149,20 @@ This is navigation/IA, not an authorization list. Calendar and other shared page
 - Keep UniCouncil typography override (**Crimson Pro + Be Vietnam Pro**) and Heroicons-only product UI icon set. The multicolor Google G inside a Google button is a provider brand mark, not an alternate product icon set.
 - Scope of this sign-off is only **Page 01 Login**; other screens still await page-level review. The design is reviewable/refinable if owner later requests changes.
 
-### Page 01 Login — final Figma frame lock (2026-10-09)
+### Page 01 Login — final Figma revision lock (2026-10-09)
 
-Owner has **edited and approved the two ChatGPT Login frames** in [the comparison Figma](https://www.figma.com/design/UNDek7yMuyZMQukeHROhle?node-id=1-2): desktop `15:4` (1440×900) and mobile `15:25` (390×844). These override prior provisional copy, positioning and demo notices in this document.
+The product owner updated and approved **ChatGPT Desktop `15:4` and Mobile `15:25`** on the [Figma comparison page](https://www.figma.com/design/UNDek7yMuyZMQukeHROhle?node-id=1-2), superseding all split-column Login prototypes and earlier Figma revisions.
 
-- Vietnamese copy: **ĐẠI HỌC QUỐC TẾ MIỀN ĐÔNG**, **UniCouncil Scheduler**, **Hệ thống đăng lịch họp Hội đồng trường**, **Đăng nhập bằng Google**, **Vui lòng dùng tài khoản Google Workspace EIU để truy cập.**
-- Desktop: MedLabs original EIU campus photo fully visible, **not cropped or covered**; cream background starts after the photo. Keep 444×351 login card and original approved typography.
-- Responsive: full-viewport `cover` photo with zoom/crop allowed, top-left EIU Corner Logo, approved 362×309 mobile-style card, no third tablet variant.
-- **Content-driven viewport switch, not a hardcoded device breakpoint:** preserve the desktop picture at `100dvh` width; narrow the right/cream area down to its required 500px. Switch directly to the responsive composition if `innerWidth - innerHeight < 500px`.
-- The Google CTA remains demo-only pending real OIDC. Do not add secondary login options or credential fields.
+- **Exact Vietnamese copy:** “TRƯỜNG ĐẠI HỌC QUỐC TẾ MIỀN ĐÔNG”, “UniCouncil Scheduler”, “Hệ thống đăng lịch họp Hội đồng trường”, “Đăng nhập bằng Google”, “Vui lòng dùng tài khoản Google Workspace EIU để truy cập”. No extra demo text in the card.
+- **Desktop/laptop/iPad (viewport > 640px):** same composition regardless of device type. Original user-selected desktop Figma campus image covers the whole viewport with cropping as needed, with the EIU *horizontal logo* upper-left and VI/EN upper-right. Cream-colored 861×348 card (at 1440×900, border radius 38px) centered **exactly along both axes** (requested correction to the 15:4 prototype). Keep EIU Blue text; university 40px Be Vietnam Pro bold, app title 40px Crimson Pro semi-bold, description 20px, Google CTA 318×50.
+- **Phone (viewport ≤ 640px):** the second and only alternate composition. Uses the **different Figma-selected mobile campus cover**, EIU Corner Logo top-left, card 362×286 at the Figma 390×844 viewport (x16 y158; 38px corner radius); university 16px, app title 32px, description 14px, Google CTA 318×50.
+- Scale within the two layouts rather than introducing a third iPad design. Use CSS @media and `<picture><source media="(max-width: 640px)"></picture>` instead of client-only viewport branches to avoid React hydration issues.
+- Google sign-in is the only CTA. At UI preview stage its click navigates to demo content **without authentication**; Google Workspace OIDC must replace this before production.
 
 ## 5. Login branding
 
-- Use **EIU Corner Logo**, source `eiu-medlabs/public/eiu-corner-logo.png`, on UniCouncil's `/login`.
-- Layout is *not* copied 1:1 from MedLabs; will be designed for a centered Google Workspace login flow, bilingual VI/EN copy and responsive screens.
+- Desktop uses the approved EIU *horizontal logo* exported from Figma; Phone uses the EIU Corner Logo, source `eiu-medlabs/public/eiu-corner-logo.png`.
+- The final two login layouts are locked to the owner-edited Figma (above), with exact centered desktop card and phone-only alternate composition.
 - Use **Crimson Pro** for the distinctive brand/title portion and Be Vietnam Pro for sign-in instructions, labels, warnings and actionable controls.
 - Avoid non-EIU decorative logos or brand colors.
 
